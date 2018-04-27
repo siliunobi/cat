@@ -1,1 +1,21 @@
-# maude-meta
+Concerned data structures:  
+
+            1   2   3               4    5       6
+op record : Oid Nat VectorTimestamp Bool ReadSet WriteSet -> Record .
+
+pr MAP{Oid,Record} * (sort Map{Oid,Record} to Log) .
+
+pr MAP{Oid,Nat} * (sort Map{Oid,Nat} to VectorTimestamp) .
+
+
+Rules:
+
+1. gotTxns -> executing, 123456
+
+2. executing -> committed, 3456
+
+3. executing -> aborted, 34
+
+4. committedVTS changes, 3
+
+5. In any case, GT -> GT + 1
