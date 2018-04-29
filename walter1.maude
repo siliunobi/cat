@@ -32,7 +32,7 @@ load walter-aux
   vars RIDSS RIDSS' : OidList .
   var RT : KeyReplicas .
   vars VOTES VOTES' : Vote .
-  var FLAG : Bool .
+  vars FLAG FLAG' : Bool .
   vars PSTS PSTS' : PropagateSites .
   vars PTXNS PTXNS' PTXNS'' : PropagatedTxns .
   vars DTXNS DTXNS' : DurableTxns .
@@ -49,7 +49,7 @@ load walter-aux
                        executing : < TID : Txn | startVTS : VTS >, 
                        committedVTS : VTS > .
 
- 
+
    rl [commit-read-only-txn] :
       < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
       < RID : Replica | executing : < TID : Txn | operations : nil, writeSet : WS,
@@ -116,9 +116,8 @@ load walter-aux
         (modified(WS,VTS,DS) or locked(WS,LOCKS)) .
 
 
-
- crl [slow-commit-receive-prepare-reply-1] :
-     < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
+ crl [slow-commit-receive-prepare-reply] :
+     < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG',READS,WRITES),LOG) >
      < TABLE : Table | table : REPLICA-TABLE >
      < RID : Replica | executing : < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
                                                  startVTS : VTS, txnSQN : TXNSQN >,
@@ -128,28 +127,26 @@ load walter-aux
                        dsSites : PSTS, abortSites : ABORTS >
      (msg prepare-reply(TID,FLAG) from RID' to RID)
    =>
-　　　　　< TABLE : Table | table : REPLICA-TABLE >
-　　　　　< M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),true,RS,WS),LOG) >
+     < TABLE : Table | table : REPLICA-TABLE >
+                   < M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),true,RS,WS),LOG) >
                    < RID : Replica | executing : emptyTxnList,
                                      committed : (TXNS' ;; < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
                                                                          startVTS : VTS, txnSQN : SQN' >),
-                                     aborted : TXNS'', votes : VOTES ; vote(TID,RID',FLAG), 
-                                     voteSites : remove(TID,RID',VSTS) , 
+                                     aborted : TXNS'', votes : VOTES ; vote(TID,RID',FLAG), voteSites : remove(TID,RID',VSTS), 
                                      sqn : SQN', history : DS', committedVTS : VTS'',
                                      locked : release(TID,LOCKS), dsSites : PSTS', abortSites : ABORTS >
-                   propagateTxn(TID,SQN',VTS,WS,allServers(REPLICA-TABLE),RID)
-     if SQN' := SQN + 1 /\
+                   propagateTxn(TID,SQN',VTS,WS,allServers(REPLICA-TABLE),RID)       
+     if remove(TID,RID',VSTS)[TID] == empty /\
+        allYes(TID,VOTES ; vote(TID,RID',FLAG)) /\
+        SQN' := SQN + 1 /\
         DS' := update(WS,version(RID,SQN'),DS) /\
         VTS'' := insert(RID,SQN',VTS') /\
         PSTS' := PSTS ; txnPropagateSites(TID,WS) /\
-        RIDS := yesSites(TID,(VOTES ; vote(TID,RID',FLAG))) /\
-        ABORTS' := ABORTS ; voteSites(TID,RIDS) /\
-        remove(TID,RID',VSTS)[TID] == empty /\ allYes(TID,VOTES ; vote(TID,RID',FLAG)) .
+        ABORTS' := ABORTS ; voteSites(TID,yesSites(TID,VOTES ; vote(TID,RID',FLAG))) .
 
 
-
- crl [slow-commit-receive-prepare-reply-2] :
-     < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
+ crl [slow-commit-receive-prepare-reply] :
+     < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG',READS,WRITES),LOG) >
      < TABLE : Table | table : REPLICA-TABLE >
      < RID : Replica | executing : < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
                                                  startVTS : VTS, txnSQN : TXNSQN >,
@@ -159,24 +156,23 @@ load walter-aux
                        dsSites : PSTS, abortSites : ABORTS >
      (msg prepare-reply(TID,FLAG) from RID' to RID)
    =>
-　　　　　< TABLE : Table | table : REPLICA-TABLE >
+     < TABLE : Table | table : REPLICA-TABLE >
      < M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),false,READS,WRITES),LOG) >
                            < RID : Replica | executing : emptyTxnList,
                                              committed : TXNS',
                                              aborted : (TXNS'' ;; < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
                                                                                 startVTS : VTS, txnSQN : TXNSQN >),
-                                             votes : VOTES ; vote(TID,RID',FLAG), voteSites : remove(TID,RID',VSTS), 
-                                             sqn : SQN, history : DS,
+                                             votes : VOTES ; vote(TID,RID',FLAG), voteSites : remove(TID,RID',VSTS), sqn : SQN, history : DS,
                                              committedVTS : VTS', locked : LOCKS, dsSites : PSTS,
                                              abortSites : ABORTS > 
-     if SQN' := SQN + 1 /\
+     if remove(TID,RID',VSTS)[TID] == empty /\
+        not allYes(TID,VOTES ; vote(TID,RID',FLAG)) /\
+        yesSites(TID,VOTES ; vote(TID,RID',FLAG)) == empty /\
+        SQN' := SQN + 1 /\
         DS' := update(WS,version(RID,SQN'),DS) /\
         VTS'' := insert(RID,SQN',VTS') /\
         PSTS' := PSTS ; txnPropagateSites(TID,WS) /\
-        RIDS := yesSites(TID,(VOTES ; vote(TID,RID',FLAG))) /\
-        ABORTS' := ABORTS ; voteSites(TID,RIDS) /\
-        remove(TID,RID',VSTS)[TID] == empty /\ not allYes(TID,VOTES ; vote(TID,RID',FLAG)) /\
-        yesSites(TID,VOTES ; vote(TID,RID',FLAG)) == empty .
+        ABORTS' := ABORTS ; voteSites(TID,yesSites(TID,VOTES ; vote(TID,RID',FLAG))) .
 
 
 
