@@ -1,0 +1,234 @@
+load full-maude26
+
+fmod TAG-COMMANDS is
+    including COMMANDS .
+
+    op tag_. : @ModExp@ -> @Command@ .
+    
+endfm 
+
+
+fmod META-TAG-SIGNATURE is
+	including META-FULL-MAUDE-SIGN .
+	
+	op TagGRAMMAR : -> FModule .
+	eq TagGRAMMAR = addImports((including 'TAG-COMMANDS .), GRAMMAR ) .
+
+endfm
+
+fmod TAG-BUILTINS is
+    including UNIT .
+    including DATABASE-DECLS  .
+    including EXT-QID-LIST .
+    
+    op tag : OModule Database -> OModule .
+    op tagID : Qid -> Qid .
+    
+    
+    var SM : SModule .
+    var Q : Qid .
+    var IL : ImportList .
+    var S : SortSet .
+    var SS : SubsortDeclSet .
+    var CDS : ClassDeclSet .
+    var SCDS : SubclassDeclSet .
+    var O : OpDeclSet .
+    var MS : MsgDeclSet .
+    var M : MembAxSet .
+    var E : EquationSet .
+    var R : RuleSet .
+    var DB : Database .
+    
+    eq tag(omod Q is
+	  IL
+    sorts S .
+    SS
+    CDS
+    SCDS
+    O
+    MS
+    M
+    E
+    R
+endom,DB) = omod tagID(Q)  is
+IL
+    sorts S .
+    SS
+    CDS
+    SCDS 
+    O
+    MS
+    M
+    E
+    tagRules(R,DB)
+endom .
+
+    vars T T' : Term .
+    var ATS : AttrSet .
+    var CD : Condition .
+    var ATR : AttrSet .
+    var Rl : Rule .
+    op tagRules : RuleSet Database -> RuleSet .
+    op tagRulesAux : Rule Database -> RuleSet .
+    
+    ops newMonitorObj resultMonitorObj : -> Term .
+    eq newMonitorObj = '<_:_|_>['M:Oid,'Monitor.Monitor,'_`,_['clock`:_['GT:Nat],'log`:_[
+	      'LOG:Log]]] .
+    eq resultMonitorObj = '<_:_|_>['M:Oid,
+	  'Monitor.Monitor,'_`,_['clock`:_['_+_['GT:Nat,'s_['0.Zero]]],'log`:_[
+	      'insert['TID:Oid,'record['RID:Oid,'GT:Nat,'empty.VectorTimestamp,
+		  'false.Bool,'empty.ReadSet,'empty.WriteSet],'LOG:Log]]]] .
+
+    eq tagRules(Rl R, DB) = tagRulesAux(Rl,DB) tagRules(R,DB)  .
+    eq tagRules(none,DB) = none . 
+
+    ceq tagRulesAux(rl T => T' [ATR] ., DB) = 
+	(rl T1 => T2 [ATR] .)
+      if '__[T1,T2] := tagLeftRightHand(T,T',DB) .
+    
+    
+    ceq tagRulesAux(crl T => T' if CD [ATR] ., DB) =
+	  (crl T1 => T2 if CD [ATR] .)
+	if '__[T1,T2] := tagLeftRightHand(T,T',DB) .
+    
+   op tagLeftRightHand : Term Term Database -> Term .
+
+
+    vars Q' : Qid .
+    vars T1 T2 : Term .
+    var TL : TermList .
+    
+    op getAttr : Qid Term -> Term .
+    eq getAttr(Q,Q'[TL]) = if Q == Q' then TL else  getAttr(Q,TL) fi .
+
+    ceq getAttr(Q,(T,TL)) =
+	getAttr(Q,T), getAttr(Q,TL)        
+      if TL =/= empty .
+    
+    eq getAttr(Q,empty) =
+	empty .
+    var V : Variable .
+    var C : Constant .
+    
+    eq getAttr(Q,V) = empty .
+    eq getAttr(Q,C) = empty .
+
+    --- gotTxns -> executing
+    --- condition : at left hand side executing is empty, right hand is not
+    ceq tagLeftRightHand(T,T',DB) =
+        '__['__[newMonitorObj,T],'__[resultMonitorObj,T']]
+      if getAttr('executing`:_,T) == 'emptyTxnList.ObjectList /\
+          getAttr('executing`:_,T') =/= 'emptyTxnList.ObjectList .
+
+
+    
+    eq tagLeftRightHand(T,T',DB) =
+        '__[T,T'] [owise] .
+
+
+    
+
+    eq tagID(Q) = string2qidList(string(Q) + "-TAGGED") .
+    
+endfm
+    
+    
+mod TAG-DATABASE-HANDLING is
+    protecting DATABASE-HANDLING .
+    protecting META-TAG-SIGNATURE .    
+    including TAG-BUILTINS .
+    
+    var N 				: Nat .
+    var X@Database         : DatabaseClass .
+    var O 				: Oid .
+    var QI 				: Qid .
+    vars QIL QIL' QIL''	        : QidList .
+    vars T T' T''		        : Term .
+    vars H H'			        : Header .
+    var Q 				: Qid .
+    vars DB DB' DB''           	: Database .
+    var F					: Qid .
+    vars MD M	M'	M''		: Module .
+    var Atts 			        : AttributeSet .
+    vars RP RP'			: ResultPair? .
+    vars ME ME' ME''	                : ModuleExpression . 
+    
+    crl [handle-tag-func] : 
+        < O         : X@Database | db : DB,
+				   input     : ('tag_.[T]),
+				   output  : nil, Atts > => 
+        < O         : X@Database | db : DB'',
+				   input     : ('show`module_.[T]),
+				    output : ('Please 'input '\r 'EQT 'Spec '\o 'first!),
+				   Atts  >
+      if  < DB' ; ME' > := evalModExp(parseModExp(T), DB) /\
+	  M := getTopModule(ME', DB') /\ 
+	  M' := tag(M,DB') /\ 
+	  DB'' := insTermModule(getName(M'),M',DB') .
+endm 
+
+
+mod TAG is
+    extending LOOP-MODE .
+    protecting TAG-DATABASE-HANDLING .
+    
+    subsort Object < State .
+    op o : -> Oid .
+    
+    var H 				: Header .
+    var O 				: Oid .
+    var X@Database 		        : DatabaseClass .
+    var QI 				: Qid .
+    vars QIL QIL' QIL''             : QidList .
+    var TL 				: TermList .
+    var DB 				: Database .
+    var Atts 			: AttributeSet .
+    
+    op init 			: -> System .
+    
+    
+    
+    rl [init] : init => [nil,
+	  < o		: Database | 
+	  db		: initialDatabase, 
+	  input 	: nilTermList , 
+          default      : 'CONVERSION ,
+	  output 	: nil >,
+	  ('\s '\s '\s '\s '\s '\g string2qidList("TAG Your Module") '\o)] .
+    
+    rl [input] : 	[QI QIL, 
+	  < O 			: X@Database | 
+	  input 		: nilTermList, 
+	  output 		: nil, Atts >,  
+	  QIL' ] => 
+      if metaParse(TagGRAMMAR, QI QIL, '@Input@) :: ResultPair
+	then
+	  [nil, 
+	    < O 			: X@Database | 
+	    input 		: getTerm(metaParse(TagGRAMMAR, QI QIL, '@Input@)), 
+	    output 		: nil, Atts >, 
+	    QIL']
+	else 
+	  [nil, 
+	    < O 			: X@Database | 
+	    input 		: nilTermList, 
+	    output 		: ('\r 'WARNING: '\o printSyntaxError(metaParse(TagGRAMMAR, QI QIL, '@Input@), QI QIL) '\n 
+	      'ERROR: 'No 'parse 'for 'input.), Atts >, 
+	    QIL' ]
+	fi .
+    
+    rl 	[output] : 	[QIL, < O 		: X@Database | 
+	  output 	: (QI QIL'), Atts >,
+	  QIL''] =>
+	[QIL, < O 		: X@Database | 
+	  output 	: nil, Atts >, (QI QIL' QIL'')] .
+endm
+
+set print conceal on .
+
+*** print conceal mod_is_sorts_._____endm .
+*** print conceal fmod_is_sorts_.____endfm .
+print conceal db .
+    
+loop init .
+    

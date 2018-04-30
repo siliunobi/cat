@@ -1,4 +1,4 @@
-load full-maude26
+--- load full-maude26
 
 (fmod SOME-PARAMETERS is
   sort Version .  --- In Walter version is a pair (site,seq#)
@@ -20,6 +20,7 @@ endfm)
 
   op lock : Oid Key -> Lock .  --- Txn locks Key
 endom)
+
 (view Operation from TRIV to TXN-SORTS is sort Elt to Operation . endv)
 (view Version from TRIV to TXN-SORTS is sort Elt to Version . endv)
 (view Key from TRIV to TXN-SORTS is sort Elt to Key . endv)

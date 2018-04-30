@@ -1,0 +1,9 @@
+load prelim.maude 
+
+(omod AA is
+    including CLIENT-REPLICA .
+    sort A .
+    ops a b : -> A .
+    rl a => b .
+endom)
+    

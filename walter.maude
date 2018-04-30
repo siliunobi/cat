@@ -1,0 +1,53 @@
+  --- Is history a sorted list? 
+  --- Section 5.3, what does "last upate" mean? Last in list order, or in time?
+  --- When initializing VTS, all replicas know each other, i.e., each replica holds
+  --- the same length of vector, or VTS is simply set to empty?
+  --- As of now, we implement the latter
+
+load walter-aux
+
+(omod WALTER is
+  inc WALTER-AUX .
+
+  vars TID RID RID' TABLE M RID@M : Oid .
+  vars RIDS DSTXNS GVTXNS : OidSet .
+  vars TXNS TXNS' TXNS'' : ObjectList .
+  var OPS : OperationList .
+  var K : Key .
+  vars V V' : Value .
+  var X : LocalVar .
+  vars WS WRITES : WriteSet .
+  var VARS : LocalVars .
+  vars RS READS : ReadSet .
+  var REPLICA-TABLE : ReplicaTable .
+  var VERSION : Version .
+  vars VTS VTS' VTS'' VTS1 : VectorTimestamp .
+  vars DS DS' : Datastore .
+  vars VVS VVS' : ValueVersionList .
+  vars SQN SQN' TXNSQN CLOCK GT T1 T2 T3 T4 : Nat .
+  var EXPR : Expression .
+  var KS : KeySet .
+  var LOCKS : Locks .
+  vars VSTS VSTS' VSBS VSBS' ABORTS ABORTS' : VoteSites .
+  vars RIDSS RIDSS' : OidList .
+  var RT : KeyReplicas .
+  vars VOTES VOTES' : Vote .
+  vars FLAG FLAG' : Bool .
+  vars PSTS PSTS' : PropagateSites .
+  vars PTXNS PTXNS' PTXNS'' : PropagatedTxns .
+  vars DTXNS DTXNS' : DurableTxns .
+  var LOG : Log .
+
+
+    rl [start-txn] :
+	< RID : Replica | gotTxns : (< TID : Txn | startVTS : empty > ;; TXNS), 
+        executing : emptyTxnList,
+	committedVTS : VTS >
+      =>
+	< RID : Replica | gotTxns : TXNS,
+			  executing : < TID : Txn | startVTS : VTS >, 
+        committedVTS : VTS > .
+  
+endom) 
+
+
