@@ -71,12 +71,34 @@ endom .
     op tagRules : RuleSet Database -> RuleSet .
     op tagRulesAux : Rule Database -> RuleSet .
     
-    ops newMonitorObj resultMonitorObj : -> Term .
+    ops newMonitorObj   : -> Term .
+    ops newMonitorObjRecord : Term -> Term .
+    ops resultMonitorObj : Term Term -> Term .
+    ops resultMonitorObjInsert : Term Term Term Term Term -> Term .
+
+    *** here are the functions to generate terms for tagged monitors
+    *** I try to make them as generic as possible, but some paras are fixed for the simplicity 
     eq newMonitorObj = '<_:_|_>['M:Oid,'Monitor.Monitor,'_`,_['clock`:_['GT:Nat],'log`:_[
 	      'LOG:Log]]] .
-    eq resultMonitorObj = '<_:_|_>['M:Oid,
+
+    eq newMonitorObj = '<_:_|_>['M:Oid,'Monitor.Monitor,'_`,_['clock`:_['GT:Nat],'log`:_[
+	      'LOG:Log]]] .
+
+    eq newMonitorObjRecord(T1) =
+	'<_:_|_>['M:Oid,'Monitor.Monitor,'_`,_['clock`:_['GT:Nat],'log`:_[
+	      '_`,_['_|->_[T1,'record['RID@M:Oid,'T1:Nat,'VTS1:VectorTimestamp,
+		    'FLAG:Bool,'READS:ReadSet,'WRITES:WriteSet]],'LOG:Log]]]] .
+
+    eq resultMonitorObjInsert(T1,T2,T3,T4,T5) =
+	'<_:_|_>['M:Oid,'Monitor.Monitor,'_`,_['clock`:_['_+_['GT:Nat,'s_[
+		  '0.Zero]]],'log`:_['_`,_['_|->_[T1,'record['RID@M:Oid,'T1:Nat,
+		    'insert[T2,'GT:Nat,'VTS1:VectorTimestamp],T3,T4,
+		    T5]],'LOG:Log]]]] .
+    
+    
+    eq resultMonitorObj(T1,T2) = '<_:_|_>['M:Oid,
 	  'Monitor.Monitor,'_`,_['clock`:_['_+_['GT:Nat,'s_['0.Zero]]],'log`:_[
-	      'insert['TID:Oid,'record['RID:Oid,'GT:Nat,'empty.VectorTimestamp,
+	      'insert[T1,'record[T2,'GT:Nat,'empty.VectorTimestamp,
 		  'false.Bool,'empty.ReadSet,'empty.WriteSet],'LOG:Log]]]] .
 
     eq tagRules(Rl R, DB) = tagRulesAux(Rl,DB) tagRules(R,DB)  .
@@ -89,15 +111,25 @@ endom .
     
     ceq tagRulesAux(crl T => T' if CD [ATR] ., DB) =
 	  (crl T1 => T2 if CD [ATR] .)
-	if '__[T1,T2] := tagLeftRightHand(T,T',DB) .
+	  if '__[T1,T2] := tagLeftRightHand(T,T',DB) .
+
+    op getReplicaID : Term -> Variable .
+    
+    eq getReplicaID('<_:_|_>[V,'Replica.Replica,TL]) = V .
+    eq getReplicaID('<_:_|`>[V,'Replica.Replica]) = V .
+    eq getReplicaID(Q[TL]) = getReplicaID(TL) [owise] .
+    ceq getReplicaID((T, TL)) = getReplicaID(T), getReplicaID(TL) if TL =/= empty . 
+    eq getReplicaID(C) = empty .
+    eq getReplicaID(V) = empty .
     
    op tagLeftRightHand : Term Term Database -> Term .
 
 
     vars Q' : Qid .
-    vars T1 T2 : Term .
-    var TL : TermList .
-    
+    vars T1 T2 T3 T4 T5 : Term .
+    vars TL TL1 : TermList .
+
+    *** reutrn the attribute value of a given attribute id 
     op getAttr : Qid Term -> Term .
     eq getAttr(Q,Q'[TL]) = if Q == Q' then TL else  getAttr(Q,TL) fi .
 
@@ -115,13 +147,61 @@ endom .
 
     --- gotTxns -> executing
     --- condition : at left hand side executing is empty, right hand is not
-    ceq tagLeftRightHand(T,T',DB) =
-        '__['__[newMonitorObj,T],'__[resultMonitorObj,T']]
-      if getAttr('executing`:_,T) == 'emptyTxnList.ObjectList /\
-          getAttr('executing`:_,T') =/= 'emptyTxnList.ObjectList .
+    --- T: lefthand-side object
+    --- T': righthand-side object
+    --- DB: database 
+    --- ceq tagLeftRightHand(T,T',DB) =
+    ---    '__['__[newMonitorObj,T],'__[resultMonitorObj,T']]
+    ---  if getAttr('executing`:_,T) == 'emptyTxnList.ObjectList /\
+    ---      getAttr('executing`:_,T') =/= 'emptyTxnList.ObjectList .
 
+    --- this equation formalizes the execution of a transaction 
+    ceq tagLeftRightHand(T,T',DB) =
+        '__['__[newMonitorObj,T],'__[resultMonitorObj(T3,getReplicaID(T)),T']]
+      if T1 := getAttr('gotTxns`:_,T)  /\
+          T2 := getAttr('executing`:_,T') /\
+	  '<_:_|_>[T3,TL] := T2 /\    *** T3 is the TID of the executing tran 
+	  is T3 subTermOf T1 .     
 
     
+      --- this equation formalizes the commit of a readonly transaction
+    --- condition : the executing tran is committed (including fast)
+  ceq tagLeftRightHand(T,T',DB) =
+        '__['__[newMonitorObjRecord(T3),T],
+	  '__[resultMonitorObjInsert(T3,
+	      getReplicaID(T),'true.Bool,getAttr('readSet`:_,T1),getAttr('writeSet`:_,T1)),T']]
+      if T1 := getAttr('executing`:_,T)  /\
+	  '<_:_|_>[T3,TL] := T1 /\    *** T3 is the TID of the executing tran 
+          T2 := getAttr('committed`:_,T') /\
+	  is T3 subTermOf T2  .       
+
+      --- this equation formalizes the abort of a trans 
+    --- condition : the executing tran is committed (including fast)
+    ceq tagLeftRightHand(T,T',DB) =
+        '__['__[newMonitorObjRecord(T3),T],
+	  '__[resultMonitorObjInsert(T3,
+	      getReplicaID(T),'false.Bool,'READS:ReadSet,'WRITES:WriteSet),T']]
+      if T1 := getAttr('executing`:_,T)  /\
+	  '<_:_|_>[T3,TL] := T1 /\    *** T3 is the TID of the executing tran 
+          T2 := getAttr('aborted`:_,T') /\
+	  is T3 subTermOf T2  .       
+
+      --- this equation formalizes the abort of a trans 
+    --- condition : the executing tran is committed (including fast)
+    ceq tagLeftRightHand(T,T',DB) =
+        '__['__[newMonitorObjRecord(T3),T],
+	  '__[resultMonitorObjInsert(T3,
+	      getReplicaID(T),'false.Bool,'READS:ReadSet,'WRITES:WriteSet),T']]
+      if T1 := getAttr('executing`:_,T)  /\
+	  '<_:_|`>[T3,TL] := T1 /\    *** T3 is the TID of the executing tran 
+          T2 := getAttr('aborted`:_,T') /\
+	  is T3 subTermOf T2  .       
+
+
+      
+
+      --- nothing changed, no tag
+
     eq tagLeftRightHand(T,T',DB) =
         '__[T,T'] [owise] .
 
@@ -158,13 +238,14 @@ mod TAG-DATABASE-HANDLING is
 				   input     : ('tag_.[T]),
 				   output  : nil, Atts > => 
         < O         : X@Database | db : DB'',
-				   input     : ('show`module_.[T]),
-				    output : ('Please 'input '\r 'EQT 'Spec '\o 'first!),
+				   input     : nilTermList,
+				    output : ('New 'module '\g Q '\o 'with 'monitors 'generated!),
 				   Atts  >
       if  < DB' ; ME' > := evalModExp(parseModExp(T), DB) /\
 	  M := getTopModule(ME', DB') /\ 
-	  M' := tag(M,DB') /\ 
-	  DB'' := insTermModule(getName(M'),M',DB') .
+	  M' := tag(M,DB') /\
+	  Q := getName(M') /\ 
+	  DB'' := insTermModule(Q,M',DB') .
 endm 
 
 

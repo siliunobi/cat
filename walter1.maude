@@ -117,33 +117,33 @@ load walter-aux
         (modified(WS,VTS,DS) or locked(WS,LOCKS)) .
 
 
- crl [slow-commit-receive-prepare-reply] :
-     < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG',READS,WRITES),LOG) >
-     < TABLE : Table | table : REPLICA-TABLE >
-     < RID : Replica | executing : < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
-                                                 startVTS : VTS, txnSQN : TXNSQN >,
-                       committed : TXNS', aborted : TXNS'', votes : VOTES,
-                       voteSites : VSTS, sqn : SQN, history : DS,
-                       committedVTS : VTS', locked : LOCKS, 
-                       dsSites : PSTS, abortSites : ABORTS >
-     (msg prepare-reply(TID,FLAG) from RID' to RID)
-   =>
-     < TABLE : Table | table : REPLICA-TABLE >
-                   < M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),true,RS,WS),LOG) >
-                   < RID : Replica | executing : emptyTxnList,
-                                     committed : (TXNS' ;; < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
-                                                                         startVTS : VTS, txnSQN : SQN' >),
-                                     aborted : TXNS'', votes : VOTES ; vote(TID,RID',FLAG), voteSites : remove(TID,RID',VSTS), 
-                                     sqn : SQN', history : DS', committedVTS : VTS'',
-                                     locked : release(TID,LOCKS), dsSites : PSTS', abortSites : ABORTS >
-                   propagateTxn(TID,SQN',VTS,WS,allServers(REPLICA-TABLE),RID)       
-     if remove(TID,RID',VSTS)[TID] == empty /\
-        allYes(TID,VOTES ; vote(TID,RID',FLAG)) /\
-        SQN' := SQN + 1 /\
-        DS' := update(WS,version(RID,SQN'),DS) /\
-        VTS'' := insert(RID,SQN',VTS') /\
-        PSTS' := PSTS ; txnPropagateSites(TID,WS) /\
-        ABORTS' := ABORTS ; voteSites(TID,yesSites(TID,VOTES ; vote(TID,RID',FLAG))) .
+    crl [slow-commit-receive-prepare-reply] :
+	< M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG',READS,WRITES),LOG) >
+	< TABLE : Table | table : REPLICA-TABLE >
+	< RID : Replica | executing : < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
+                                                    startVTS : VTS, txnSQN : TXNSQN >,
+        committed : TXNS', aborted : TXNS'', votes : VOTES,
+        voteSites : VSTS, sqn : SQN, history : DS,
+        committedVTS : VTS', locked : LOCKS, 
+        dsSites : PSTS, abortSites : ABORTS >
+	(msg prepare-reply(TID,FLAG) from RID' to RID)
+      =>
+	< TABLE : Table | table : REPLICA-TABLE >
+        < M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),true,RS,WS),LOG) >
+        < RID : Replica | executing : emptyTxnList,
+                          committed : (TXNS' ;; < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
+                                                              startVTS : VTS, txnSQN : SQN' >),
+        aborted : TXNS'', votes : VOTES ; vote(TID,RID',FLAG), voteSites : remove(TID,RID',VSTS), 
+        sqn : SQN', history : DS', committedVTS : VTS'',
+        locked : release(TID,LOCKS), dsSites : PSTS', abortSites : ABORTS >
+        propagateTxn(TID,SQN',VTS,WS,allServers(REPLICA-TABLE),RID)       
+      if remove(TID,RID',VSTS)[TID] == empty /\
+          allYes(TID,VOTES ; vote(TID,RID',FLAG)) /\
+          SQN' := SQN + 1 /\
+          DS' := update(WS,version(RID,SQN'),DS) /\
+          VTS'' := insert(RID,SQN',VTS') /\
+          PSTS' := PSTS ; txnPropagateSites(TID,WS) /\
+          ABORTS' := ABORTS ; voteSites(TID,yesSites(TID,VOTES ; vote(TID,RID',FLAG))) .
 
 
  crl [slow-commit-receive-prepare-reply] :

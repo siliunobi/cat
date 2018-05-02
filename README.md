@@ -19,3 +19,14 @@ Rules:
 4. committedVTS changes, 3
 
 5. In any case, GT -> GT + 1
+
+
+executing
+committed: executing trans moved to committed attr
+aborted: executing trans moved to aborted attr 
+comittedVTS modified 
+
+
+Tag module 
+
+
