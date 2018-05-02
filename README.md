@@ -29,4 +29,13 @@ comittedVTS modified
 
 Tag module 
 
+how to run the tag system
+
+load meta.maude
+
+load YOUR maude file
+
+(tag YOUR-MODULE .)
+(show module XXX .)
+
 
