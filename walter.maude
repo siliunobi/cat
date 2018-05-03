@@ -170,6 +170,29 @@ load walter-aux
         abortSites : remove(TID,RID',ABORTS) >
       if remove(TID,RID',ABORTS)[TID] == empty .
 
+
+        crl [receive-ds-durable-visible] :
+	< RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+			  recDurableTxns : DTXNS, committedVTS : VTS', locked : LOCKS >
+	(msg ds-durable(TID) from RID' to RID)
+      =>
+	< RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+			  recDurableTxns : (durableTxns(TID) ; DTXNS),
+			  committedVTS : insert(RID',SQN,VTS'), locked : release(TID,LOCKS) >
+	(msg visible(TID) from RID to RID')
+      if VTS' gt VTS /\ s(VTS'[RID']) == SQN .
+
+
+        crl [later-visible] :
+	< RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+			  recDurableTxns : (nonDurableTxns(TID,RID') ; DTXNS),
+			  committedVTS : VTS', locked : LOCKS >
+      =>  
+	< RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+			  recDurableTxns : (durableTxns(TID) ; DTXNS),
+			  committedVTS : insert(RID',SQN,VTS'), locked : release(TID,LOCKS) >
+	(msg visible(TID) from RID to RID')
+      if VTS' gt VTS /\ s(VTS'[RID']) == SQN .
     
 endom) 
 

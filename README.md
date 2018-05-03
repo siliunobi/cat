@@ -33,7 +33,7 @@ how to run the tag system
 
 load meta.maude
 
-load YOUR maude file
+load YOUR maude file e.g. walter.maude 
 
 (tag YOUR-MODULE .)
 (show module XXX .)

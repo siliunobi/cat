@@ -32,7 +32,7 @@ load walter-aux
   vars RIDSS RIDSS' : OidList .
   var RT : KeyReplicas .
   vars VOTES VOTES' : Vote .
-  vars FLAG FLAG' : Bool .
+  vars FLAG FFLAG : Bool .
   vars PSTS PSTS' : PropagateSites .
   vars PTXNS PTXNS' PTXNS'' : PropagatedTxns .
   vars DTXNS DTXNS' : DurableTxns .
@@ -118,7 +118,7 @@ load walter-aux
 
 
     crl [slow-commit-receive-prepare-reply] :
-	< M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG',READS,WRITES),LOG) >
+	< M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FFLAG,READS,WRITES),LOG) >
 	< TABLE : Table | table : REPLICA-TABLE >
 	< RID : Replica | executing : < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
                                                     startVTS : VTS, txnSQN : TXNSQN >,
@@ -147,7 +147,7 @@ load walter-aux
 
 
  crl [slow-commit-receive-prepare-reply] :
-     < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG',READS,WRITES),LOG) >
+     < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FFLAG,READS,WRITES),LOG) >
      < TABLE : Table | table : REPLICA-TABLE >
      < RID : Replica | executing : < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
                                                  startVTS : VTS, txnSQN : TXNSQN >,
@@ -178,46 +178,45 @@ load walter-aux
 
 
  crl [receive-aborted] :
-     < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
-     < RID : Replica | executing : < TID : Txn | >, aborted : TXNS', abortSites : ABORTS >
-     (msg aborted(TID) from RID' to RID)
-   =>
-     < M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),false,READS,WRITES),LOG) >
-            < RID : Replica | executing : emptyTxnList, aborted : (TXNS' ;; < TID : Txn | >),
-                              abortSites : remove(TID,RID',ABORTS) >
-     if remove(TID,RID',ABORTS)[TID] == empty .
+	< M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
+	< RID : Replica | executing : < TID : Txn | >, aborted : TXNS', abortSites : ABORTS >
+	(msg aborted(TID) from RID' to RID)
+      =>
+	< M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),false,READS,WRITES),LOG) >
+        < RID : Replica | executing : emptyTxnList, aborted : (TXNS' ;; < TID : Txn | >),
+        abortSites : remove(TID,RID',ABORTS) >
+      if remove(TID,RID',ABORTS)[TID] == empty .
+    
+    
+    
 
-
-
-
- crl [receive-ds-durable-visible] :
-     < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
-     < RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
-                       recDurableTxns : DTXNS, committedVTS : VTS', locked : LOCKS >
-     (msg ds-durable(TID) from RID' to RID)
-   =>
-     < M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),FLAG,READS,WRITES),LOG) >
-     < RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
-                       recDurableTxns : (durableTxns(TID) ; DTXNS),
-                       committedVTS : insert(RID',SQN,VTS'), locked : release(TID,LOCKS) >
-     (msg visible(TID) from RID to RID')
-     if VTS' gt VTS /\ s(VTS'[RID']) == SQN .
-
-
-
- crl [later-visible] :
-     < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
-     < RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
-                       recDurableTxns : (nonDurableTxns(TID,RID') ; DTXNS),
-                       committedVTS : VTS', locked : LOCKS >
-   =>  
-     < M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),FLAG,READS,WRITES),LOG) >
-     < RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
-                       recDurableTxns : (durableTxns(TID) ; DTXNS),
-                       committedVTS : insert(RID',SQN,VTS'), locked : release(TID,LOCKS) >
-     (msg visible(TID) from RID to RID')
-     if VTS' gt VTS /\ s(VTS'[RID']) == SQN .
-  
+    crl [receive-ds-durable-visible] :
+	< M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
+	< RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+			  recDurableTxns : DTXNS, committedVTS : VTS', locked : LOCKS >
+	(msg ds-durable(TID) from RID' to RID)
+      =>
+	< M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),FLAG,READS,WRITES),LOG) >
+	< RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+			  recDurableTxns : (durableTxns(TID) ; DTXNS),
+			  committedVTS : insert(RID',SQN,VTS'), locked : release(TID,LOCKS) >
+	(msg visible(TID) from RID to RID')
+      if VTS' gt VTS /\ s(VTS'[RID']) == SQN .
+    
+    
+    crl [later-visible] :
+	< M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
+	< RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+			  recDurableTxns : (nonDurableTxns(TID,RID') ; DTXNS),
+			  committedVTS : VTS', locked : LOCKS >
+      =>  
+	< M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),FLAG,READS,WRITES),LOG) >
+	< RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+			  recDurableTxns : (durableTxns(TID) ; DTXNS),
+			  committedVTS : insert(RID',SQN,VTS'), locked : release(TID,LOCKS) >
+	(msg visible(TID) from RID to RID')
+      if VTS' gt VTS /\ s(VTS'[RID']) == SQN .
+    
 endom) 
 
 

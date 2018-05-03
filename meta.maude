@@ -87,7 +87,7 @@ endom .
     eq newMonitorObjRecord(T1) =
 	'<_:_|_>['M:Oid,'Monitor.Monitor,'_`,_['clock`:_['GT:Nat],'log`:_[
 	      '_`,_['_|->_[T1,'record['RID@M:Oid,'T1:Nat,'VTS1:VectorTimestamp,
-		    'FLAG:Bool,'READS:ReadSet,'WRITES:WriteSet]],'LOG:Log]]]] .
+		    'FFLAG:Bool,'READS:ReadSet,'WRITES:WriteSet]],'LOG:Log]]]] .
 
     eq resultMonitorObjInsert(T1,T2,T3,T4,T5) =
 	'<_:_|_>['M:Oid,'Monitor.Monitor,'_`,_['clock`:_['_+_['GT:Nat,'s_[
@@ -187,7 +187,7 @@ endom .
 	  is T3 subTermOf T2  .       
 
       --- this equation formalizes the abort of a trans 
-    --- condition : the executing tran is committed (including fast)
+    --- condition : the executing tran is aborted (including fast)
     ceq tagLeftRightHand(T,T',DB) =
         '__['__[newMonitorObjRecord(T3),T],
 	  '__[resultMonitorObjInsert(T3,
@@ -197,6 +197,16 @@ endom .
           T2 := getAttr('aborted`:_,T') /\
 	  is T3 subTermOf T2  .       
 
+      --- this equation formalizes the switch of a trans 
+      --- condition : the executing tran is committed (including fast)
+    ceq tagLeftRightHand(T,T',DB) =
+        '__['__[newMonitorObjRecord(T3),T],
+	  '__[resultMonitorObjInsert(T3,
+	      getReplicaID(T),'FFLAG:Bool,'READS:ReadSet,'WRITES:WriteSet),T']]
+      if T1 := getAttr('recPropTxns`:_,T)  /\
+	  '_;_['propagatedTxns[T3,TL],TL1] := T1 /\  *** T3 is the TID of the propagated tran 
+          T2 := getAttr('locked`:_,T') /\   *** T2 is the locked trans 
+	  is T3 subTermOf T2 .       
 
       
 
