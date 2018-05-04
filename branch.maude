@@ -50,7 +50,7 @@ load walter-aux
      (msg prepare-reply(TID,FLAG) from RID' to RID)
    =>
      < TABLE : Table | table : REPLICA-TABLE >
-     (if VSTS'[TID] == empty --- all votes received
+     (if VSTS'[TID] == empty --- all votes receivedx
        then if allYes(TID,VOTES')  --- all yes votes
               then < M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),true,RS,WS),LOG) >
                    < RID : Replica | executing : emptyTxnList,
