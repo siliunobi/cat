@@ -193,6 +193,25 @@ load walter-aux
 			  committedVTS : insert(RID',SQN,VTS'), locked : release(TID,LOCKS) >
 	(msg visible(TID) from RID to RID')
       if VTS' gt VTS /\ s(VTS'[RID']) == SQN .
+
+
+  --- with this rule "show module" does not work!
+  crl [receive-remote-request] :
+      < RID : Replica | history : DS >
+      (msg request(K,TID,VTS) from RID' to RID)
+    =>
+      < RID : Replica | history : DS >
+      (msg reply(TID,K,< V,VERSION >) from RID to RID')
+      if < V,VERSION > := choose(VTS,DS[K]) .
+
+  --- this rule does not need monitor, but you add it?
+  rl [execute-read-own-write] :
+     < RID : Replica | executing : < TID : Txn | operations : ((X :=read K) OPS),
+                                                 writeSet : (K |-> V, WS),
+                                                 localVars : VARS > >
+   =>
+     < RID : Replica | executing : < TID : Txn | operations : OPS, writeSet : (K |-> V, WS),
+                                                 localVars : insert(X,V,VARS) > > .
     
 endom) 
 
