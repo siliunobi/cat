@@ -203,6 +203,15 @@ load walter-aux
       < RID : Replica | history : DS >
       (msg reply(TID,K,< V,VERSION >) from RID to RID')
       if < V,VERSION > := choose(VTS,DS[K]) .
+
+  --- this rule does not need monitor, but you add it?
+  rl [execute-read-own-write] :
+     < RID : Replica | executing : < TID : Txn | operations : ((X :=read K) OPS),
+                                                 writeSet : (K |-> V, WS),
+                                                 localVars : VARS > >
+   =>
+     < RID : Replica | executing : < TID : Txn | operations : OPS, writeSet : (K |-> V, WS),
+                                                 localVars : insert(X,V,VARS) > > .
     
 endom) 
 
