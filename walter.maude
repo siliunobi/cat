@@ -374,7 +374,7 @@ load walter-aux
      if ((not VTS' gt VTS) or s(VTS'[RID']) =/= SQN) . 
 
 
-  --- ??? the replica has got the propagate msg but failed to ack it
+
   rl [receive-ds-durable-not-visible-non-propagated-1] :
      < RID : Replica | recPropTxns : (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS),
                        recDurableTxns : DTXNS >
