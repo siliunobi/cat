@@ -212,6 +212,184 @@ load walter-aux
    =>
      < RID : Replica | executing : < TID : Txn | operations : OPS, writeSet : (K |-> V, WS),
                                                  localVars : insert(X,V,VARS) > > .
+
+  --- the following rules do not work 
+    crl [receive-remote-request] :
+      < RID : Replica | history : DS >
+      (msg request(K,TID,VTS) from RID' to RID)
+    =>
+      < RID : Replica | history : DS >
+      (msg reply(TID,K,< V,VERSION >) from RID to RID')
+      if < V,VERSION > := choose(VTS,DS[K]) .
+
+
+   rl [slow-commit-receive-prepare] :
+      < RID : Replica | locked : LOCKS,
+                        history : DS >
+      (msg prepare(TID,KS,VTS) from RID' to RID)
+    =>
+      if (not locked(KS,LOCKS)) and (not modified(KS,VTS,DS)) 
+        then < RID : Replica | locked : (addLock(KS,TID),LOCKS),
+                               history : DS >
+             (msg prepare-reply(TID,true) from RID to RID')
+        else < RID : Replica | locked : LOCKS,
+                               history : DS >
+             (msg prepare-reply(TID,false) from RID to RID')
+      fi .
+
+
+  rl [slow-commit-receive-abort] :
+     < RID : Replica | locked : LOCKS >
+     (msg abort(TID) from RID' to RID)
+   =>
+     < RID : Replica | locked : release(TID,LOCKS) >  
+     (msg aborted(TID) from RID to RID') .
+
+
+ crl [receive-propagate-ack] :
+     < TABLE : Table | table : REPLICA-TABLE >
+     < RID : Replica | dsSites : PSTS, vsbSites : VSBS,
+                       committed : (TXNS ;; < TID : Txn | writeSet : WS, startVTS : VTS,
+                                                          txnSQN : SQN > ;; TXNS'),
+                       dsTxns : DSTXNS, gvTxns : GVTXNS >
+     (msg propagate-ack(TID) from RID' to RID) 
+   => 
+     < TABLE : Table | table : REPLICA-TABLE >
+     (if dsDurable(TID,PSTS')
+       then if RIDS =/= empty
+              then < RID : Replica | dsSites : PSTS', vsbSites : VSBS',
+                                     committed : (TXNS ;; < TID : Txn | writeSet : WS, startVTS : VTS,
+                                                                        txnSQN : SQN > ;; TXNS'),
+                                     dsTxns : (TID, DSTXNS), gvTxns : GVTXNS >
+                   dsDurableTxn(TID,RIDS,RID)
+              else < RID : Replica | dsSites : PSTS', vsbSites : VSBS',
+                                     committed : (TXNS ;; < TID : Txn | writeSet : WS, startVTS : VTS,
+                                                                        txnSQN : SQN > ;; TXNS'),
+                                     dsTxns : (TID, DSTXNS), gvTxns : (TID, GVTXNS) >
+            fi
+       else < RID : Replica | dsSites : PSTS', vsbSites : VSBS,
+                              committed : (TXNS ;; < TID : Txn | writeSet : WS, startVTS : VTS,
+                                                                 txnSQN : SQN > ;; TXNS'),
+                              dsTxns : DSTXNS, gvTxns : GVTXNS >
+     fi)
+     if PSTS' := add(TID,keys(WS),RID',REPLICA-TABLE,PSTS)  /\
+        (not TID in DSTXNS) /\  --- if TID in DSTXNS, later-coming propagate-ack will be simply ignored
+        RIDS := allServers(REPLICA-TABLE) \ RID /\
+        VSBS' := VSBS ; voteSites(TID,RIDS) .
+
+ crl [receive-propagate-ack-after-ds-durable-mark] :
+     < RID : Replica | dsTxns : DSTXNS >
+     (msg propagate-ack(TID) from RID' to RID)
+   =>
+     < RID : Replica | dsTxns : DSTXNS >
+     if TID in DSTXNS .
+
+ crl [receive-visible] :
+     < RID : Replica | vsbSites : VSBS,
+                       gvTxns : GVTXNS >
+     (msg visible(TID) from RID' to RID)
+   =>
+     (if VSBS'[TID] == empty
+       then < RID : Replica | vsbSites : VSBS',
+                              gvTxns : (TID, GVTXNS) >
+       else < RID : Replica | vsbSites : VSBS',
+                              gvTxns : GVTXNS >
+     fi)
+     if VSBS' := remove(TID,RID',VSBS) .
+
+ crl [receive-propagate-empty-VTS] :
+     < TABLE : Table | table : REPLICA-TABLE >
+     < RID : Replica | gotVTS : VTS',
+                       history : DS,
+                       recPropTxns : PTXNS >
+     (msg propagate(TID,SQN,empty,WS) from RID' to RID)
+   =>
+     < TABLE : Table | table : REPLICA-TABLE >
+     (if RID =/= RID'
+       then < RID : Replica | gotVTS : VTS'', 
+                              history : DS',
+                              recPropTxns : PTXNS' >
+            (msg propagate-ack(TID) from RID to RID')
+       else < RID : Replica | gotVTS : VTS'', 
+                              history : DS,
+                              recPropTxns : PTXNS' >
+            (msg propagate-ack(TID) from RID to RID')
+     fi)
+     if PTXNS' := propagatedTxns(TID,SQN,empty) ; PTXNS /\ 
+        VTS'' := insert(RID',SQN,VTS') /\
+        DS' := update(locRepWS(WS,RID,REPLICA-TABLE),version(RID',SQN),DS) .
+
+
+ crl [receive-propagate-non-empty-VTS] :
+     < TABLE : Table | table : REPLICA-TABLE >
+     < RID : Replica | gotVTS : VTS', history : DS, recPropTxns : PTXNS >
+     (msg propagate(TID,SQN,VTS,WS) from RID' to RID)
+   =>
+     < TABLE : Table | table : REPLICA-TABLE >
+     (if s(VTS'[RID']) == SQN and (VTS' gt VTS)
+       then if RID =/= RID'
+              then < RID : Replica | gotVTS : VTS'', history : DS',
+                                     recPropTxns : PTXNS' >
+                   (msg propagate-ack(TID) from RID to RID')
+              else < RID : Replica | gotVTS : VTS'', history : DS,
+                                     recPropTxns : PTXNS' >
+                   (msg propagate-ack(TID) from RID to RID')
+            fi
+       else < RID : Replica | gotVTS : VTS', history : DS,
+                              recPropTxns : PTXNS'' >
+     fi)
+     if PTXNS' := propagatedTxns(TID,SQN,VTS) ; PTXNS /\
+        PTXNS'' := nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS /\  
+        VTS'' := insert(RID',SQN,VTS') /\
+        DS' := update(locRepWS(WS,RID,REPLICA-TABLE),version(RID',SQN),DS) /\
+        VTS =/= empty .
+
+ crl [later-propagate-ack] :
+     < TABLE : Table | table : REPLICA-TABLE >
+     < RID : Replica | gotVTS : VTS', history : DS,
+                       recPropTxns : (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS) >
+   =>
+     < TABLE : Table | table : REPLICA-TABLE >
+     (if RID =/= RID'
+       then < RID : Replica | gotVTS : VTS'', history : DS', 
+                              recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS) >
+            (msg propagate-ack(TID) from RID to RID')
+       else < RID : Replica | gotVTS : VTS'', history : DS,
+                              recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS) >
+            (msg propagate-ack(TID) from RID to RID')
+     fi)
+     if s(VTS'[RID']) == SQN /\
+        VTS' gt VTS /\
+        VTS'' := insert(RID',SQN,VTS') /\
+        DS' := update(locRepWS(WS,RID,REPLICA-TABLE),version(RID',SQN),DS) .
+
+ crl [receive-ds-durable-not-visible-not-match-condition] :
+     < RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+                       recDurableTxns : DTXNS, committedVTS : VTS' >
+     (msg ds-durable(TID) from RID' to RID)
+   =>
+     < RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+                       recDurableTxns : (nonDurableTxns(TID,RID') ; DTXNS),
+                       committedVTS : VTS' >
+     if ((not VTS' gt VTS) or s(VTS'[RID']) =/= SQN) . 
+
+
+  --- ??? the replica has got the propagate msg but failed to ack it
+  rl [receive-ds-durable-not-visible-non-propagated-1] :
+     < RID : Replica | recPropTxns : (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS),
+                       recDurableTxns : DTXNS >
+     (msg ds-durable(TID) from RID' to RID)
+   =>
+     < RID : Replica | recPropTxns : (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS),
+                       recDurableTxns : (nonDurableTxns(TID,RID') ; DTXNS) > .
+
+ crl [receive-ds-durable-not-visible-non-propagated-2] :
+     < RID : Replica | recPropTxns : PTXNS, recDurableTxns : DTXNS >
+     (msg ds-durable(TID) from RID' to RID)
+   =>
+     < RID : Replica | recPropTxns : PTXNS,
+                       recDurableTxns : (nonDurableTxns(TID,RID') ; DTXNS) >
+     if not TID in PTXNS .
     
 endom) 
 
