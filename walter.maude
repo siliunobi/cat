@@ -195,6 +195,7 @@ load walter-aux
       if VTS' gt VTS /\ s(VTS'[RID']) == SQN .
 
 
+  --- with this rule "show module" does not work!
   crl [receive-remote-request] :
       < RID : Replica | history : DS >
       (msg request(K,TID,VTS) from RID' to RID)
