@@ -65,6 +65,7 @@ endom .
 
     vars T T' : Term .
     var ATS : AttrSet .
+    var B : Bool .
     var CD : Condition .
     var ATR : AttrSet .
     var Rl : Rule .
@@ -106,12 +107,12 @@ endom .
 
     ceq tagRulesAux(rl T => T' [ATR] .) = 
 	(rl T1 => T2 [ATR] .)
-      if '__[T1,T2] := tagLeftRightHand(T,T') .
+      if '__[T1,T2] := tagLeftRightHand(T,T',false) .
     
     
     ceq tagRulesAux(crl T => T' if CD [ATR] .) =
 	  (crl T1 => T2 if CD [ATR] .)
-	  if '__[T1,T2] := tagLeftRightHand(T,T') .
+	  if '__[T1,T2] := tagLeftRightHand(T,T',false) .
 
     op getReplicaID : Term -> Variable .
     
@@ -122,7 +123,7 @@ endom .
     eq getReplicaID(C) = empty .
     eq getReplicaID(V) = empty .
     
-   op tagLeftRightHand : Term Term -> Term .
+   op tagLeftRightHand : Term Term Bool -> Term .
 
 
     vars Q' : Qid .
@@ -208,14 +209,14 @@ endom .
     ---      getAttr('executing`:_,T') =/= 'emptyTxnList.ObjectList .
 
     --- this equation formalizes the execution of a transaction 
-    ceq tagLeftRightHand(T,T') =
+    ceq tagLeftRightHand(T,T',B) =
         '__['__[newMonitorObj,T],'__[resultMonitorObj(getTID(T'),getReplicaID(T)),T']]
       if not hasBranch(T') /\ isExecuted(T,T') .
 
     
       --- this equation formalizes the commit of a readonly transaction
     --- condition : the executing tran is committed (including fast)
-  ceq tagLeftRightHand(T,T') =
+  ceq tagLeftRightHand(T,T',B) =
         '__['__[newMonitorObjRecord(getTID(T)),T],
 	  '__[resultMonitorObjInsert(getTID(T),
 	      getReplicaID(T),'true.Bool,getAttr('readSet`:_,T1),getAttr('writeSet`:_,T1)),T']]
@@ -224,7 +225,7 @@ endom .
 
       --- this equation formalizes the abort of a trans 
     --- condition : the executing tran is aborted
-     ceq tagLeftRightHand(T,T') =
+     ceq tagLeftRightHand(T,T',B) =
         '__['__[newMonitorObjRecord(getTID(T)),T],
 	  '__[resultMonitorObjInsert(getTID(T),
 	      getReplicaID(T),'false.Bool,'READS:ReadSet,'WRITES:WriteSet),T']]
@@ -238,9 +239,13 @@ endom .
 	---      getReplicaID(T),'false.Bool,'READS:ReadSet,'WRITES:WriteSet),T']]
      --- if not hasBranch(T') /\ isAborted(T,T')  .       
     
-    ceq tagLeftRightHand(T,T') =
-        '__['__[newMonitorObjRecord(getTID(T)),T],
+    ceq tagLeftRightHand(T,T',B) =
+	if B then 
+          '__['__[newMonitorObjRecord(getTID(T)),T],
 	    '__[newMonitorObjRecord(getTID(T)),T']]
+	else
+	  '__[T,T']
+	fi 
       if not hasBranch(T') /\ not isAborted(T,T') /\
 	  not isCommitted(T,T') /\ not isExecuted(T,T')
 	  /\ not isSwitched(T,T')  . 
@@ -249,13 +254,13 @@ endom .
       
       --- this equation formalizes the switch of a trans 
       --- condition : the executing tran is committed (including fast)
-    ceq tagLeftRightHand(T,T') =
+    ceq tagLeftRightHand(T,T',B) =
         '__['__[newMonitorObjRecord(getPropagatedTxnsID(T)),T],
 	  '__[resultMonitorObjInsert(getPropagatedTxnsID(T),
 	      getReplicaID(T),'FFLAG:Bool,'READS:ReadSet,'WRITES:WriteSet),T']]
       if not hasBranch(T') /\ isSwitched(T,T')  .       
 
-    ceq tagLeftRightHand(T, T') =
+    ceq tagLeftRightHand(T, T',B) =
 	'__['__[newMonitorObjRecord(getTID(T)),T],
 	  tagRightHand(T, T')]
     if hasBranch(T') .
@@ -280,13 +285,13 @@ endom .
 
     ceq tagRightHand(T, '<_:_|_>[T1,'Replica.Replica,TL]) =
       T3 
-      if '__[T2,T3] := tagLeftRightHand(T,'<_:_|_>[T1,'Replica.Replica,TL]) .
+      if '__[T2,T3] := tagLeftRightHand(T,'<_:_|_>[T1,'Replica.Replica,TL],true) .
     
     eq tagRightHand(T, T') = T' [owise] .
 
       --- nothing changed, no tag
 
-    eq tagLeftRightHand(T,T') =
+    eq tagLeftRightHand(T,T',B) =
         '__[T,T'] [owise] .
 
 
