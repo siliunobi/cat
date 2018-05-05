@@ -232,11 +232,11 @@ endom .
 
       --- this equation formalizes the abort of a trans 
     --- condition : the executing tran is aborted (including fast)
-    ceq tagLeftRightHand(T,T') =
-        '__['__[newMonitorObjRecord(getTID(T)),T],
-	  '__[resultMonitorObjInsert(getTID(T),
-	      getReplicaID(T),'false.Bool,'READS:ReadSet,'WRITES:WriteSet),T']]
-      if not hasBranch(T') /\ isAborted(T,T')  .       
+    --- ceq tagLeftRightHand(T,T') =
+     ---   '__['__[newMonitorObjRecord(getTID(T)),T],
+ ---	  '__[resultMonitorObjInsert(getTID(T),
+	---      getReplicaID(T),'false.Bool,'READS:ReadSet,'WRITES:WriteSet),T']]
+     --- if not hasBranch(T') /\ isAborted(T,T')  .       
     
     ceq tagLeftRightHand(T,T') =
         '__['__[newMonitorObjRecord(getTID(T)),T],
