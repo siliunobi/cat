@@ -393,7 +393,7 @@ load walter-aux
 
   --- the following branching rule needs monitor
  crl [slow-commit-receive-prepare-reply] :
-     < M : Monitor | clock : GT, log : (TID |-> record(RID,T1,VTS1,false,empty,empty),LOG) >
+
      < TABLE : Table | table : REPLICA-TABLE >
      < RID : Replica | executing : < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
                                                  startVTS : VTS, txnSQN : TXNSQN >,
@@ -406,7 +406,7 @@ load walter-aux
      < TABLE : Table | table : REPLICA-TABLE >
      (if VSTS'[TID] == empty --- all votes received
        then if allYes(TID,VOTES')  --- all yes votes
-              then < M : Monitor | clock : GT + 1, log : (TID |-> record(RID,T1,insert(RID,GT,VTS1),true,RS,kvs(WS,version(RID,SQN'))),LOG) >
+              then 
                    < RID : Replica | executing : emptyTxnList,
                                      committed : (TXNS' ;; < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
                                                                          startVTS : VTS, txnSQN : SQN' >),
@@ -415,7 +415,7 @@ load walter-aux
                                      locked : release(TID,LOCKS), dsSites : PSTS', abortSites : ABORTS >
                    propagateTxn(TID,SQN',VTS,WS,allServers(REPLICA-TABLE),RID)       
               else if RIDS =/= empty
-                     then < M : Monitor | clock : GT, log : (TID |-> record(RID,T1,VTS1,false,empty,empty),LOG) >
+                     then 
                           < RID : Replica | executing : < TID : Txn | operations : nil,
                                                                       writeSet : WS, readSet : RS,
                                                                       startVTS : VTS,
@@ -426,7 +426,7 @@ load walter-aux
                                             abortSites : ABORTS' >
                           propagateAbort(TID,RIDS,RID)  
 
-                      else < M : Monitor | clock : GT + 1, log : (TID |-> record(RID,T1,insert(RID,GT,VTS1),false,empty,empty),LOG) >
+                      else 
                            < RID : Replica | executing : emptyTxnList,
                                              committed : TXNS',
                                              aborted : (TXNS'' ;; < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
@@ -437,7 +437,7 @@ load walter-aux
                     fi
                   
             fi
-       else < M : Monitor | clock : GT, log : (TID |-> record(RID,T1,VTS1,false,empty,empty),LOG) >
+       else 
             < RID : Replica | executing : < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
                                                         startVTS : VTS, txnSQN : TXNSQN >,
                               committed : TXNS', aborted : TXNS'', votes : VOTES',
