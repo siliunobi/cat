@@ -161,7 +161,10 @@ endom .
 
     ceq getTID(T) = T3
       if T2 := getAttr('executing`:_,T) /\
-	  '<_:_|`>[T3,TL] := T2 . 
+	  '<_:_|`>[T3,TL] := T2 .
+
+    eq getTID(T) = 'nil.Oid [owise] .
+    
     
     ceq isCommitted(T, T') = true 
       if T1 := getAttr('executing`:_,T)  /\
@@ -263,7 +266,7 @@ endom .
     ceq tagLeftRightHand(T, T',B) =
 	'__['__[newMonitorObjRecord(getTID(T)),T],
 	  tagRightHand(T, T')]
-    if hasBranch(T') .
+    if hasBranch(T') /\ getTID(T) =/= 'nil.Oid .
 
     op tagRightHand : Term TermList -> TermList .
     op hasBranch : TermList -> Bool .
