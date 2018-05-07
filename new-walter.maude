@@ -1,0 +1,427 @@
+
+load walter-aux
+
+(omod WALTER is
+  inc WALTER-AUX .
+
+  vars TID RID RID' TABLE M RID@M : Oid .
+  vars RIDS DSTXNS GVTXNS : OidSet .
+  vars TXNS TXNS' TXNS'' : ObjectList .
+  var OPS : OperationList .
+  var K : Key .
+  vars V V' : Value .
+  var X : LocalVar .
+  var WS : WriteSet .
+  var VARS : LocalVars .
+  vars RS READS WRITES : ReadSet .
+  var REPLICA-TABLE : ReplicaTable .
+  var VERSION : Version .
+  vars VTS VTS' VTS'' VTS1 : VectorTimestamp .
+  vars DS DS' : Datastore .
+  vars VVS VVS' : ValueVersionList .
+  vars SQN SQN' TXNSQN CLOCK GT T1 T2 T3 T4 : Nat .
+  var EXPR : Expression .
+  var KS : KeySet .
+  var LOCKS : Locks .
+  vars VSTS VSTS' VSBS VSBS' ABORTS ABORTS' : VoteSites .
+  vars RIDSS RIDSS' : OidList .
+  var RT : KeyReplicas .
+  vars VOTES VOTES' : Vote .
+  vars FLAG FLAG' : Bool .
+  vars PSTS PSTS' : PropagateSites .
+  vars PTXNS PTXNS' PTXNS'' : PropagatedTxns .
+  vars DTXNS DTXNS' : DurableTxns .
+  var LOG : Log .
+
+
+    rl [start-txn] :
+---      < M : Monitor | clock : GT, log : LOG >
+	< RID : Replica | gotTxns : (< TID : Txn | startVTS : empty > ;; TXNS), 
+        executing : emptyTxnList,
+	committedVTS : VTS >
+      =>
+---      < M : Monitor | clock : GT + 1, log : insert(TID,record(RID,GT,empty,false,empty,empty),LOG) >
+	< RID : Replica | gotTxns : TXNS,
+			  executing : < TID : Txn | startVTS : VTS >, 
+        committedVTS : VTS > .
+
+       rl [commit-read-only-txn] :
+---       < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
+      < RID : Replica | executing : < TID : Txn | operations : nil, writeSet : WS,
+                                                  readSet : RS,
+                                                  txnSQN : TXNSQN >, 
+                        committed : TXNS', sqn : SQN >
+    =>
+---   < M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),true,RS,kvs(WS,version(RID,SQN + 1))),LOG) >
+      < RID : Replica | executing : emptyTxnList, 
+                        committed : (TXNS' ;; < TID : Txn | operations : nil, 
+                                                            writeSet : WS, readSet : RS,
+                                                            txnSQN : SQN + 1 >),
+                        sqn : SQN + 1 > .
+    
+    crl [fast-commit-success] :  
+--- < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
+	< TABLE : Table | table : REPLICA-TABLE >
+	< RID : Replica | executing : < TID : Txn | operations : nil,
+                                                    readSet : RS,
+                                                    writeSet : WS,
+                                                    startVTS : VTS,
+                                                    txnSQN : TXNSQN >, 
+        committed : TXNS', history : DS,  
+        locked : LOCKS, sqn : SQN, 
+        committedVTS : VTS', dsSites : PSTS >
+      =>
+--- < M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),true,RS,kvs(WS,version(RID,SQN + 1))),LOG) >
+	< TABLE : Table | table : REPLICA-TABLE >
+	< RID : Replica | executing : emptyTxnList,
+                       committed : (TXNS' ;; < TID : Txn | operations : nil,
+                                                           readSet : RS,
+                                                           writeSet : WS,
+                                                           startVTS : VTS, 
+                                                           txnSQN : SQN + 1 >),
+        history : DS', locked : LOCKS,
+        sqn : SQN + 1, committedVTS : VTS'', dsSites : PSTS' >
+	propagateTxn(TID,SQN + 1,VTS,WS,allServers(REPLICA-TABLE),RID)  
+      
+      if WS =/= empty /\
+          allLocalPreferred(WS,RID,REPLICA-TABLE) /\
+          (not modified(WS,VTS,DS)) /\
+          (not locked(WS,LOCKS)) /\
+          DS' := update(WS,version(RID,SQN + 1),DS) /\
+          VTS'' := insert(RID,SQN + 1,VTS') /\
+          PSTS' := PSTS ; txnPropagateSites(TID,WS) .
+
+
+     crl [fast-commit-failed] :
+---  < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
+	< TABLE : Table | table : REPLICA-TABLE >
+	< RID : Replica | executing : < TID : Txn | operations : nil,
+                                                    writeSet : WS,
+                                                    readSet : RS,
+                                                    startVTS : VTS,
+                                                    txnSQN : TXNSQN >,
+        aborted : TXNS', history : DS, locked : LOCKS, sqn : SQN >
+      =>
+--- < M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),false,RS,kvs(WS,version(RID,SQN + 1))),LOG) >
+	< TABLE : Table | table : REPLICA-TABLE >
+	< RID : Replica | executing : emptyTxnList,
+			  aborted : (TXNS' ;; < TID : Txn | operations : nil,
+                                                writeSet : WS,
+                                                readSet : RS,
+                                                startVTS : VTS,
+                                                txnSQN : SQN + 1 >),
+        history : DS, locked : LOCKS, sqn : SQN + 1 >
+      if WS =/= empty /\
+          allLocalPreferred(WS,RID,REPLICA-TABLE) /\
+          (modified(WS,VTS,DS) or locked(WS,LOCKS)) .
+
+
+ crl [receive-aborted] :
+---     < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
+     < RID : Replica | executing : < TID : Txn | writeSet : WS,
+                                                    readSet : RS,
+                                                    txnSQN : TXNSQN >, aborted : TXNS', abortSites : ABORTS, sqn : SQN >
+     (msg aborted(TID) from RID' to RID)
+   =>
+     (if ABORTS'[TID] == empty
+       then --- < M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),false,RS,kvs(WS,version(RID,SQN + 1))),LOG) >
+            < RID : Replica | executing : emptyTxnList, aborted : (TXNS' ;; < TID : Txn | writeSet : WS,
+                                                    readSet : RS,
+                                                    txnSQN : SQN + 1 >),
+                              abortSites : ABORTS', sqn : SQN + 1 >
+       else ---  < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
+            < RID : Replica | executing : < TID : Txn | writeSet : WS,
+                                                    readSet : RS,
+                                                    txnSQN : TXNSQN >, aborted : TXNS', abortSites : ABORTS', sqn : SQN >
+     fi)
+     if ABORTS' := remove(TID,RID',ABORTS) .
+
+
+        crl [receive-ds-durable-visible] :
+---     < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
+	< RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+			  recDurableTxns : DTXNS, committedVTS : VTS', locked : LOCKS >
+	(msg ds-durable(TID) from RID' to RID)
+      =>
+---      < M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),FLAG,READS,WRITES),LOG) >
+	< RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+			  recDurableTxns : (durableTxns(TID) ; DTXNS),
+			  committedVTS : insert(RID',SQN,VTS'), locked : release(TID,LOCKS) >
+	(msg visible(TID) from RID to RID')
+      if VTS' gt VTS /\ s(VTS'[RID']) == SQN .
+
+
+        crl [later-visible] :
+---      < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
+	< RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+			  recDurableTxns : (nonDurableTxns(TID,RID') ; DTXNS),
+			  committedVTS : VTS', locked : LOCKS >
+      =>  
+---      < M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),FLAG,READS,WRITES),LOG) >
+	< RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+			  recDurableTxns : (durableTxns(TID) ; DTXNS),
+			  committedVTS : insert(RID',SQN,VTS'), locked : release(TID,LOCKS) >
+	(msg visible(TID) from RID to RID')
+      if VTS' gt VTS /\ s(VTS'[RID']) == SQN .
+
+
+  *** with this rule "show module" does not work!
+  crl [receive-remote-request] :
+      < RID : Replica | history : DS >
+      (msg request(K,TID,VTS) from RID' to RID)
+    =>
+      < RID : Replica | history : DS >
+      (msg reply(TID,K,< V,VERSION >) from RID to RID')
+      if < V,VERSION > := choose(VTS,DS[K]) .
+
+  *** this rule does not need monitor, but you add it?
+  rl [execute-read-own-write] :
+     < RID : Replica | executing : < TID : Txn | operations : ((X :=read K) OPS),
+                                                 writeSet : (K |-> V, WS),
+                                                 localVars : VARS > >
+   =>
+     < RID : Replica | executing : < TID : Txn | operations : OPS, writeSet : (K |-> V, WS),
+                                                 localVars : insert(X,V,VARS) > > .
+
+  *** the following rules do not work 
+    crl [receive-remote-request] :
+      < RID : Replica | history : DS >
+      (msg request(K,TID,VTS) from RID' to RID)
+    =>
+      < RID : Replica | history : DS >
+      (msg reply(TID,K,< V,VERSION >) from RID to RID')
+      if < V,VERSION > := choose(VTS,DS[K]) .
+
+
+   rl [slow-commit-receive-prepare] :
+      < RID : Replica | locked : LOCKS,
+                        history : DS >
+      (msg prepare(TID,KS,VTS) from RID' to RID)
+    =>
+      if (not locked(KS,LOCKS)) and (not modified(KS,VTS,DS)) 
+        then < RID : Replica | locked : (addLock(KS,TID),LOCKS),
+                               history : DS >
+             (msg prepare-reply(TID,true) from RID to RID')
+        else < RID : Replica | locked : LOCKS,
+                               history : DS >
+             (msg prepare-reply(TID,false) from RID to RID')
+      fi .
+
+
+  rl [slow-commit-receive-abort] :
+     < RID : Replica | locked : LOCKS >
+     (msg abort(TID) from RID' to RID)
+   =>
+     < RID : Replica | locked : release(TID,LOCKS) >  
+     (msg aborted(TID) from RID to RID') .
+
+
+ crl [receive-propagate-ack] :
+     < TABLE : Table | table : REPLICA-TABLE >
+     < RID : Replica | dsSites : PSTS, vsbSites : VSBS,
+                       committed : (TXNS ;; < TID : Txn | writeSet : WS, startVTS : VTS,
+                                                          txnSQN : SQN > ;; TXNS'),
+                       dsTxns : DSTXNS, gvTxns : GVTXNS >
+     (msg propagate-ack(TID) from RID' to RID) 
+   => 
+     < TABLE : Table | table : REPLICA-TABLE >
+     (if dsDurable(TID,PSTS')
+       then if RIDS =/= empty
+              then < RID : Replica | dsSites : PSTS', vsbSites : VSBS',
+                                     committed : (TXNS ;; < TID : Txn | writeSet : WS, startVTS : VTS,
+                                                                        txnSQN : SQN > ;; TXNS'),
+                                     dsTxns : (TID, DSTXNS), gvTxns : GVTXNS >
+                   dsDurableTxn(TID,RIDS,RID)
+              else < RID : Replica | dsSites : PSTS', vsbSites : VSBS',
+                                     committed : (TXNS ;; < TID : Txn | writeSet : WS, startVTS : VTS,
+                                                                        txnSQN : SQN > ;; TXNS'),
+                                     dsTxns : (TID, DSTXNS), gvTxns : (TID, GVTXNS) >
+            fi
+       else < RID : Replica | dsSites : PSTS', vsbSites : VSBS,
+                              committed : (TXNS ;; < TID : Txn | writeSet : WS, startVTS : VTS,
+                                                                 txnSQN : SQN > ;; TXNS'),
+                              dsTxns : DSTXNS, gvTxns : GVTXNS >
+     fi)
+     if PSTS' := add(TID,keys(WS),RID',REPLICA-TABLE,PSTS)  /\
+        (not TID in DSTXNS) /\  
+        RIDS := allServers(REPLICA-TABLE) \ RID /\
+        VSBS' := VSBS ; voteSites(TID,RIDS) .
+
+ crl [receive-propagate-ack-after-ds-durable-mark] :
+     < RID : Replica | dsTxns : DSTXNS >
+     (msg propagate-ack(TID) from RID' to RID)
+   =>
+     < RID : Replica | dsTxns : DSTXNS >
+     if TID in DSTXNS .
+
+ crl [receive-visible] :
+     < RID : Replica | vsbSites : VSBS,
+                       gvTxns : GVTXNS >
+     (msg visible(TID) from RID' to RID)
+   =>
+     (if VSBS'[TID] == empty
+       then < RID : Replica | vsbSites : VSBS',
+                              gvTxns : (TID, GVTXNS) >
+       else < RID : Replica | vsbSites : VSBS',
+                              gvTxns : GVTXNS >
+     fi)
+     if VSBS' := remove(TID,RID',VSBS) .
+
+ crl [receive-propagate-empty-VTS] :
+     < TABLE : Table | table : REPLICA-TABLE >
+     < RID : Replica | gotVTS : VTS',
+                       history : DS,
+                       recPropTxns : PTXNS >
+     (msg propagate(TID,SQN,empty,WS) from RID' to RID)
+   =>
+     < TABLE : Table | table : REPLICA-TABLE >
+     (if RID =/= RID'
+       then < RID : Replica | gotVTS : VTS'', 
+                              history : DS',
+                              recPropTxns : PTXNS' >
+            (msg propagate-ack(TID) from RID to RID')
+       else < RID : Replica | gotVTS : VTS'', 
+                              history : DS,
+                              recPropTxns : PTXNS' >
+            (msg propagate-ack(TID) from RID to RID')
+     fi)
+     if PTXNS' := propagatedTxns(TID,SQN,empty) ; PTXNS /\ 
+        VTS'' := insert(RID',SQN,VTS') /\
+        DS' := update(locRepWS(WS,RID,REPLICA-TABLE),version(RID',SQN),DS) .
+
+
+ crl [receive-propagate-non-empty-VTS] :
+     < TABLE : Table | table : REPLICA-TABLE >
+     < RID : Replica | gotVTS : VTS', history : DS, recPropTxns : PTXNS >
+     (msg propagate(TID,SQN,VTS,WS) from RID' to RID)
+   =>
+     < TABLE : Table | table : REPLICA-TABLE >
+     (if s(VTS'[RID']) == SQN and (VTS' gt VTS)
+       then if RID =/= RID'
+              then < RID : Replica | gotVTS : VTS'', history : DS',
+                                     recPropTxns : PTXNS' >
+                   (msg propagate-ack(TID) from RID to RID')
+              else < RID : Replica | gotVTS : VTS'', history : DS,
+                                     recPropTxns : PTXNS' >
+                   (msg propagate-ack(TID) from RID to RID')
+            fi
+       else < RID : Replica | gotVTS : VTS', history : DS,
+                              recPropTxns : PTXNS'' >
+     fi)
+     if PTXNS' := propagatedTxns(TID,SQN,VTS) ; PTXNS /\
+        PTXNS'' := nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS /\  
+        VTS'' := insert(RID',SQN,VTS') /\
+        DS' := update(locRepWS(WS,RID,REPLICA-TABLE),version(RID',SQN),DS) /\
+        VTS =/= empty .
+
+ crl [later-propagate-ack] :
+     < TABLE : Table | table : REPLICA-TABLE >
+     < RID : Replica | gotVTS : VTS', history : DS,
+                       recPropTxns : (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS) >
+   =>
+     < TABLE : Table | table : REPLICA-TABLE >
+     (if RID =/= RID'
+       then < RID : Replica | gotVTS : VTS'', history : DS', 
+                              recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS) >
+            (msg propagate-ack(TID) from RID to RID')
+       else < RID : Replica | gotVTS : VTS'', history : DS,
+                              recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS) >
+            (msg propagate-ack(TID) from RID to RID')
+     fi)
+     if s(VTS'[RID']) == SQN /\
+        VTS' gt VTS /\
+        VTS'' := insert(RID',SQN,VTS') /\
+        DS' := update(locRepWS(WS,RID,REPLICA-TABLE),version(RID',SQN),DS) .
+
+ crl [receive-ds-durable-not-visible-not-match-condition] :
+     < RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+                       recDurableTxns : DTXNS, committedVTS : VTS' >
+     (msg ds-durable(TID) from RID' to RID)
+   =>
+     < RID : Replica | recPropTxns : (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+                       recDurableTxns : (nonDurableTxns(TID,RID') ; DTXNS),
+                       committedVTS : VTS' >
+     if ((not VTS' gt VTS) or s(VTS'[RID']) =/= SQN) . 
+
+
+
+  rl [receive-ds-durable-not-visible-non-propagated-1] :
+     < RID : Replica | recPropTxns : (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS),
+                       recDurableTxns : DTXNS >
+     (msg ds-durable(TID) from RID' to RID)
+   =>
+     < RID : Replica | recPropTxns : (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS),
+                       recDurableTxns : (nonDurableTxns(TID,RID') ; DTXNS) > .
+
+ crl [receive-ds-durable-not-visible-non-propagated-2] :
+     < RID : Replica | recPropTxns : PTXNS, recDurableTxns : DTXNS >
+     (msg ds-durable(TID) from RID' to RID)
+   =>
+     < RID : Replica | recPropTxns : PTXNS,
+                       recDurableTxns : (nonDurableTxns(TID,RID') ; DTXNS) >
+     if not TID in PTXNS .
+
+  *** the following branching rule needs monitor
+ crl [slow-commit-receive-prepare-reply] :
+---  < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
+     < TABLE : Table | table : REPLICA-TABLE >
+     < RID : Replica | executing : < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
+                                                 startVTS : VTS, txnSQN : TXNSQN >,
+                       committed : TXNS', aborted : TXNS'', votes : VOTES,
+                       voteSites : VSTS, sqn : SQN, history : DS,
+                       committedVTS : VTS', locked : LOCKS, 
+                       dsSites : PSTS, abortSites : ABORTS >
+     (msg prepare-reply(TID,FLAG) from RID' to RID)
+   =>
+     < TABLE : Table | table : REPLICA-TABLE >
+     (if VSTS'[TID] == empty
+       then if allYes(TID,VOTES')  
+              then --- < M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),true,RS,kvs(WS,version(RID,SQN + 1))),LOG) >
+                   < RID : Replica | executing : emptyTxnList,
+                                     committed : (TXNS' ;; < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
+                                                                         startVTS : VTS, txnSQN : SQN + 1 >),
+                                     aborted : TXNS'', votes : VOTES', voteSites : VSTS', 
+                                     sqn : SQN + 1, history : DS', committedVTS : VTS'',
+                                     locked : release(TID,LOCKS), dsSites : PSTS', abortSites : ABORTS >
+                   propagateTxn(TID,SQN + 1,VTS,WS,allServers(REPLICA-TABLE),RID)       
+              else if RIDS =/= empty
+                     then ---  < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) > 
+                          < RID : Replica | executing : < TID : Txn | operations : nil,
+                                                                      writeSet : WS, readSet : RS,
+                                                                      startVTS : VTS,
+                                                                      txnSQN : TXNSQN >,
+                                            committed : TXNS', aborted : TXNS'', votes : VOTES',
+                                            voteSites : VSTS', sqn : SQN, history : DS,
+                                            committedVTS : VTS', locked : LOCKS, dsSites : PSTS,
+                                            abortSites : ABORTS' >
+                          propagateAbort(TID,RIDS,RID)  
+
+                      else ---< M : Monitor | clock : GT + 1, log : (TID |-> record(RID@M,T1,insert(RID,GT,VTS1),false,RS,kvs(WS,version(RID,SQN + 1))),LOG) >
+                           < RID : Replica | executing : emptyTxnList,
+                                             committed : TXNS',
+                                             aborted : (TXNS'' ;; < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
+                                                                                startVTS : VTS, txnSQN : SQN + 1 >),
+                                             votes : VOTES', voteSites : VSTS', sqn : SQN, history : DS,
+                                             committedVTS : VTS', locked : LOCKS, dsSites : PSTS,
+                                             abortSites : ABORTS > 
+                    fi
+                  
+            fi
+       else ---  < M : Monitor | clock : GT, log : (TID |-> record(RID@M,T1,VTS1,FLAG,READS,WRITES),LOG) >
+            < RID : Replica | executing : < TID : Txn | operations : nil, writeSet : WS, readSet : RS,
+                                                        startVTS : VTS, txnSQN : TXNSQN >,
+                              committed : TXNS', aborted : TXNS'', votes : VOTES',
+                              voteSites : VSTS', sqn : SQN, history : DS, committedVTS : VTS',
+                              locked : LOCKS, dsSites : PSTS, abortSites : ABORTS >
+     fi) 
+     if VSTS' := remove(TID,RID',VSTS) /\
+        VOTES' := VOTES ; vote(TID,RID',FLAG) /\
+        DS' := update(WS,version(RID,SQN + 1),DS) /\
+        VTS'' := insert(RID,SQN + 1,VTS') /\
+        PSTS' := PSTS ; txnPropagateSites(TID,WS) /\
+        RIDS := yesSites(TID,VOTES') /\
+        ABORTS' := ABORTS ; voteSites(TID,RIDS) .
+    
+endom) 
+
+

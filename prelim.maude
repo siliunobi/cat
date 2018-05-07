@@ -1,4 +1,4 @@
---- load full-maude26
+---load full-maude26
 
 (fmod SOME-PARAMETERS is
   sort Version .  --- In Walter version is a pair (site,seq#)
@@ -106,9 +106,9 @@ endom)
   op _;_ : DurableTxns DurableTxns -> DurableTxns [ctor assoc comm id: noDT] .
 
   --- site, start time, finish time, committed?, key-versions read, key-versions written
-  ---op record : Oid Nat VectorTimestamp Bool ReadSet ReadSet -> Record .
+  op record : Oid Nat VectorTimestamp Bool ReadSet ReadSet -> Record .
 
-  op record : Oid Nat VectorTimestamp Bool ReadSet WriteSet -> Record .
+  ---op record : Oid Nat VectorTimestamp Bool ReadSet WriteSet -> Record .
 endom)
 
 (omod VALUES-NAT is --- define the sort Value

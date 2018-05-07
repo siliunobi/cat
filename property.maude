@@ -1,0 +1,97 @@
+load initial-states
+
+(omod PROPERTY is
+  inc INITIAL-STATES .
+
+  var LOG : Log .
+  vars TID1 TID2 TID3 RID1 RID2 RID3 RID RID' : Oid .
+  vars TS1 TS2 TS3 TC TC' TC1 TC2 : Nat .
+  var C : Configuration .
+  vars VTS VTS1 VTS2 VTS3 : VectorTimestamp .
+  var X : Key .
+  vars V V' : Version .
+  vars RS RS' RS'' WS WS' WS'' : ReadSet .
+
+  *** SI ***
+  --- snapshot read:
+  --- all operations read the most recent committed version 
+  --- as of the time when the transaction began
+  op p1-si : Log -> Bool .
+
+  --- TID1 reads TID2, but globally the most recent committed version is from TID3
+ ceq p1-si((TID1 |-> record(RID1,TS1,VTS1,true,(versionRead(X,V),RS),WS), 
+            TID2 |-> record(RID2,TS2,(RID |-> TC,VTS2),true,RS',(versionRead(X,V),WS')),
+            TID3 |-> record(RID3,TS3,(RID' |-> TC',VTS3),true,RS'',(versionRead(X,V'),WS'')), LOG)) = false
+     if V =/= V' /\ TC' <= TS1 /\ TC' > TC .
+
+  --- deal with reading initial version
+  --- the globally most recent committed version is from TID2
+ ceq p1-si((TID1 |-> record(RID1,TS1,VTS1,true,(versionRead(X,version(0,0)),RS),WS), 
+            TID2 |-> record(RID2,TS2,(RID |-> TC,VTS2),true,RS',(versionRead(X,V),WS')), LOG)) = false
+     if TC <= TS1 .
+
+  eq p1-si(LOG) = true [owise] .
+
+
+  --- no write-write conflicts:
+  --- the write sets of each pair of committed concurrent 
+  --- transaction must be disjoint
+  op p2-si : Log -> Bool .
+  
+ ceq p2-si((TID1 |-> record(RID1,TS1,VTS1,true,RS,(versionRead(X,V),WS)), 
+            TID2 |-> record(RID2,TS2,(RID |-> TC,VTS2),true,RS',(versionRead(X,V'),WS')), LOG)) = true
+     if TC >= TS1 /\ TC <= max(VTS1) .
+  eq p2-si(LOG) = false [owise] .
+
+  op max : VectorTimestamp -> Nat .
+  op $max : VectorTimestamp Nat -> Nat .
+  eq max(VTS) = $max(VTS,0) .
+  eq $max((RID |-> TC,VTS),TC') =
+       if TC > TC'
+         then $max(VTS,TC)
+         else $max(VTS,TC')
+       fi .
+  eq $max(empty,TC') = TC' .
+
+
+  *** PSI ***
+  --- site snapshot read:
+  --- all operations read the most recent committed version at the 
+  --- transaction's site as of the time when the transaction began
+  op p1-psi : Log -> Bool .
+
+  --- 
+ ceq p1-psi((TID1 |-> record(RID1,TS1,VTS1,true,(versionRead(X,V),RS),WS), 
+             TID2 |-> record(RID2,TS2,(RID1 |-> TC,VTS2),true,RS',(versionRead(X,V),WS')),
+             TID3 |-> record(RID3,TS3,(RID1 |-> TC',VTS3),true,RS'',(versionRead(X,V'),WS'')), LOG)) = false
+     if V =/= V' /\ TC' <= TS1 /\ TC' > TC .
+
+ ceq p1-psi((TID1 |-> record(RID1,TS1,VTS1,true,(versionRead(X,version(0,0)),RS),WS), 
+             TID2 |-> record(RID2,TS2,(RID1 |-> TC,VTS2),true,RS',(versionRead(X,V),WS')), LOG)) = false
+     if TC <= TS1 .
+
+  eq p1-psi(LOG) = true [owise] .
+
+  
+  --- no write-write conflicts:
+  --- the write sets of each pair of committed 
+  --- somewhere-concurrent transactions must be disjoint
+  op p2-psi : Log -> Bool .
+ 
+ ceq p2-psi((TID1 |-> record(RID1,TS1,(RID1 |-> TC,VTS1),true,RS,(versionRead(X,V),WS)), 
+             TID2 |-> record(RID2,TS2,(RID1 |-> TC',VTS2),true,RS',(versionRead(X,V'),WS')), LOG)) = true
+     if TC' >= TS1 and TC' <= TC .
+  eq p2-psi(LOG) = false [owise] .
+
+
+  --- commit causality across site:
+  --- if a transaction T1 commits at a site A before a transaction 
+  --- T2 starts at site A, then T1 cannot commit T2 at any site
+  op p3-psi : Log -> Bool .
+
+ ceq p3-psi((TID1 |-> record(RID1,TS1,(RID2 |-> TC,RID |-> TC1,VTS1),true,RS,WS), 
+             TID2 |-> record(RID2,TS2,(RID1 |-> TC',RID |-> TC2,VTS2),true,RS',WS'), LOG)) = true 
+     if TC <= TS2 /\ TC1 > TC2 .
+  eq p3-psi(LOG) = false [owise] .
+
+endom)
