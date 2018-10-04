@@ -206,6 +206,9 @@ fmod CLIENT-REPLICA is
   op Monitor : -> ActorType .
   op log:_ : Record -> Attribute .
 
+*** New
+  op clock:_ : Nat -> Attribute .
+
   op noRecord : -> Record [ctor] .
   --- TID, issueTime, finishTime, values read, values written, committed?
   --- finishTime in ROLA is the time when a txn commits or aborts

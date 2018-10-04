@@ -22,6 +22,8 @@ mod ROLA-ANALYSIS is
 
   eq initConfig = < tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
      (start to 1) (start to 2)
+     < 0 : Monitor | clock: 0, log: noRecord >     
+
      < 1 : Replica | gotTxns:  (< t3 : Txn | operations: ((xl :=read x) write(x,2) (xl :=read x) write(x,3)), readSet: nil, 
                                              latest: empty, localVars: (xl |-> [0], yl |-> [0]), txnSQN: 0 > ), 
                       datastore: (version(x,[0],eptTS,empty)), sqn: 1, latestCommit: empty, 
