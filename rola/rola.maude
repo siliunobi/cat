@@ -54,14 +54,12 @@ mod ROLA is
   --- we consider one-shot reads that can be issued in a single parallel batch
  crl [start-ro-or-rw-txn] :
      (start to RID)  ---??? "start"
-     ---< M : Monitor | log: RECORD >
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | gotTxns: (< TID : Txn | operations: OPS,
                                                latest: empty, AS > ;; TXNS),
                        executing: noActor,
                        1stGetSites: 1STGETS, AS' >
    =>
-     ---< M : Monitor | log: (RECORD ; record(TID,T,0.0,empty,empty,false)) >
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | gotTxns: TXNS,
                        executing: < TID : Txn | operations: OPS,
@@ -76,7 +74,6 @@ mod ROLA is
   ---!!! so "txnSQN" holds the sqn when the txn started executing
  crl [start-wo-txn] : 
      (start to RID)  ---??? "start"
-     ---< M : Monitor | log: RECORD >
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | gotTxns: (< TID : Txn | operations: OPS,
                                                localVars: VARS,
@@ -85,7 +82,6 @@ mod ROLA is
                        sqn: SQN,
                        voteSites: VSTS, AS' >
    =>
-     ---< M : Monitor | log: (RECORD ; record(TID,T,0.0,empty,WRITES,false)) >
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | gotTxns: TXNS,
                        executing: < TID : Txn | operations: OPS,
@@ -137,13 +133,11 @@ mod ROLA is
   --- we could instead store the received vote, and abort the txn 
   --- either nondeterministically, or after receiving all votes (as Walter does)  
   rl [receive-prepare-reply-false-executing] :
-     ---< M : Monitor | log: (RECORD ; record(TID,T1,0.0,READS,WRITES,false) ; RECORD') >
      < RID : Replica | executing: < TID : Txn | AS >,
                        aborted: TXNS,
                        voteSites: VSTS, AS' >
      (msg prepare-reply(TID,false) from RID' to RID)
    =>
-     ---< M : Monitor | log: (RECORD ; record(TID,T1,T,READS,WRITES,false) ; RECORD') >
      < RID : Replica | executing: noActor,
                        aborted: (TXNS ;; < TID : Txn | AS >),
                        voteSites: remove(TID,RID',VSTS), AS' >
@@ -202,20 +196,17 @@ mod ROLA is
 
 
  crl [receive-committed] :
-     ---< M : Monitor | log: (RECORD ; record(TID,T1,0.0,READS,WRITES,false) ; RECORD') >
      < RID : Replica | executing: < TID : Txn | AS >,
                        committed: TXNS,
                        commitSites: CMTS, AS' >
      (msg committed(TID) from RID' to RID)
    =>
      if CMTS'[TID] == empty  --- all "committed" received
-       then ---< M : Monitor | log: (RECORD ; record(TID,T1,T,READS,WRITES,true) ; RECORD') >
-            < RID : Replica | executing: noActor,
+       then < RID : Replica | executing: noActor,
                               committed: (TXNS ;; < TID : Txn | AS >),
                               commitSites: CMTS', AS' >
             (start to RID)  ---??? "start"
-       else ---< M : Monitor | log: (RECORD ; record(TID,T1,0.0,READS,WRITES,false) ; RECORD') >
-            < RID : Replica | executing: < TID : Txn | AS >,
+       else < RID : Replica | executing: < TID : Txn | AS >,
                               committed: TXNS,
                               commitSites: CMTS', AS' >
      fi
@@ -234,7 +225,6 @@ mod ROLA is
 
 
  crl [receive-response1] :
-     ---< M : Monitor | log: (RECORD ; record(TID,T1,0.0,READS,WRITES,false) ; RECORD') >
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
                                                 readSet: RS,
@@ -244,7 +234,6 @@ mod ROLA is
                        2ndGetSites: 2NDGETS, AS' >
      (msg response1(TID,version(K,V,TS,MD)) from RID' to RID)
    =>
-     ---< M : Monitor | log: (RECORD ; record(TID,T1,0.0,(READS,version(K,V,TS,MD)),WRITES,false) ; RECORD') >
      < TABLE : Table | table: REPLICA-TABLE >
      if 1STGETS'[TID] == empty
        then < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
@@ -270,14 +259,12 @@ mod ROLA is
   
 
   rl [receive-response2] :
-     ---< M : Monitor | log: (RECORD ; record(TID,T1,0.0,(READS,version(K,V',TS',MD')),WRITES,false) ; RECORD') >
      < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
                                                 readSet: (RS version(K,V',TS',MD') RS'),
                                                 localVars: VARS, AS >,
                        2ndGetSites: 2NDGETS, AS' >
      (msg response2(TID,version(K,V,TS,MD)) from RID' to RID)
    => 
-     ---< M : Monitor | log: (RECORD ; record(TID,T1,0.0,(READS,version(K,V,TS,MD)),WRITES,false) ; RECORD') >   
      < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
                                                 readSet: (RS version(K,V,TS,MD) RS'),
                                                 localVars: insert(X,V,VARS), AS >,
@@ -291,7 +278,6 @@ mod ROLA is
   --- so "writeSet" not needed: no read-your-write-in-the-same-txn
  crl [commit-reads] :
      (commit-reads to RID)
-     ---< M : Monitor | log: (RECORD ; record(TID,T1,0.0,READS,WRITES,false) ; RECORD') > 
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | executing: < TID : Txn | operations: OPS,
                                                 localVars: VARS,
@@ -305,8 +291,7 @@ mod ROLA is
    =>
      < TABLE : Table | table: REPLICA-TABLE >
      if read-only(OPS)
-       then ---< M : Monitor | log: (RECORD ; record(TID,T1,T,READS,WRITES,true) ; RECORD') >
-            < RID : Replica | executing: noActor,
+       then < RID : Replica | executing: noActor,
                               committed: (TXNS ;; < TID : Txn | operations: OPS,
                                                                 localVars: VARS,
                                                                 readSet: RS,
@@ -316,8 +301,7 @@ mod ROLA is
                               sqn: SQN,
                               voteSites: VSTS, AS' >
             (start to RID)  ---??? "start"
-       else ---< M : Monitor | log: (RECORD ; record(TID,T1,0.0,READS,WRITES',false) ; RECORD') >
-            < RID : Replica | executing: < TID : Txn | operations: OPS,
+       else < RID : Replica | executing: < TID : Txn | operations: OPS,
                                                        localVars: VARS,
                                                        readSet: RS,
                                                        txnSQN: SQN', AS >,
