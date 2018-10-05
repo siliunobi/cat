@@ -4,3 +4,9 @@ Monitor-equipped (core) maude file for SMC: rola-smc.maude
 
 Note: 
 1. MUST first declare the variables used by the transformation, e.g., O@M 
+
+useful data types:
+op <_,_> : Key Version   -> KeyVersion [ctor] .
+pr MAP{Address,Nat} * (sort Map{Address,Nat} to VectorTime) .  --- Float for SMC
+pr MAP{Address,Record} * (sort Map{Address,Record} to Log) .
+op <_,_,_,_,_> : VectorTime VectorTime Bool Set{KeyVersion} Set{KeyVersion} -> Record [ctor] .
