@@ -46,7 +46,7 @@ mod ROLA-AUX is
   vars V V' : Value .
   var WS : WriteSet .
   var VARS : LocalVars .
-  vars RS DS RS' : Versions .
+  var DS : Versions .
   vars LC VL VL' : KeyTimestamps .
   var VERSION : Version .
   vars TS TS' : Timestamp .
@@ -65,6 +65,7 @@ mod ROLA-AUX is
   vars RECORD RECORD' : Record .
   vars WRITES READS WRITES' : VersionSet .
   var SL : ScheduleList .
+  var RS : Set{KeyVersion} .
 
   op vl : OperationList -> KeyTimestamps .
   eq vl((write(K,EXPR) OPS)) = vl(OPS) .
@@ -116,6 +117,7 @@ mod ROLA-AUX is
   --- Note that when initializing write-only txns EXPR should be Value, e.g., [0]
   --- That is, VARS is useless to genPuts in write-only txns
 
+---(
   op ws : OperationList Address Nat LocalVars -> VersionSet .
   op $ws : OperationList Address Nat LocalVars OperationList -> VersionSet .
   eq ws(OPS,RID,SQN,VARS) = $ws(OPS,RID,SQN,VARS,OPS) .
@@ -125,6 +127,13 @@ mod ROLA-AUX is
   eq $ws(((X :=read K) OPS),RID,SQN,VARS,OPS') =
        $ws(OPS,RID,SQN,VARS,OPS') .
   eq $ws(nil,RID,SQN,VARS,OPS') = empty .
+)
+
+  op ws : OperationList LocalVars -> Set{KeyValue} .
+  eq ws((write(K,EXPR) OPS),VARS) = < K,eval(EXPR,VARS) >, ws(OPS,VARS) . 
+  eq ws(((X :=read K) OPS),VARS) = ws(OPS,VARS) .
+  eq ws(nil,VARS) = empty .
+
 
   op md : OperationList -> KeySet .
   eq md((write(K,EXPR) OPS)) = K, md(OPS) .
@@ -204,10 +213,11 @@ mod ROLA-AUX is
 
   ************************************************
   ---??? !!! should be (RS version(K,V,TS,MD) RS')
+--- NEW: No more needed for this version
   ************************************************
   
-  op gen2ndGets : Address KeyTimestamps Versions Address ReplicaTable -> Config .
-  eq gen2ndGets(TID,(K |-> TS',VL),(version(K,V,TS,MD) RS),RID,REPLICA-TABLE) = 
+  op gen2ndGets : Address KeyTimestamps Set{KeyVersion} Address ReplicaTable -> Config .
+  eq gen2ndGets(TID,(K |-> TS',VL),(< K,TS >,RS),RID,REPLICA-TABLE) = 
        gen2ndGets(TID,(K |-> TS',VL),RS,RID,REPLICA-TABLE)
        if TS less-than TS'
          then if localReplica(K,RID,REPLICA-TABLE)
@@ -217,7 +227,7 @@ mod ROLA-AUX is
          else null
        fi .
   eq gen2ndGets(TID,VL,RS,RID,REPLICA-TABLE) = null [owise] .  --- if K is not in VL
-  eq gen2ndGets(TID,VL,nil,RID,REPLICA-TABLE) = null .
+  eq gen2ndGets(TID,VL,empty,RID,REPLICA-TABLE) = null .
 
   op _less-than_ : Timestamp Timestamp -> Bool .
   eq ts(RID,SQN) less-than ts(RID',SQN') =
@@ -242,8 +252,8 @@ mod ROLA-AUX is
                         else TS
                       fi .
 
-  op 2ndSites : KeyTimestamps Versions Address ReplicaTable -> AddressSet .
-  eq 2ndSites((K |-> TS',VL),(version(K,V,TS,MD) RS),RID,REPLICA-TABLE) =
+  op 2ndSites : KeyTimestamps Set{KeyVersion} Address ReplicaTable -> AddressSet .
+  eq 2ndSites((K |-> TS',VL),(< K,TS >,RS),RID,REPLICA-TABLE) =
        2ndSites((K |-> TS',VL),RS,RID,REPLICA-TABLE) ;
        (if TS less-than TS'
           then if localReplica(K,RID,REPLICA-TABLE)
@@ -253,13 +263,23 @@ mod ROLA-AUX is
           else empty
         fi) .
   eq 2ndSites(VL,RS,RID,REPLICA-TABLE) = empty [owise] .  --- if K is not in VL
-  eq 2ndSites(VL,nil,RID,REPLICA-TABLE) = empty . 
+  eq 2ndSites(VL,empty,RID,REPLICA-TABLE) = empty . 
 
   op _[_] : 1stGets Address -> AddressSet .
   eq (1st(TID,RIDS) ; 1STGETS)[TID] = RIDS . 
 
   op _[_] : 2ndGets Address -> AddressSet .
   eq (2nd(TID,RIDS) ; 2NDGETS)[TID] = RIDS . 
+
+*** NEW
+  op _in_ : Address 1stGets -> Bool .
+  eq TID in (1st(TID,RIDS) ; 1STGETS) = true .
+  eq TID in 1STGETS = false [owise] .
+
+  op _in_ : Address 2ndGets -> Bool .
+  eq TID in (2nd(TID,RIDS) ; 2NDGETS) = true .
+  eq TID in 2NDGETS	= false [owise] .
+
 
   op delete : Address 1stGets -> 1stGets .
   eq delete(TID,(1st(TID,RIDS) ; 1STGETS)) = 1STGETS .
@@ -268,6 +288,7 @@ mod ROLA-AUX is
   op delete : Address 2ndGets -> 2ndGets .
   eq delete(TID,(2nd(TID,RIDS) ; 2NDGETS)) = 2NDGETS .
   eq delete(TID,2NDGETS) = 2NDGETS [owise] .
+
 
   op remove : Address Address 1stGets -> 1stGets .
   eq remove(TID,RID,(1st(TID,(RID ; RIDS)) ; 1STGETS)) =
@@ -280,16 +301,19 @@ mod ROLA-AUX is
   eq remove(TID,RID,2NDGETS) = 2NDGETS [owise] .
 
   --- deal with rw-txns in ROLA
-  op genPuts : OperationList Address Address Nat LocalVars Versions ReplicaTable -> Config .
-  op $genPuts : OperationList Address Address Nat LocalVars Versions ReplicaTable OperationList -> Config .
+  op genPuts : OperationList Address Address Nat LocalVars Set{KeyVersion} ReplicaTable -> Config .
+  op $genPuts : OperationList Address Address Nat LocalVars Set{KeyVersion} ReplicaTable OperationList -> Config .
   eq genPuts(OPS,RID,TID,SQN,VARS,RS,REPLICA-TABLE) = $genPuts(OPS,RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS) .
-  eq $genPuts((write(K,EXPR) OPS),RID,TID,SQN,VARS,(RS version(K,V,TS,MD) RS'),REPLICA-TABLE,(OPS' write(K,EXPR) OPS'')) =
-       $genPuts(OPS,RID,TID,SQN,VARS,(RS version(K,V,TS,MD) RS'),REPLICA-TABLE,(OPS' write(K,EXPR) OPS''))
+  eq $genPuts((write(K,EXPR) OPS),RID,TID,SQN,VARS,(RS,< K,TS >),REPLICA-TABLE,(OPS' write(K,EXPR) OPS'')) =
+       $genPuts(OPS,RID,TID,SQN,VARS,(RS,< K,TS >),REPLICA-TABLE,(OPS' write(K,EXPR) OPS''))
        if localReplica(K,RID,REPLICA-TABLE)
          then (msg prepare(TID,version(K,eval(EXPR,VARS),ts(RID,SQN),md(OPS' OPS'')),TS) from RID to RID)
          else (msg prepare(TID,version(K,eval(EXPR,VARS),ts(RID,SQN),md(OPS' OPS'')),TS) from RID to preferredSite(K,REPLICA-TABLE))
        fi .
   eq $genPuts(((X :=read K) OPS),RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS') = 
        $genPuts(OPS,RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS') . 
-  eq $genPuts(nil,RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS') = null .  
+  eq $genPuts(nil,RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS') = null . 
+
+*** NEW
+  op kver : Set{KeyValue} Version -> Set{KeyVersion} . 
 endm

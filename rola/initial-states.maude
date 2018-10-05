@@ -172,7 +172,7 @@ k101l k102l k103l k104l k105l k106l k107l k108l k109l k110l k111l k112l k113l k1
   --- "keys" take the first KEYS of "keyList"
   eq init(RTX,WTX,RWTX,REPLS,KEYS,ROPS,WOPS,RWOPS,KAD) =       
        $init(RTX,WTX,RWTX,REPLS,REPLS,kvars(KEYS,keyVars),kvars(KEYS,keyVars),ROPS,WOPS,RWOPS,KAD, 
-         < 0 . 1 : Table | table: [emptyTable] >) { 0.0 | nil } < 0 . 2 : Monitor | log: noRecord > .
+         < 0 . 1 : Table | table: [emptyTable] >) { 0.0 | nil } < 0 . 2 : Monitor | log: empty > .
 
   --- generate replicas
   eq $init(RTX,WTX,RWTX,s REPLS,REPLS2,KVARS,KVARS',ROPS,WOPS,RWOPS,KAD,C) =
@@ -246,20 +246,20 @@ k101l k102l k103l k104l k105l k106l k107l k108l k109l k110l k111l k112l k113l k1
   --- if this is the first ro-txn to generate
  eq addRTxn(RID,ROPS,KVARS,KAD,< RID : Replica | gotTxns: emptyTxnList, AS > C) =
       $addRTxn(< RID : Replica | gotTxns: < RID . 1 : Txn | operations: addReads(ROPS,KVARS,KAD), 
-                                                            readSet: nil, latest: empty, 
+                                                            readSet: empty, latest: empty, 
                                                             localVars: empty, txnSQN: 0 >, AS >) C .
 
   --- if there is already some txn(s) generated
  eq addRTxn(RID,ROPS,KVARS,KAD,< RID : Replica | gotTxns: (TXNS ;; < RID . N : Txn | AS' >), AS > C) =
        $addRTxn(< RID : Replica | gotTxns: (TXNS ;; < RID . N : Txn | AS' > ;; 
-                                  < RID . (N + 1) : Txn | operations: addReads(ROPS,KVARS,KAD), readSet: nil,
+                                  < RID . (N + 1) : Txn | operations: addReads(ROPS,KVARS,KAD), readSet: empty,
                                                           latest: empty, localVars: empty, txnSQN: 0 >), AS >) C .
   --- update "localVars"
   eq $addRTxn(< RID : Replica | gotTxns: (TXNS ;; < RID . N : Txn | operations: OPS, 
-                                                            readSet: nil, latest: empty, 
+                                                            readSet: empty, latest: empty, 
                                                             localVars: empty, txnSQN: 0 >), AS >) =
        < RID : Replica | gotTxns: (TXNS ;; < RID . N : Txn | operations: OPS, 
-                                                    readSet: nil, latest: empty, 
+                                                    readSet: empty, latest: empty, 
                                                     localVars: lvars(OPS), txnSQN: 0 >), AS > .
         
   --- no repeated reads on the same key in a ro-txn
@@ -290,22 +290,22 @@ k101l k102l k103l k104l k105l k106l k107l k108l k109l k110l k111l k112l k113l k1
   --- if this is the first wo-txn to generate
   eq addWTxn(RID,ROPS,KVARS,KAD,< RID : Replica | gotTxns: emptyTxnList, AS > C) =
        $addWTxn(< RID : Replica | gotTxns: < RID . 1 : Txn | operations: addWrites(ROPS,KVARS,KAD), 
-                                                             readSet: nil, latest: empty, 
+                                                             readSet: empty, latest: empty, 
                                                              localVars: empty, txnSQN: 0 >, AS >) C .
 
   --- if there is already some txn(s) generated
   eq addWTxn(RID,ROPS,KVARS,KAD,< RID : Replica | gotTxns: (TXNS ;; < RID . N : Txn | AS' >), AS > C) =
        $addWTxn(< RID : Replica | gotTxns: (TXNS ;; < RID . N : Txn | AS' > ;; 
-                                  < RID . (N + 1) : Txn | operations: addWrites(ROPS,KVARS,KAD), readSet: nil,
+                                  < RID . (N + 1) : Txn | operations: addWrites(ROPS,KVARS,KAD), readSet: empty,
                                                           latest: empty, localVars: empty, txnSQN: 0 >), AS >) C .  
 
   --- update "localVars"
   ---!!! "lvars" does nothing with wo-txns
   eq $addWTxn(< RID : Replica | gotTxns: (TXNS ;; < RID . N : Txn | operations: OPS, 
-                                                                    readSet: nil, latest: empty, 
+                                                                    readSet: empty, latest: empty, 
                                                                     localVars: empty, txnSQN: 0 >), AS >) =
        < RID : Replica | gotTxns: (TXNS ;; < RID . N : Txn | operations: OPS, 
-                                                             readSet: nil, latest: empty, 
+                                                             readSet: empty, latest: empty, 
                                                              localVars: lvars(OPS), txnSQN: 0 >), AS > .
 
   --- no repeated writes on the same key in a wo-txn
@@ -330,21 +330,21 @@ k101l k102l k103l k104l k105l k106l k107l k108l k109l k110l k111l k112l k113l k1
   --- if this is the first rw-txn to generate
   eq addRWTxn(RID,ROPS,KVARS,KAD,< RID : Replica | gotTxns: emptyTxnList, AS > C) =
        $addRWTxn(< RID : Replica | gotTxns: < RID . 1 : Txn | operations: addRWrites(ROPS,KVARS,KAD), 
-                                                              readSet: nil, latest: empty, 
+                                                              readSet: empty, latest: empty, 
                                                               localVars: empty, txnSQN: 0 >, AS >) C .
 
   --- if there is already some txn(s) generated
   eq addRWTxn(RID,ROPS,KVARS,KAD,< RID : Replica | gotTxns: (TXNS ;; < RID . N : Txn | AS' >), AS > C) =
        $addRWTxn(< RID : Replica | gotTxns: (TXNS ;; < RID . N : Txn | AS' > ;; 
-                                   < RID . (N + 1) : Txn | operations: addRWrites(ROPS,KVARS,KAD), readSet: nil,
+                                   < RID . (N + 1) : Txn | operations: addRWrites(ROPS,KVARS,KAD), readSet: empty,
                                                            latest: empty, localVars: empty, txnSQN: 0 >), AS >) C .  
 
   --- update "localVars"
   eq $addRWTxn(< RID : Replica | gotTxns: (TXNS ;; < RID . N : Txn | operations: OPS, 
-                                                                     readSet: nil, latest: empty, 
+                                                                     readSet: empty, latest: empty, 
                                                                      localVars: empty, txnSQN: 0 >), AS >) =
        < RID : Replica | gotTxns: (TXNS ;; < RID . N : Txn | operations: OPS, 
-                                                             readSet: nil, latest: empty, 
+                                                             readSet: empty, latest: empty, 
                                                              localVars: lvars(OPS), txnSQN: 0 >), AS > . 
 
   --- no repeated reads/writes on the same key in a rw-txn
