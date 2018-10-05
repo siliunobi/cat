@@ -22,7 +22,7 @@ mod ROLA is
   var VARS : LocalVars .
   var DS : Versions .
   vars LC VL VL' : KeyTimestamps .
-  var VERSION : Version .
+  vars VER VERSION : Version .
   vars TS TS' : Timestamp .
   vars MD MD' KS : KeySet .
   vars VS VS' : Versions .
@@ -80,7 +80,7 @@ mod ROLA is
                                                localVars: VARS,
                                                txnSQN: TXNSQN,
                                                writeSet: WS,
-                                               version: TS, AS > ;; TXNS),
+                                               version: VERSION, AS > ;; TXNS),
                        executing: noActor,
                        sqn: SQN,
                        voteSites: VSTS, AS' >
@@ -91,7 +91,7 @@ mod ROLA is
                                                 localVars: VARS,
                                                 txnSQN: SQN',
                                                 writeSet: WS',
-                                                version: ts(RID,SQN'), AS >,
+                                                version: < RID,SQN' >, AS >,
                        sqn: SQN',
                        voteSites: (VSTS ; voteSites(TID,RIDS)), AS' >
      genPuts(OPS,RID,TID,SQN',VARS,REPLICA-TABLE)
@@ -140,7 +140,7 @@ mod ROLA is
   rl [receive-prepare-reply-false-executing] :
      < RID : Replica | executing: < TID : Txn | readSet: RS,
                                                 writeSet: WS,
-                                                version: TS, AS >,
+                                                version: VERSION, AS >,
                        aborted: TXNS,
                        voteSites: VSTS, AS' >
      (msg prepare-reply(TID,false) from RID' to RID)
@@ -148,7 +148,7 @@ mod ROLA is
      < RID : Replica | executing: noActor,
                        aborted: (TXNS ;; < TID : Txn | readSet: RS,
                                                        writeSet: WS,
-                                                       version: TS, AS >),
+                                                       version: VERSION, AS >),
                        voteSites: remove(TID,RID',VSTS), AS' >
      (start to RID) .  ---??? "start"
 
@@ -207,7 +207,7 @@ mod ROLA is
  crl [receive-committed] :
      < RID : Replica | executing: < TID : Txn | readSet: RS,
                                                 writeSet: WS,
-                                                version: TS, AS >,
+                                                version: VERSION, AS >,
                        committed: TXNS,
                        commitSites: CMTS, AS' >
      (msg committed(TID) from RID' to RID)
@@ -216,12 +216,12 @@ mod ROLA is
        then < RID : Replica | executing: noActor,
                               committed: (TXNS ;; < TID : Txn | readSet: RS,
                                                                 writeSet: WS,
-                                                                version: TS, AS >),
+                                                                version: VERSION, AS >),
                               commitSites: CMTS', AS' >
             (start to RID)  ---??? "start"
        else < RID : Replica | executing: < TID : Txn | readSet: RS,
                                                        writeSet: WS,
-                                                       version: TS, AS >,
+                                                       version: VERSION, AS >,
                               committed: TXNS,
                               commitSites: CMTS', AS' >
      fi
@@ -268,7 +268,7 @@ mod ROLA is
                               1stGetSites: 1STGETS',
                               2ndGetSites: 2NDGETS, AS' >  
      fi 
-     if RS' := RS, < K,TS > /\
+     if RS' := RS, < K,ts2Ver(TS) > /\
         VL' := lat(VL,MD,TS) /\
         1STGETS' := remove(TID,RID',1STGETS) /\
         RIDS := 2ndSites(VL',RS',RID,REPLICA-TABLE) . 
@@ -276,13 +276,13 @@ mod ROLA is
 
   rl [receive-response2] :
      < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
-                                                readSet: (RS,< K,TS' >),
+                                                readSet: (RS,< K,VER >),
                                                 localVars: VARS, AS >,
                        2ndGetSites: 2NDGETS, AS' >
      (msg response2(TID,version(K,V,TS,MD)) from RID' to RID)
    => 
      < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
-                                                readSet: (RS,< K,TS >),
+                                                readSet: (RS,< K,ts2Ver(TS) >),
                                                 localVars: insert(X,V,VARS), AS >,
                        2ndGetSites: remove(TID,RID',2NDGETS), AS' >
 ---??? !!!
@@ -300,7 +300,7 @@ mod ROLA is
                                                 readSet: RS,
                                                 txnSQN: TXNSQN,
                                                 writeSet: WS,
-                                                version: TS, AS >,
+                                                version: VERSION, AS >,
                        committed: TXNS,
                        1stGetSites: 1STGETS,
                        2ndGetSites: 2NDGETS,
@@ -315,7 +315,7 @@ mod ROLA is
                                                                 readSet: RS,
                                                                 txnSQN: TXNSQN,
                                                                 writeSet: WS,
-                                                                version: TS, AS >),
+                                                                version: VERSION, AS >),
                               1stGetSites: delete(TID,1STGETS),
                               2ndGetSites: delete(TID,2NDGETS),
                               sqn: SQN,
@@ -326,7 +326,7 @@ mod ROLA is
                                                        readSet: RS,
                                                        txnSQN: SQN',
                                                        writeSet: WS',
-                                                       version: ts(RID,SQN'), AS >,
+                                                       version: < RID,SQN' >, AS >,
                               committed: TXNS,
                               1stGetSites: delete(TID,1STGETS),
                               2ndGetSites: delete(TID,2NDGETS),

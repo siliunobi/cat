@@ -26,7 +26,7 @@ mod ROLA-ANALYSIS is
 
      < 1 : Replica | gotTxns:  (< t3 : Txn | operations: ((xl :=read x) write(x,2) (yl :=read y) write(y,3)), readSet: empty, 
                                              latest: empty, localVars: (xl |-> [0], yl |-> [0]), txnSQN: 0,
-                                             writeSet: empty, version: eptTS > ), 
+                                             writeSet: empty, version: eptVersion > ), 
                       datastore: (version(x,[0],eptTS,empty)), sqn: 1, latestCommit: empty, 
                       executing: noActor, 
                       committed: emptyTxnList, aborted: emptyTxnList, votes: noVote,
@@ -36,7 +36,7 @@ mod ROLA-ANALYSIS is
 
      < 2 : Replica | gotTxns: (< t1 : Txn | operations: ((xl :=read x) write(x,1) (yl :=read y) write(y,1)), readSet: empty, 
                                              latest: empty, localVars: (xl |-> [0], yl |-> [0]), txnSQN: 0,
-                                             writeSet: empty, version: eptTS > ), 
+                                             writeSet: empty, version: eptVersion > ), 
                       datastore: (version(y,[0],eptTS,empty)), sqn: 1, latestCommit: empty, 
                       executing: noActor, 
                       committed: emptyTxnList, aborted: emptyTxnList, votes: noVote,

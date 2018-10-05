@@ -29,7 +29,8 @@ fmod TXN-SORTS is
   op _;_ : Vote Vote -> Vote [ctor assoc comm id: noVote] .  
 
 *** NEW
-  op <_,_> : Key Timestamp -> KeyVersion [ctor] .  --- Timestamp is 'version' in ROLA
+---  op <_,_> : Key Timestamp -> KeyVersion [ctor] .  --- Timestamp is 'version' in ROLA
+  op <_,_> : Key Version   -> KeyVersion [ctor] .  --- 'version' is extracted from 'timestamp'
   op <_,_> : Key Value -> KeyValue [ctor] .
 
 endfm
@@ -132,6 +133,9 @@ fmod VERSION-ROLA is
   including SOME-PARAMETERS + TXN-SORTS + TXN-AUX1 .
   op version : Key Value Timestamp KeySet -> Version .  --- KeySet concerns MD
   op eptVersion : -> Version .
+
+*** NEW
+  op <_,_> : Address Int -> Version .
 endfm
 
 fmod READSET-ROLA is
@@ -213,7 +217,7 @@ fmod CLIENT-REPLICA is
 *** New
   op readSet:_ : Set{KeyVersion} -> Attribute .
   op writeSet:_ : Set{KeyValue} -> Attribute .
-  op version:_ : Timestamp -> Attribute .
+  op version:_ : Version -> Attribute .
 
 
   op Table : -> ActorType .
