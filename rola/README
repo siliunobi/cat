@@ -1,3 +1,6 @@
 User-provided (core) maude file: rola.maude
 Monitor-equipped (core) maude file for MC: rola-mc.maude
 Monitor-equipped (core) maude file for SMC: rola-smc.maude
+
+Note: 
+1. MUST first declare the variables used by the transformation, e.g., O@M 
