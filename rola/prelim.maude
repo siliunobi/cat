@@ -238,7 +238,7 @@ fmod CLIENT-REPLICA is
 )
 
 *** NEW 
----  op <_,_,_,_,_> : VectorTime VectorTime Bool Set{KeyVersion} Set{KeyVersion} -> Record [ctor] .
+  op <_,_,_,_,_> : VectorTime VectorTime Bool Set{KeyVersion} Set{KeyVersion} -> Record [ctor] .
 
 
 endfm
