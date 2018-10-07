@@ -105,7 +105,7 @@ mod ROLA is
   --- "gotTxns" abstracts "client" away
   --- we consider one-shot reads that can be issued in a single parallel batch
  crl [start-ro-or-rw-txn] :
-     ***< O@M : Monitor | clock: GT@M, log: LOG@M >
+
      (start to RID)  ---??? "start"
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | gotTxns: (< TID : Txn | operations: OPS,
@@ -113,8 +113,7 @@ mod ROLA is
                        executing: noActor,
                        1stGetSites: 1STGETS, AS' >
    =>
-     ***< O@M : Monitor | clock: (GT@M + 1), log: 
-       ***insert(TID,< RID |-> GT@M,empty,false,empty,empty >,LOG@M) >
+
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | gotTxns: TXNS,
                        executing: < TID : Txn | operations: OPS,
@@ -128,7 +127,7 @@ mod ROLA is
   ---!!! ROLA needs "txnSQN" because "sqn" could be updated by "prepare"
   ---!!! so "txnSQN" holds the sqn when the txn started executing
  crl [start-wo-txn] : 
-     ***< O@M : Monitor | clock: GT@M, log: LOG@M >
+
      (start to RID)  ---??? "start"
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | gotTxns: (< TID : Txn | operations: OPS,
@@ -140,8 +139,7 @@ mod ROLA is
                        sqn: SQN,
                        voteSites: VSTS, AS' >
    =>
-     ***< O@M : Monitor | clock: (GT@M + 1), log: 
-       ***insert(TID,< RID |-> GT@M,empty,false,empty,empty >,LOG@M) >
+
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | gotTxns: TXNS,
                        executing: < TID : Txn | operations: OPS,
@@ -195,8 +193,7 @@ mod ROLA is
   --- we could instead store the received vote, and abort the txn 
   --- either nondeterministically, or after receiving all votes (as Walter does)  
   rl [receive-prepare-reply-false-executing] :
-     ***< O@M : Monitor | clock: GT@M, log: (TID |-> 
-       ***< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+
      < RID : Replica | executing: < TID : Txn | readSet: RS,
                                                 writeSet: WS,
                                                 version: VERSION, AS >,
@@ -204,8 +201,7 @@ mod ROLA is
                        voteSites: VSTS, AS' >
      (msg prepare-reply(TID,false) from RID' to RID)
    =>
-     ***< O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
-       ***< VTS1@M,insert(RID,GT@M,VTS2@M),false,RS,kver(WS,VERSION) >,LOG@M) >
+
      < RID : Replica | executing: noActor,
                        aborted: (TXNS ;; < TID : Txn | readSet: RS,
                                                        writeSet: WS,
@@ -266,8 +262,7 @@ mod ROLA is
 
 
  crl [receive-committed] :
-     ***< O@M : Monitor | clock: GT@M, log: (TID |-> 
-       ***< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+
      < RID : Replica | executing: < TID : Txn | readSet: RS,
                                                 writeSet: WS,
                                                 version: VERSION, AS >,
@@ -276,16 +271,14 @@ mod ROLA is
      (msg committed(TID) from RID' to RID)
    =>
      if CMTS'[TID] == empty  --- all "committed" received
-       then ***< O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
-              ***< VTS1@M,insert(RID,GT@M,VTS2@M),true,RS,kver(WS,VERSION) >,LOG@M) >
+       then 
             < RID : Replica | executing: noActor,
                               committed: (TXNS ;; < TID : Txn | readSet: RS,
                                                                 writeSet: WS,
                                                                 version: VERSION, AS >),
                               commitSites: CMTS', AS' >
             (start to RID)  ---??? "start"
-       else ***< O@M : Monitor | clock: GT@M, log: (TID |-> 
-              ***< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+       else 
             < RID : Replica | executing: < TID : Txn | readSet: RS,
                                                        writeSet: WS,
                                                        version: VERSION, AS >,
@@ -360,8 +353,7 @@ mod ROLA is
   --- that is, all reads are sent out at the beginning of the txn
   --- so "writeSet" not needed: no read-your-write-in-the-same-txn
  crl [commit-reads] :
-     ***< O@M : Monitor | clock: GT@M, log: (TID |-> 
-       ***< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+
      (commit-reads(TID) to RID)
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | executing: < TID : Txn | operations: OPS,
@@ -378,8 +370,7 @@ mod ROLA is
    =>
      < TABLE : Table | table: REPLICA-TABLE >
      if read-only(OPS)
-       then ***< O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
-              ***< VTS1@M,insert(RID,GT@M,VTS2@M),true,RS,kver(WS,VERSION) >,LOG@M) >
+       then
             < RID : Replica | executing: noActor,
                               committed: (TXNS ;; < TID : Txn | operations: OPS,
                                                                 localVars: VARS,
@@ -392,8 +383,7 @@ mod ROLA is
                               sqn: SQN,
                               voteSites: VSTS, AS' >
             (start to RID)  ---??? "start"
-       else ***< O@M : Monitor | clock: GT@M, log: (TID |-> 
-              ***< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+       else 
             < RID : Replica | executing: < TID : Txn | operations: OPS,
                                                        localVars: VARS,
                                                        readSet: RS,
