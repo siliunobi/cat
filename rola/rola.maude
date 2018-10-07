@@ -25,10 +25,6 @@ mod ROLA is
   vars WRITES READS WRITES' : VersionSet .  var SL : ScheduleList .
   vars WS WS' : Set{KeyValue} .  vars RS RS' : Set{KeyVersion} .
 
-  var O@M : Address .  var GT@M : Nat .  var LOG@M : Log .
-  vars VTS1@M VTS2@M : VectorTime . var FLAG@M : Bool . 
-  vars READS@M WRITES@M : Set{KeyVersion} .
-
 
   --- Aux functions
   op genGets : OperationList Address Address ReplicaTable -> Config .
@@ -428,3 +424,4 @@ mod ROLA is
        (not TID in 2NDGETS) .
 
 endm
+
