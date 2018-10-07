@@ -172,7 +172,8 @@ k101l k102l k103l k104l k105l k106l k107l k108l k109l k110l k111l k112l k113l k1
   --- "keys" take the first KEYS of "keyList"
   eq init(RTX,WTX,RWTX,REPLS,KEYS,ROPS,WOPS,RWOPS,KAD) =       
        $init(RTX,WTX,RWTX,REPLS,REPLS,kvars(KEYS,keyVars),kvars(KEYS,keyVars),ROPS,WOPS,RWOPS,KAD, 
-         < 0 . 1 : Table | table: [emptyTable] >) { 0.0 | nil } < 0 . 2 : Monitor | log: empty > .
+         < 0 . 1 : Table | table: [emptyTable] >) < 0 . 2 : Monitor | clock: 0, log: empty > .
+  --- no scheduler
 
   --- generate replicas
   eq $init(RTX,WTX,RWTX,s REPLS,REPLS2,KVARS,KVARS',ROPS,WOPS,RWOPS,KAD,C) =
@@ -183,7 +184,7 @@ k101l k102l k103l k104l k105l k106l k107l k108l k109l k110l k111l k112l k113l k1
                                votes: noVote, voteSites: noVS, 
                                1stGetSites: no1st, 2ndGetSites: no2nd, 
                                commitSites: noVS, tsSqn: empty >) 
-         {0.0, s REPLS <- start} .  ---??? manually start to run ROLA
+         (start to (s REPLS)) .  ---??? manually start to run ROLA
                                     ---??? we can't put it into C; owise ROLA rules could apply
                                     ---??? this msg should pair the rule [receiving-start-when-no-txn-to-start]  
                                     ---??? we should be able to remove manually starting to run ROLA
