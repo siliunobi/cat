@@ -10,7 +10,7 @@ mod ROLA-ANALYSIS is
   eq LIMIT = 10000000.0 .
 
   op initConfig : -> Config .
-  ---eq initConfig = run(initState,LIMIT) .
+  eq initConfig = run(initState,LIMIT) .
 
   ops x y z : -> Key .
   ops tb r1 r2 r3 t1 t2 t3 t4 : -> Address .
@@ -20,9 +20,9 @@ mod ROLA-ANALYSIS is
   ---eq initState = init(1,0,1,2,2,2,2,4,zipf) .
 
 
-  eq initConfig = < tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
-     (start to 1) (start to 2)
-     < 0 : Monitor | clock: 0, log: empty >     
+  eq initState = < tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+     {0.0, start to 1} {0.0, start to 2}
+     < 0 : Monitor | log: empty > { 0.0 | nil }    
 
      < 1 : Replica | gotTxns:  (< t3 : Txn | operations: ((xl :=read x) write(x,2) (yl :=read y) write(y,3)), readSet: empty, 
                                              latest: empty, localVars: (xl |-> [0], yl |-> [0]), txnSQN: 0,
@@ -108,9 +108,9 @@ mod ROLA-ANALYSIS is
 )
 endm
 
----set clear rules off .
----rewrite initConfig .
-search initConfig =>! C:Config .
+set clear rules off .
+rewrite initConfig .
+---search initConfig =>! C:Config .
 ---rewrite totalRunTime?(initConfig) .
 
 

@@ -182,7 +182,7 @@ fmod CLIENT-REPLICA is
 *** NEW
   pr SET{KeyVersion} .
   pr SET{KeyValue} .
-  pr MAP{Address,Nat} * (sort Map{Address,Nat} to VectorTime) . --- Nat for MC
+  pr MAP{Address,Float} * (sort Map{Address,Float} to VectorTime) . --- Nat for MC
   pr MAP{Address,Record} * (sort Map{Address,Record} to Log) .
 
 ---  op Client : -> ActorType .
@@ -226,8 +226,8 @@ fmod CLIENT-REPLICA is
   op Monitor : -> ActorType .
   op log:_ : Log -> Attribute .
 
-*** New
-  op clock:_ : Nat -> Attribute .
+*** no need for smc  
+---  op clock:_ : Nat -> Attribute .
 
 ---(
   op noRecord : -> Record [ctor] .

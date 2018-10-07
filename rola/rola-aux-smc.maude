@@ -14,6 +14,10 @@ mod ROLA-AUX is
   including VALUES-NAT .
   including SCHEDULER .
 
+*** NEW
+  op delay : -> Delay .
+  eq delay = sampleLogNormal(3.0,2.0) .
+
   op ld : -> Delay .  --- local delay 
   op rd : -> Delay .  --- remote delay
   op nd : -> Delay .  --- no delay
