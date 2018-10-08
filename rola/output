@@ -1,0 +1,1531 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	   Maude 2.7.1 built: Jun 27 2016 16:35:16
+	    Copyright 1997-2016 SRI International
+		   Sun Oct  7 08:01:13 2018
+==========================================
+search in ROLA-ANALYSIS : initConfig =>! C:Config .
+
+Solution 1 (state 3593)
+states: 4063  rewrites: 181481 in 220ms cpu (222ms real) (824913
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 2,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 3,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    3), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 3) |-> 3) >
+
+Solution 2 (state 3594)
+states: 4063  rewrites: 181481 in 220ms cpu (222ms real) (824913
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 3,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 2,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    3), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 3) |-> 3) >
+
+Solution 3 (state 3621)
+states: 4085  rewrites: 182147 in 220ms cpu (223ms real) (827940
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 2,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 3,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 3) >
+
+Solution 4 (state 3622)
+states: 4085  rewrites: 182147 in 220ms cpu (223ms real) (827940
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 3,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 2,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 3) >
+
+Solution 5 (state 3623)
+states: 4085  rewrites: 182147 in 224ms cpu (223ms real) (813156
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 2,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 3,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 3) >
+
+Solution 6 (state 3624)
+states: 4085  rewrites: 182147 in 224ms cpu (223ms real) (813156
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 3,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 2,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 3) >
+
+Solution 7 (state 3677)
+states: 4129  rewrites: 183479 in 224ms cpu (225ms real) (819102
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 2,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 0,1 |-> 3,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    3), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 3) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 2) >
+
+Solution 8 (state 3678)
+states: 4129  rewrites: 183479 in 224ms cpu (226ms real) (819102
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 3,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 0,1 |-> 2,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    3), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 3) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 2) >
+
+Solution 9 (state 3830)
+states: 4286  rewrites: 191496 in 236ms cpu (237ms real) (811423
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 2,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 3,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    3), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 3) |-> 3) >
+
+Solution 10 (state 3831)
+states: 4286  rewrites: 191496 in 236ms cpu (237ms real) (811423
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 3,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 2,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    3), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 3) |-> 3) >
+
+Solution 11 (state 3858)
+states: 4308  rewrites: 192162 in 236ms cpu (238ms real) (814245
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 2,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 3,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 3) >
+
+Solution 12 (state 3859)
+states: 4308  rewrites: 192162 in 236ms cpu (238ms real) (814245
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 3,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 2,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 3) >
+
+Solution 13 (state 3860)
+states: 4308  rewrites: 192162 in 236ms cpu (238ms real) (814245
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 2,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 3,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 3) >
+
+Solution 14 (state 3861)
+states: 4308  rewrites: 192162 in 236ms cpu (238ms real) (814245
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 3,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 2,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 3) >
+
+Solution 15 (state 3914)
+states: 4352  rewrites: 193494 in 240ms cpu (240ms real) (806225
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 2,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 1,1 |-> 3,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    3), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 3) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 2) >
+
+Solution 16 (state 3915)
+states: 4352  rewrites: 193494 in 240ms cpu (241ms real) (806225
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 3,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 1,1 |-> 2,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    3), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 3) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: empty,1stGetSites: no1st,
+    2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 2) >
+
+Solution 17 (state 5207)
+states: 5505  rewrites: 252575 in 316ms cpu (316ms real) (799287
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 2,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 3,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(2, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x)),sqn: 3,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(2, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(2, 2) |-> 3) >
+
+Solution 18 (state 5208)
+states: 5505  rewrites: 252575 in 316ms cpu (316ms real) (799287
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 3,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 2,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(2, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x)),sqn: 3,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(2, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(2, 2) |-> 3) >
+
+Solution 19 (state 5209)
+states: 5505  rewrites: 252575 in 316ms cpu (317ms real) (799287
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 3,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 2,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(2, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x)),sqn: 3,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(2, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(2, 2) |-> 3) >
+
+Solution 20 (state 5210)
+states: 5505  rewrites: 252575 in 316ms cpu (317ms real) (799287
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 2,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 3,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(2, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x)),sqn: 3,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(2, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(2, 2) |-> 3) >
+
+Solution 21 (state 5211)
+states: 5505  rewrites: 252575 in 316ms cpu (317ms real) (799287
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 2,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 3,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y)),sqn: 3,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(1, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(1, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 3) >
+
+Solution 22 (state 5212)
+states: 5505  rewrites: 252575 in 316ms cpu (317ms real) (799287
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 3,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 2,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y)),sqn: 3,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(1, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(1, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 3) >
+
+Solution 23 (state 5213)
+states: 5505  rewrites: 252575 in 316ms cpu (317ms real) (799287
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 3,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 0,1 |-> 2,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y)),sqn: 3,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(1, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(1, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 2) >
+
+Solution 24 (state 5214)
+states: 5505  rewrites: 252575 in 316ms cpu (317ms real) (799287
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 2,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 0,1 |-> 3,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y)),sqn: 3,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(1, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(1, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 2) >
+
+Solution 25 (state 5356)
+states: 5642  rewrites: 261216 in 324ms cpu (327ms real) (806222
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 2,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 3,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(2, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x)),sqn: 3,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(2, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(2, 2) |-> 3) >
+
+Solution 26 (state 5357)
+states: 5642  rewrites: 261216 in 324ms cpu (327ms real) (806222
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 3,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 2,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(2, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x)),sqn: 3,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(2, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(2, 2) |-> 3) >
+
+Solution 27 (state 5358)
+states: 5642  rewrites: 261216 in 324ms cpu (327ms real) (806222
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 3,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 2,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(2, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x)),sqn: 3,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(2, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(2, 2) |-> 3) >
+
+Solution 28 (state 5359)
+states: 5642  rewrites: 261216 in 328ms cpu (327ms real) (796390
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 2,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 3,false,< x,< 0,0
+    > >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(2, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(2, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x)),sqn: 3,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(2, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(2, 2) |-> 3) >
+
+Solution 29 (state 5360)
+states: 5642  rewrites: 261216 in 328ms cpu (327ms real) (796390
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 2,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 3,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y)),sqn: 3,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(1, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(1, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 3) >
+
+Solution 30 (state 5361)
+states: 5642  rewrites: 261216 in 328ms cpu (327ms real) (796390
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 3,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 2,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y)),sqn: 3,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(1, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(1, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 3) >
+
+Solution 31 (state 5362)
+states: 5642  rewrites: 261216 in 328ms cpu (327ms real) (796390
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 3,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 1,1 |-> 2,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y)),sqn: 3,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(1, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(1, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 2) >
+
+Solution 32 (state 5363)
+states: 5642  rewrites: 261216 in 328ms cpu (328ms real) (796390
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 2,false,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 1,1 |-> 3,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y)),sqn: 3,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(1, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x)),sqn: 3,executing: noActor,committed: emptyTxnList,aborted: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,3 > >,gotTxns: emptyTxnList,votes: noVote,
+    voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(1, 2)),1stGetSites:
+    no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: (ts(1, 2) |-> 2) >
+
+Solution 33 (state 6235)
+states: 6355  rewrites: 304107 in 380ms cpu (379ms real) (800281
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 2,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 3,true,< x,< 2,2 >
+    >, < y,< 2,2 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y) version(x, [2], ts(1, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [1], yl |-> [1]),txnSQN: 3,latest: (x |-> ts(2, 2), y
+    |-> ts(2, 2)),readSet: (< x,< 2,2 > >, < y,< 2,2 > >),writeSet: (< x,[2] >,
+    < y,[3] >),version: < 1,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(1,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t3,
+    empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x) version(y, [3], ts(1, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 3) >
+
+Solution 34 (state 6236)
+states: 6355  rewrites: 304107 in 380ms cpu (379ms real) (800281
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 3,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 2,true,< x,< 2,2 >
+    >, < y,< 2,2 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y) version(x, [2], ts(1, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [1], yl |-> [1]),txnSQN: 3,latest: (x |-> ts(2, 2), y
+    |-> ts(2, 2)),readSet: (< x,< 2,2 > >, < y,< 2,2 > >),writeSet: (< x,[2] >,
+    < y,[3] >),version: < 1,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(1,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t3,
+    empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x) version(y, [3], ts(1, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 3) >
+
+Solution 35 (state 6267)
+states: 6375  rewrites: 304897 in 380ms cpu (381ms real) (802360
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 3,true,< x,< 1,2 > >, < y,< 1,2 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 0,1 |-> 2,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y) version(x, [1], ts(2, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3, ts(2, 3) |-> 4) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x) version(y, [1], ts(2, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [2], yl |-> [3]),txnSQN: 3,latest: (x |-> ts(1, 2), y
+    |-> ts(1, 2)),readSet: (< x,< 1,2 > >, < y,< 1,2 > >),writeSet: (< x,[1] >,
+    < y,[1] >),version: < 2,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(2,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t1,
+    empty),tsSqn: (ts(1, 2) |-> 2, ts(2, 3) |-> 4) >
+
+Solution 36 (state 6268)
+states: 6375  rewrites: 304897 in 380ms cpu (381ms real) (802360
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 2,true,< x,< 1,2 > >, < y,< 1,2 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 0,1 |-> 3,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y) version(x, [1], ts(2, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3, ts(2, 3) |-> 4) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x) version(y, [1], ts(2, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [2], yl |-> [3]),txnSQN: 3,latest: (x |-> ts(1, 2), y
+    |-> ts(1, 2)),readSet: (< x,< 1,2 > >, < y,< 1,2 > >),writeSet: (< x,[1] >,
+    < y,[1] >),version: < 2,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(2,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t1,
+    empty),tsSqn: (ts(1, 2) |-> 2, ts(2, 3) |-> 4) >
+
+Solution 37 (state 6269)
+states: 6375  rewrites: 304897 in 380ms cpu (381ms real) (802360
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 2,2 |-> 3,true,< x,< 1,2 > >, < y,< 1,2 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 0,1 |-> 1,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y) version(x, [1], ts(2, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3, ts(2, 3) |-> 4) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x) version(y, [1], ts(2, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [2], yl |-> [3]),txnSQN: 3,latest: (x |-> ts(1, 2), y
+    |-> ts(1, 2)),readSet: (< x,< 1,2 > >, < y,< 1,2 > >),writeSet: (< x,[1] >,
+    < y,[1] >),version: < 2,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(2,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t1,
+    empty),tsSqn: (ts(1, 2) |-> 2, ts(2, 3) |-> 4) >
+
+Solution 38 (state 6300)
+states: 6395  rewrites: 305687 in 380ms cpu (382ms real) (804439
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 2,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 3,true,< x,< 2,2 >
+    >, < y,< 2,2 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y) version(x, [2], ts(1, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [1], yl |-> [1]),txnSQN: 3,latest: (x |-> ts(2, 2), y
+    |-> ts(2, 2)),readSet: (< x,< 2,2 > >, < y,< 2,2 > >),writeSet: (< x,[2] >,
+    < y,[3] >),version: < 1,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(1,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t3,
+    empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x) version(y, [3], ts(1, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 3) >
+
+Solution 39 (state 6301)
+states: 6395  rewrites: 305687 in 380ms cpu (382ms real) (804439
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 3,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 2,true,< x,< 2,2 >
+    >, < y,< 2,2 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y) version(x, [2], ts(1, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [1], yl |-> [1]),txnSQN: 3,latest: (x |-> ts(2, 2), y
+    |-> ts(2, 2)),readSet: (< x,< 2,2 > >, < y,< 2,2 > >),writeSet: (< x,[2] >,
+    < y,[3] >),version: < 1,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(1,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t3,
+    empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x) version(y, [3], ts(1, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 3) >
+
+Solution 40 (state 6332)
+states: 6415  rewrites: 306477 in 384ms cpu (384ms real) (798117
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 3,true,< x,< 1,2 > >, < y,< 1,2 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 1,1 |-> 2,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y) version(x, [1], ts(2, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3, ts(2, 3) |-> 4) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x) version(y, [1], ts(2, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [2], yl |-> [3]),txnSQN: 3,latest: (x |-> ts(1, 2), y
+    |-> ts(1, 2)),readSet: (< x,< 1,2 > >, < y,< 1,2 > >),writeSet: (< x,[1] >,
+    < y,[1] >),version: < 2,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(2,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t1,
+    empty),tsSqn: (ts(1, 2) |-> 2, ts(2, 3) |-> 4) >
+
+Solution 41 (state 6333)
+states: 6415  rewrites: 306477 in 384ms cpu (384ms real) (798117
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 2,true,< x,< 1,2 > >, < y,< 1,2 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 1,1 |-> 3,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y) version(x, [1], ts(2, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3, ts(2, 3) |-> 4) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x) version(y, [1], ts(2, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [2], yl |-> [3]),txnSQN: 3,latest: (x |-> ts(1, 2), y
+    |-> ts(1, 2)),readSet: (< x,< 1,2 > >, < y,< 1,2 > >),writeSet: (< x,[1] >,
+    < y,[1] >),version: < 2,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(2,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t1,
+    empty),tsSqn: (ts(1, 2) |-> 2, ts(2, 3) |-> 4) >
+
+Solution 42 (state 6334)
+states: 6415  rewrites: 306477 in 384ms cpu (384ms real) (798117
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 1,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 2,1 |-> 3,true,< x,< 2,2 >
+    >, < y,< 2,2 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y) version(x, [2], ts(1, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [1], yl |-> [1]),txnSQN: 3,latest: (x |-> ts(2, 2), y
+    |-> ts(2, 2)),readSet: (< x,< 2,2 > >, < y,< 2,2 > >),writeSet: (< x,[2] >,
+    < y,[3] >),version: < 1,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(1,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t3,
+    empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x) version(y, [3], ts(1, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 3) >
+
+Solution 43 (state 6463)
+states: 6479  rewrites: 307773 in 384ms cpu (387ms real) (801492
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 2,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 3,true,< x,< 2,2 >
+    >, < y,< 2,2 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y) version(x, [2], ts(1, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [1], yl |-> [1]),txnSQN: 3,latest: (x |-> ts(2, 2), y
+    |-> ts(-1, -1)),readSet: (< x,< 2,2 > >, < y,< 2,2 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,3 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x) version(y, [3], ts(1, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 3) >
+
+Solution 44 (state 6464)
+states: 6479  rewrites: 307773 in 384ms cpu (387ms real) (801492
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 3,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 2,true,< x,< 2,2 >
+    >, < y,< 2,2 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y) version(x, [2], ts(1, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [1], yl |-> [1]),txnSQN: 3,latest: (x |-> ts(2, 2), y
+    |-> ts(-1, -1)),readSet: (< x,< 2,2 > >, < y,< 2,2 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,3 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x) version(y, [3], ts(1, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 3) >
+
+Solution 45 (state 6465)
+states: 6479  rewrites: 307773 in 384ms cpu (387ms real) (801492
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 2,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 3,true,< x,< 2,2 >
+    >, < y,< 2,2 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y) version(x, [2], ts(1, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [1], yl |-> [1]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(2, 2)),readSet: (< x,< 2,2 > >, < y,< 2,2 > >),writeSet: (< x,[2] >,
+    < y,[3] >),version: < 1,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(1,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t3,
+    empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x) version(y, [3], ts(1, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 3) >
+
+Solution 46 (state 6466)
+states: 6479  rewrites: 307773 in 388ms cpu (387ms real) (793229
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 3,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 0,1 |-> 2,true,< x,< 2,2 >
+    >, < y,< 2,2 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y) version(x, [2], ts(1, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [1], yl |-> [1]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(2, 2)),readSet: (< x,< 2,2 > >, < y,< 2,2 > >),writeSet: (< x,[2] >,
+    < y,[3] >),version: < 1,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(1,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t3,
+    empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x) version(y, [3], ts(1, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 3) >
+
+Solution 47 (state 6467)
+states: 6479  rewrites: 307773 in 388ms cpu (387ms real) (793229
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 3,true,< x,< 1,2 > >, < y,< 1,2 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 0,1 |-> 2,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y) version(x, [1], ts(2, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3, ts(2, 3) |-> 4) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x) version(y, [1], ts(2, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [2], yl |-> [3]),txnSQN: 3,latest: (x |-> ts(1, 2), y
+    |-> ts(-1, -1)),readSet: (< x,< 1,2 > >, < y,< 1,2 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,3 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 2) |-> 2, ts(2, 3) |-> 4) >
+
+Solution 48 (state 6468)
+states: 6479  rewrites: 307773 in 388ms cpu (387ms real) (793229
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 2,true,< x,< 1,2 > >, < y,< 1,2 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 0,1 |-> 3,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y) version(x, [1], ts(2, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3, ts(2, 3) |-> 4) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x) version(y, [1], ts(2, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [2], yl |-> [3]),txnSQN: 3,latest: (x |-> ts(1, 2), y
+    |-> ts(-1, -1)),readSet: (< x,< 1,2 > >, < y,< 1,2 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,3 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 2) |-> 2, ts(2, 3) |-> 4) >
+
+Solution 49 (state 6469)
+states: 6479  rewrites: 307773 in 388ms cpu (387ms real) (793229
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 3,true,< x,< 1,2 > >, < y,< 1,2 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 0,1 |-> 2,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y) version(x, [1], ts(2, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3, ts(2, 3) |-> 4) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x) version(y, [1], ts(2, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [2], yl |-> [3]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(1, 2)),readSet: (< x,< 1,2 > >, < y,< 1,2 > >),writeSet: (< x,[1] >,
+    < y,[1] >),version: < 2,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(2,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t1,
+    empty),tsSqn: (ts(1, 2) |-> 2, ts(2, 3) |-> 4) >
+
+Solution 50 (state 6470)
+states: 6479  rewrites: 307773 in 388ms cpu (388ms real) (793229
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 1,2 |-> 2,true,< x,< 1,2 > >, < y,< 1,2 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 0,1 |-> 3,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y) version(x, [1], ts(2, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3, ts(2, 3) |-> 4) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x) version(y, [1], ts(2, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [2], yl |-> [3]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(1, 2)),readSet: (< x,< 1,2 > >, < y,< 1,2 > >),writeSet: (< x,[1] >,
+    < y,[1] >),version: < 2,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(2,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t1,
+    empty),tsSqn: (ts(1, 2) |-> 2, ts(2, 3) |-> 4) >
+
+Solution 51 (state 6471)
+states: 6479  rewrites: 307773 in 388ms cpu (388ms real) (793229
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 2,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 3,true,< x,< 2,2 >
+    >, < y,< 2,2 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y) version(x, [2], ts(1, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [1], yl |-> [1]),txnSQN: 3,latest: (x |-> ts(2, 2), y
+    |-> ts(-1, -1)),readSet: (< x,< 2,2 > >, < y,< 2,2 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,3 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x) version(y, [3], ts(1, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 3) >
+
+Solution 52 (state 6472)
+states: 6479  rewrites: 307773 in 388ms cpu (388ms real) (793229
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 3,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 2,true,< x,< 2,2 >
+    >, < y,< 2,2 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y) version(x, [2], ts(1, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [1], yl |-> [1]),txnSQN: 3,latest: (x |-> ts(2, 2), y
+    |-> ts(-1, -1)),readSet: (< x,< 2,2 > >, < y,< 2,2 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,3 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x) version(y, [3], ts(1, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 3) >
+
+Solution 53 (state 6473)
+states: 6479  rewrites: 307773 in 388ms cpu (388ms real) (793229
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 2,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 3,true,< x,< 2,2 >
+    >, < y,< 2,2 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y) version(x, [2], ts(1, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [1], yl |-> [1]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(2, 2)),readSet: (< x,< 2,2 > >, < y,< 2,2 > >),writeSet: (< x,[2] >,
+    < y,[3] >),version: < 1,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(1,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t3,
+    empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x) version(y, [3], ts(1, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 3) >
+
+Solution 54 (state 6474)
+states: 6479  rewrites: 307773 in 388ms cpu (388ms real) (793229
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 3,true,< x,< 0,0 > >, < y,< 0,0 >
+    >,< x,< 2,2 > >, < y,< 2,2 > > >, t3 |-> < 1 |-> 1,1 |-> 2,true,< x,< 2,2 >
+    >, < y,< 2,2 > >,< x,< 1,3 > >, < y,< 1,3 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [1], ts(2,
+    2), y) version(x, [2], ts(1, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [1], yl |-> [1]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(2, 2)),readSet: (< x,< 2,2 > >, < y,< 2,2 > >),writeSet: (< x,[2] >,
+    < y,[3] >),version: < 1,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x |-> ts(1,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t3,
+    empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 2) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [1], ts(2,
+    2), x) version(y, [3], ts(1, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(1, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 3) |-> 4, ts(2, 2) |-> 3) >
+
+Solution 55 (state 6475)
+states: 6479  rewrites: 307773 in 388ms cpu (388ms real) (793229
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 3,true,< x,< 1,2 > >, < y,< 1,2 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 1,1 |-> 2,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y) version(x, [1], ts(2, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3, ts(2, 3) |-> 4) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x) version(y, [1], ts(2, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [2], yl |-> [3]),txnSQN: 3,latest: (x |-> ts(1, 2), y
+    |-> ts(-1, -1)),readSet: (< x,< 1,2 > >, < y,< 1,2 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,3 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 2) |-> 2, ts(2, 3) |-> 4) >
+
+Solution 56 (state 6476)
+states: 6479  rewrites: 307773 in 388ms cpu (388ms real) (793229
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 2,true,< x,< 1,2 > >, < y,< 1,2 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 1,1 |-> 3,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y) version(x, [1], ts(2, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3, ts(2, 3) |-> 4) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x) version(y, [1], ts(2, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [2], yl |-> [3]),txnSQN: 3,latest: (x |-> ts(1, 2), y
+    |-> ts(-1, -1)),readSet: (< x,< 1,2 > >, < y,< 1,2 > >),writeSet: (< x,[1]
+    >, < y,[1] >),version: < 2,3 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t1, empty),tsSqn: (ts(1, 2) |-> 2, ts(2, 3) |-> 4) >
+
+Solution 57 (state 6477)
+states: 6479  rewrites: 307773 in 388ms cpu (388ms real) (793229
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 3,true,< x,< 1,2 > >, < y,< 1,2 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 1,1 |-> 2,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y) version(x, [1], ts(2, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3, ts(2, 3) |-> 4) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x) version(y, [1], ts(2, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [2], yl |-> [3]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(1, 2)),readSet: (< x,< 1,2 > >, < y,< 1,2 > >),writeSet: (< x,[1] >,
+    < y,[1] >),version: < 2,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(2,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t1,
+    empty),tsSqn: (ts(1, 2) |-> 2, ts(2, 3) |-> 4) >
+
+Solution 58 (state 6478)
+states: 6479  rewrites: 307773 in 388ms cpu (388ms real) (793229
+    rewrites/second)
+C:Config --> 
+< 0 : Monitor | log: (t1 |-> < 2 |-> 0,2 |-> 2,true,< x,< 1,2 > >, < y,< 1,2 >
+    >,< x,< 2,3 > >, < y,< 2,3 > > >, t3 |-> < 1 |-> 1,1 |-> 3,true,< x,< 0,0 >
+    >, < y,< 0,0 > >,< x,< 1,2 > >, < y,< 1,2 > > >),clock: 4 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | datastore: (version(x, [0], eptTS, empty) version(x, [2], ts(1,
+    2), y) version(x, [1], ts(2, 3), y)),sqn: 4,executing: noActor,committed: 
+< t3 : Txn | operations: ((xl :=read x) write(x, 2) (yl :=read y) write(y, 3)),
+    localVars: (xl |-> [0], yl |-> [0]),txnSQN: 2,latest: (x |-> ts(-1, -1), y
+    |-> ts(-1, -1)),readSet: (< x,< 0,0 > >, < y,< 0,0 > >),writeSet: (< x,[2]
+    >, < y,[3] >),version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
+    emptyTxnList,votes: noVote,voteSites: voteSites(t3, empty),latestCommit: (x
+    |-> ts(2, 3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(
+    t3, empty),tsSqn: (ts(1, 2) |-> 3, ts(2, 3) |-> 4) > 
+< 2 : Replica | datastore: (version(y, [0], eptTS, empty) version(y, [3], ts(1,
+    2), x) version(y, [1], ts(2, 3), x)),sqn: 4,executing: noActor,committed: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    localVars: (xl |-> [2], yl |-> [3]),txnSQN: 3,latest: (x |-> ts(-1, -1), y
+    |-> ts(1, 2)),readSet: (< x,< 1,2 > >, < y,< 1,2 > >),writeSet: (< x,[1] >,
+    < y,[1] >),version: < 2,3 > >,aborted: emptyTxnList,gotTxns: emptyTxnList,
+    votes: noVote,voteSites: voteSites(t1, empty),latestCommit: (y |-> ts(2,
+    3)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(t1,
+    empty),tsSqn: (ts(1, 2) |-> 2, ts(2, 3) |-> 4) >
+
+No more solutions.
+states: 6479  rewrites: 307773 in 388ms cpu (389ms real) (793229
+    rewrites/second)
+Bye.
