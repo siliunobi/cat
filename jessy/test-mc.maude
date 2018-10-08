@@ -1,0 +1,157 @@
+load initial-states-mc
+
+mod JESSY-ANALYSIS is
+  including INITIAL-STATES .
+  including APMAUDE .
+  including MODEL-CHECKER .
+
+  eq nd = 0.0 .
+  ---(
+  eq ld = 0.0 .
+  eq rd = 0.0 .
+  )
+  --- lognormal distribution
+  eq ld = sampleLogNormal(0.0,1.0) . --- miu, sigma 
+  eq rd = sampleLogNormal(3.0,2.0) .
+
+  --- weibull distribution
+  --- eq ld = sampleWeibull(5.0,1.0) 
+  --- eq rd = sampleWeibull(3.0,300.0) .
+
+  --- or, ld = 0.0
+  --- in our model, local delay seems to be local "processing" delay,
+  --- which is negligible compared to the distributed data communication
+  --- thus, the settings in our experiments could be:
+---  eq ld = 0.0 .
+---  eq rd = sampleLogNormal(0.0,1.0) .
+--- eq rd = sampleWeibull(5.0,1.0) .
+
+
+  subsort Config < State .
+
+  eq LIMIT = 10000000.0 .
+
+  op initConfig : -> Config .
+  ---eq initConfig = run(initState,LIMIT) .
+
+  ops x y z : -> Key .
+  ops m tb r1 r2 r3 t1 t2 t3 t4 t5 t6 : -> Address .
+  ops xl yl zl : -> LocalVar .
+  
+  --- init(RTX,WTX,RWTX,REPLS,KEYS,ROPS,WOPS,RWOPS,KAD) 
+  ---eq initState = init(20,0,180,25,150,2,2,4,uniform) .
+
+
+  eq initConfig = < tb : Table | table: [replicatingSites(x, 1) ;; 
+                                         replicatingSites(y, 1) ;; 
+                                         replicatingSites(z, 3)] > 
+                 < m : Monitor | clock: 0, log: empty > 
+              (start to 1) (start to 2) (start to 3) 
+     < 1 : Replica | gotTxns: (
+                                < t1 : Txn | operations: ((xl :=read x) write(x,1) 
+                                                          (zl :=read z) write(z,2)), readSet: empty, 
+                                             writeSet: empty, localVars: (xl |-> [0], zl |-> [0]), 
+                                             vecRead: empty, vecWrite: empty, txnSQN: 0, version: eptVersion >
+                               
+                               ),
+                     datastore: (< x,[0],< 0,0 > >, < y,[0],< 0,0 > >), sqn: 0,
+                     depVector: (< x,< 0,0 > > |-> (x |-> 0, y |-> 0, z |-> 0),
+                                 < y,< 0,0 > > |-> (x |-> 0, y |-> 0, z |-> 0)), 
+                      executing: null, submitted: null,
+                      committed: null, aborted: null, certifying: null,
+                      votes: noVote, voteSites: noVS,
+                      commitSites: noVS, abortSites: noVS > 
+
+     < 2 : Replica | gotTxns: (< t2 : Txn | operations: ((yl :=read y) write(y,8)
+                                                         (zl :=read z) write(z,7)), readSet: empty, 
+                                            writeSet: empty, localVars: (yl |-> [0], zl |-> [0]), 
+                                            vecRead: empty, vecWrite: empty, txnSQN: 0, version: eptVersion >), 
+                     datastore: empty, sqn: 0, 
+                     depVector: empty,
+                     executing: null, submitted: null,
+                     committed: null, aborted: null, certifying: null,
+                     votes: noVote, voteSites: noVS,
+                     commitSites: noVS, abortSites: noVS >
+
+     < 3 : Replica | gotTxns: emptyTxnList, 
+                     datastore: (< z,[0],< 0,0 > >), sqn: 0, 
+                     depVector: (< z,< 0,0 > > |-> (x |-> 0, y |-> 0, z |-> 0)), 
+                      executing: null, submitted: null,
+                      committed: null, aborted: null, certifying: null,
+                     votes: noVote, voteSites: noVS,
+                      commitSites: noVS, abortSites: noVS > .
+  
+---(
+  --- Metrics
+  vars T T' T1 T2 NUMBER : Float .
+  var C : Config .
+  vars M TID : Address .
+  vars RECORD RECORD' : Record . 
+  var FLAG : Bool .
+
+  --- Throughput
+  op totalRunTime : Record -> Float .
+  op trt : Record Float -> Float .
+  eq totalRunTime(RECORD) = trt(RECORD,0.0) .
+  eq trt((record(TID,T1,T2,FLAG) ; RECORD),T) = 
+       if T2 > T
+         then trt(RECORD,T2)
+         else trt(RECORD,T)
+       fi .
+  eq trt(noRecord,T) = T .
+         
+  op throughput : Config -> Float .
+  eq throughput(< M : Monitor | log: RECORD > C) = committedNumber(RECORD) / totalRunTime(RECORD) .
+
+  op committedNumber : Record -> Float .
+  op $committedNumber : Record Float -> Float .
+  eq committedNumber(RECORD) = $committedNumber(RECORD,0.0) .
+  eq $committedNumber((record(TID,T1,T2,true) ; RECORD),NUMBER) = 
+       $committedNumber(RECORD,NUMBER + 1.0) .
+  eq $committedNumber((record(TID,T1,T2,false) ; RECORD),NUMBER) = 
+       $committedNumber(RECORD,NUMBER) .
+  eq $committedNumber(noRecord,NUMBER) = NUMBER .
+
+  --- Commit Rate
+  op commitRate : Config -> Float .
+  eq commitRate(< M : Monitor | log: RECORD > C) = committedNumber(RECORD) / totalNumber(RECORD) .
+
+  op totalNumber : Record -> Float .
+  op $totalNumber : Record Float -> Float .
+  eq totalNumber(RECORD) = $totalNumber(RECORD,0.0) .
+  eq $totalNumber((record(TID,T1,T2,FLAG) ; RECORD),NUMBER) = 
+       $totalNumber(RECORD,NUMBER + 1.0) .
+  eq $totalNumber(noRecord,NUMBER) = NUMBER .  
+
+  --- Avg Latency
+  op avgLatency : Config -> Float .
+  eq avgLatency(< M : Monitor | log: RECORD > C) = totalLatency(RECORD) / committedNumber(RECORD) .
+  
+  op totalLatency : Record -> Float .
+  op $totalLatency : Record Float -> Float .
+  eq totalLatency(RECORD) = $totalLatency(RECORD,0.0) .
+  eq $totalLatency((record(TID,T1,T2,true) ; RECORD),NUMBER) =
+       $totalLatency(RECORD,NUMBER + T2 - T1) .
+  eq $totalLatency((record(TID,T1,T2,false) ; RECORD),NUMBER) = 
+       $totalLatency(RECORD,NUMBER) .
+  eq $totalLatency(noRecord,NUMBER) = NUMBER .
+
+  --- PVESTA interfaces
+  eq val(0,C) = throughput(C) .
+  eq val(1,C) = avgLatency(C) .
+  eq val(2,C) = commitRate(C) .
+)
+endm
+
+---set clear rules off .
+---rew initConfig .
+search initConfig =>! C:Config .
+
+---rewrite commitRate(initConfig) .
+---rewrite (not modified((x |-> [1]),empty,(x |-> < [0],version(0, 0) >))) .
+---rewrite (not locked((x |-> [1]),empty)) .
+---rewrite update((x |-> [1]),version(1,2),(x |-> < [0],version(0, 0) >)) .
+
+---rew max((x |-> 0, y |-> 1, z |-> 2),(x |-> 1, y |-> 0, z |-> 4)) .
+
+---q

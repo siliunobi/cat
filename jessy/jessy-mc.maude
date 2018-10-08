@@ -1,4 +1,4 @@
-load jessy-aux
+load jessy-aux-mc
 
 mod JESSY is
   including DELAY .
@@ -65,11 +65,12 @@ mod JESSY is
   --- "gotTxns" abstracts "client" away
   rl [start-txn] :
      (start to RID)
-
+     < O@M : Monitor | clock: GT@M, log: LOG@M >
      < RID : Replica | gotTxns: (< TID : Txn | AS > ;; TXNS), 
                        executing: null, AS' >
    =>
-
+     < O@M : Monitor | clock: (GT@M + 1), log: 
+       insert(TID,< RID |-> GT@M,empty,false,empty,empty >,LOG@M) >
      < RID : Replica | gotTxns: TXNS,
                        executing: < TID : Txn | AS >, AS' > 
      (execute to RID) .
@@ -170,14 +171,16 @@ mod JESSY is
 
    rl [commit-read-only-txn] :
       (execute to RID)
-  
+      < O@M : Monitor | clock: GT@M, log: (TID |-> 
+        < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >     
       < RID : Replica | executing: < TID : Txn | operations: nil, 
                                                  writeSet: empty,
                                                  readSet: RS,
                                                  version: VERSION, AS >, 
                         committed: C, AS' >
     =>
-
+      < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+        < VTS1@M,insert(RID,GT@M,VTS2@M),true,RS,kver(empty,VERSION) >,LOG@M) >
       < RID : Replica | executing: null, 
                         committed: (C < TID : Txn | operations: nil, 
                                                     writeSet: empty,
@@ -242,7 +245,8 @@ mod JESSY is
 
 
  crl [receive-prepare-reply] :
-
+     < O@M : Monitor | clock: GT@M, log: (TID |-> 
+       < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | submitted: (C < TID : Txn | operations: nil,
                                                    writeSet: WS,
@@ -263,7 +267,8 @@ mod JESSY is
      if VSTS'[TID] == emptyAddressSet --- all votes received
        then 
             if allYes(TID,VOTES')  --- all yes votes
-              then 
+              then < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+                     < VTS1@M,insert(RID,GT@M,VTS2@M),true,RS,kver(WS,VERSION) >,LOG@M) >
                    < RID : Replica | submitted: C,
                                      committed: (C' < TID : Txn | operations: nil,
                                                                   writeSet: WS,
@@ -279,7 +284,8 @@ mod JESSY is
                                      depVector: update(VW,RID,REPLICA-TABLE,DV), AS' >
                    commitTxn(TID,RIDS \ RID,RID) --- commit phase; commit locally first, and then async with remote replicas
                    (start to RID) 
-              else 
+              else < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+                     < VTS1@M,insert(RID,GT@M,VTS2@M),false,RS,kver(WS,VERSION) >,LOG@M) >
                    < RID : Replica | submitted: C,
                                      committed: C',
                                      aborted: (C'' < TID : Txn | operations: nil,
@@ -296,7 +302,8 @@ mod JESSY is
                    abortTxn(TID,RIDS \ RID,RID)  --- abort locally first, and then async with remote replicas
                    (start to RID)
             fi
-       else
+       else < O@M : Monitor | clock: GT@M, log: (TID |-> 
+              < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
             < RID : Replica | submitted: (C < TID : Txn | operations: nil,
                                                           writeSet: WS, 
                                                           vecWrite: VW, 
