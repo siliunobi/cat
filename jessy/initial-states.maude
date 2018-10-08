@@ -143,13 +143,13 @@ k101l k102l k103l k104l k105l k106l k107l k108l k109l k110l k111l k112l k113l k1
   op assignKey : Key Int KeyVars Config -> Config .
   eq assignKey(K,RID,KVARS,< RID : Replica | datastore: VS, depVector: DV, AS > 
                      < TB : Table | table: [replicatingSites(K,RIDS) ;; KEYREPLICAS] > C) =
-       < RID : Replica | datastore: (VS,< K,[0],version(0,0) >), 
-                         depVector: insert(< K,version(0,0) >,initVec(KVARS),DV), AS > 
+       < RID : Replica | datastore: (VS,< K,[0],< 0,0 > >), 
+                         depVector: insert(< K,< 0,0 > >,initVec(KVARS),DV), AS > 
        < TB : Table | table: [replicatingSites(K,RIDS ;; RID) ;; KEYREPLICAS] > C .
   eq assignKey(K,RID,KVARS,< RID : Replica | datastore: VS, depVector: DV, AS > 
                      < TB : Table | table: [KEYREPLICAS] > C) =
-       < RID : Replica | datastore: (VS,< K,[0],version(0,0) >),
-                         depVector: insert(< K,version(0,0) >,initVec(KVARS),DV), AS > 
+       < RID : Replica | datastore: (VS,< K,[0],< 0,0 > >),
+                         depVector: insert(< K,< 0,0 > >,initVec(KVARS),DV), AS > 
        < TB : Table | table: [replicatingSites(K,RID) ;; KEYREPLICAS] > C [owise] .  
 
   op initVec : KeyVars -> Vector .

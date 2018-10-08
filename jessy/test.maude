@@ -49,14 +49,14 @@ mod JESSY-ANALYSIS is
               (start to 1) (start to 2) (start to 3) 
      < 1 : Replica | gotTxns: (
                                 < t1 : Txn | operations: ((xl :=read x) write(x,1) 
-                                                          (zl :=read y) write(z,2)), readSet: empty, 
+                                                          (zl :=read z) write(z,2)), readSet: empty, 
                                              writeSet: empty, localVars: (xl |-> [0], zl |-> [0]), 
                                              vecRead: empty, vecWrite: empty, txnSQN: 0, version: eptVersion >
                                
                                ),
-                     datastore: (< x,[0],version(0,0) >, < y,[0],version(0,0) >), sqn: 0,
-                     depVector: (< x,version(0,0) > |-> (x |-> 0, y |-> 0, z |-> 0),
-                                 < y,version(0,0) > |-> (x |-> 0, y |-> 0, z |-> 0)), 
+                     datastore: (< x,[0],< 0,0 > >, < y,[0],< 0,0 > >), sqn: 0,
+                     depVector: (< x,< 0,0 > > |-> (x |-> 0, y |-> 0, z |-> 0),
+                                 < y,< 0,0 > > |-> (x |-> 0, y |-> 0, z |-> 0)), 
                       executing: null, submitted: null,
                       committed: null, aborted: null, certifying: null,
                       votes: noVote, voteSites: noVS,
@@ -73,14 +73,9 @@ mod JESSY-ANALYSIS is
                      votes: noVote, voteSites: noVS,
                      commitSites: noVS, abortSites: noVS >
 
-     < 3 : Replica | gotTxns: (
-                                < t3 : Txn | operations: ((xl :=read x) write(x,5) 
-                                                          (yl :=read y) write(y,6)), readSet: empty, 
-                                             writeSet: empty, localVars: (xl |-> [0], yl |-> [0]), 
-                                             vecRead: empty, vecWrite: empty, txnSQN: 0, version: eptVersion > 
-                               ), 
-                     datastore: (< z,[0],version(0,0) >), sqn: 0, 
-                     depVector: (< z,version(0,0) > |-> (x |-> 0, y |-> 0, z |-> 0)), 
+     < 3 : Replica | gotTxns: emptyTxnList, 
+                     datastore: (< z,[0],< 0,0 > >), sqn: 0, 
+                     depVector: (< z,< 0,0 > > |-> (x |-> 0, y |-> 0, z |-> 0)), 
                       executing: null, submitted: null,
                       committed: null, aborted: null, certifying: null,
                      votes: noVote, voteSites: noVS,

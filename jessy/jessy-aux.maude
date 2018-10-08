@@ -152,6 +152,11 @@ mod JESSY-AUX is
   eq K in (WS,< K,V >) = true .
   eq K in WS = false [owise] .
 
+
+*** NEW
+  op kver : Set{KeyValue} Version -> Set{KeyVersion} . 
+  eq kver((< K,V >,WS),VERSION) = < K,VERSION >, kver(WS,VERSION) .
+  eq kver(empty,VERSION) = empty .
 endm 
 
 

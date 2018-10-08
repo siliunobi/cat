@@ -194,7 +194,7 @@ fmod VERSION-JESSY is
   including SOME-PARAMETERS + ADDRESS .
   
   --- site#, sequence#
-  op version : Address Nat -> Version .
+---  op version : Address Nat -> Version .
 
 *** NEW
   op <_,_> : Address Int -> Version .
@@ -347,5 +347,8 @@ fmod CLIENT-REPLICA is
   op record : Address Float Float Bool -> Record [ctor] .
   op _;_ : Record Record -> Record [ctor assoc id: noRecord] . 
 )
+
+*** NEW 
+  op <_,_,_,_,_> : VectorTime VectorTime Bool Set{KeyVersion} Set{KeyVersion} -> Record [ctor] .
 endfm
 
