@@ -325,8 +325,7 @@ mod ROLA is
                               1stGetSites: 1STGETS',
                               2ndGetSites: (2NDGETS ; 2nd(TID,RIDS)), AS' >
             gen2ndGets(TID,VL',RS',RID,REPLICA-TABLE)
---- ???!!!
-(commit-reads(TID) to RID)
+            (commit-reads(TID) to RID)
             ---(if RIDS == empty then null else (commit-reads(TID) to RID) fi)
        else < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
                                                        readSet: RS',
