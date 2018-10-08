@@ -7,7 +7,7 @@ mod RAMP-F-ANALYSIS is
 
   subsort Config < State .
 
-  eq LIMIT = 100000.0 .
+  eq LIMIT = 10000000.0 .
 
   op initConfig : -> Config .
   ---eq initConfig = run(initState,LIMIT) .
