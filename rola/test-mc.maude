@@ -1,4 +1,4 @@
-load initial-states-mc
+load initial-states
 
 mod ROLA-ANALYSIS is
   including INITIAL-STATES .
