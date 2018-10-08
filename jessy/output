@@ -1,0 +1,1595 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	   Maude 2.7.1 built: Jun 27 2016 16:35:16
+	    Copyright 1997-2016 SRI International
+		   Mon Oct  8 14:50:32 2018
+==========================================
+search in JESSY-ANALYSIS : initConfig =>! C:Config .
+
+Solution 1 (state 49025)
+states: 49048  rewrites: 1668489 in 4248ms cpu (4246ms real) (392770
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[1],< 1,1 > >, < x,[
+    5],< 3,1 > >, < y,[0],version(0, 0) >, < y,[6],< 3,1 > >, < y,[8],< 2,1 >
+    >),sqn: 1,executing: null,submitted: null,committed: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),aborted: null,gotTxns: emptyTxnList,votes:
+    (vote(t1, 1, true) ; vote(t1, 3, true)),voteSites: voteSites(t1,
+    emptyAddressSet),abortSites: noVS,commitSites: voteSites(t1,
+    emptyAddressSet),certifying: null,depVector: (< x,version(0, 0) > |-> (x
+    |-> 0, y |-> 0, z |-> 0), < x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), <
+    x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,version(0, 0) > |-> (x |->
+    0, y |-> 0, z |-> 0), < y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < y,<
+    3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,aborted: null,gotTxns: emptyTxnList,votes: (
+    vote(t2, 1, true) ; vote(t2, 3, true)),voteSites: voteSites(t2,
+    emptyAddressSet),abortSites: noVS,commitSites: voteSites(t2,
+    emptyAddressSet),certifying: null,depVector: empty > 
+< 3 : Replica | datastore: (< z,[0],version(0, 0) >, < z,[2],< 1,1 > >, < z,[
+    7],< 2,1 > >),sqn: 1,executing: null,submitted: null,committed: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),aborted: null,gotTxns: emptyTxnList,votes:
+    vote(t3, 1, true),voteSites: voteSites(t3, emptyAddressSet),abortSites:
+    noVS,commitSites: voteSites(t3, emptyAddressSet),certifying: null,
+    depVector: (< z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < z,< 1,1
+    > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 2,1 > > |-> (x |-> 0, y |-> 1, z
+    |-> 1)) >
+
+Solution 2 (state 49026)
+states: 49048  rewrites: 1668489 in 4248ms cpu (4247ms real) (392770
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[1],< 1,1 > >, < y,[
+    0],version(0, 0) >, < y,[8],< 2,1 > >),sqn: 1,executing: null,submitted:
+    null,committed: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),aborted: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    true) ; vote(t1, 3, true)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: noVS,commitSites: voteSites(t1, emptyAddressSet),certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0), < y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,aborted: null,gotTxns: emptyTxnList,votes: (
+    vote(t2, 1, true) ; vote(t2, 3, true)),voteSites: voteSites(t2,
+    emptyAddressSet),abortSites: noVS,commitSites: voteSites(t2,
+    emptyAddressSet),certifying: null,depVector: empty > 
+< 3 : Replica | datastore: (< z,[0],version(0, 0) >, < z,[2],< 1,1 > >, < z,[
+    7],< 2,1 > >),sqn: 1,executing: null,submitted: null,committed: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),aborted: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,gotTxns: emptyTxnList,votes: vote(t3, 1,
+    false),voteSites: voteSites(t3, emptyAddressSet),abortSites: voteSites(t3,
+    emptyAddressSet),commitSites: noVS,certifying: null,depVector: (< z,
+    version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < z,< 1,1 > > |-> (x |->
+    1, y |-> 0, z |-> 1), < z,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1)) >
+
+Solution 3 (state 49027)
+states: 49048  rewrites: 1668489 in 4248ms cpu (4247ms real) (392770
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[1],< 1,1 > >, < x,[
+    5],< 3,1 > >, < y,[0],version(0, 0) >, < y,[6],< 3,1 > >),sqn: 1,executing:
+    null,submitted: null,committed: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    true) ; vote(t1, 3, true)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: noVS,commitSites: voteSites(t1, emptyAddressSet),certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < x,< 3,1 > > |-> (x |-> 1, y |->
+    1, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < y,< 3,1
+    > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: null,aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t2, 1,
+    true) ; vote(t2, 3, false)),voteSites: voteSites(t2, emptyAddressSet),
+    abortSites: voteSites(t2, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: empty > 
+< 3 : Replica | datastore: (< z,[0],version(0, 0) >, < z,[2],< 1,1 > >),sqn: 1,
+    executing: null,submitted: null,committed: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: vote(t3, 1,
+    true),voteSites: voteSites(t3, emptyAddressSet),abortSites: noVS,
+    commitSites: voteSites(t3, emptyAddressSet),certifying: null,depVector: (<
+    z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < z,< 1,1 > > |-> (x |->
+    1, y |-> 0, z |-> 1)) >
+
+Solution 4 (state 49028)
+states: 49048  rewrites: 1668489 in 4248ms cpu (4247ms real) (392770
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[1],< 1,1 > >, < y,[
+    0],version(0, 0) >),sqn: 1,executing: null,submitted: null,committed: 
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) >,aborted: (
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    true) ; vote(t1, 3, true)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: noVS,commitSites: voteSites(t1, emptyAddressSet),certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: null,aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t2, 1,
+    true) ; vote(t2, 3, false)),voteSites: voteSites(t2, emptyAddressSet),
+    abortSites: voteSites(t2, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: empty > 
+< 3 : Replica | datastore: (< z,[0],version(0, 0) >, < z,[2],< 1,1 > >),sqn: 1,
+    executing: null,submitted: null,committed: 
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) >,aborted: (
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),gotTxns: emptyTxnList,votes: vote(t3, 1,
+    false),voteSites: voteSites(t3, emptyAddressSet),abortSites: voteSites(t3,
+    emptyAddressSet),commitSites: noVS,certifying: null,depVector: (< z,
+    version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < z,< 1,1 > > |-> (x |->
+    1, y |-> 0, z |-> 1)) >
+
+Solution 5 (state 49029)
+states: 49048  rewrites: 1668489 in 4248ms cpu (4248ms real) (392770
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[1],< 1,1 > >, < x,[
+    5],< 3,1 > >, < y,[0],version(0, 0) >, < y,[6],< 3,1 > >),sqn: 1,executing:
+    null,submitted: null,committed: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    true) ; vote(t1, 3, true)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: noVS,commitSites: voteSites(t1, emptyAddressSet),certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < x,< 3,1 > > |-> (x |-> 1, y |->
+    1, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < y,< 3,1
+    > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: null,aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t2, 1,
+    false) ; vote(t2, 3, true)),voteSites: voteSites(t2, emptyAddressSet),
+    abortSites: voteSites(t2, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: empty > 
+< 3 : Replica | datastore: (< z,[0],version(0, 0) >, < z,[2],< 1,1 > >),sqn: 1,
+    executing: null,submitted: null,committed: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: vote(t3, 1,
+    true),voteSites: voteSites(t3, emptyAddressSet),abortSites: noVS,
+    commitSites: voteSites(t3, emptyAddressSet),certifying: null,depVector: (<
+    z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < z,< 1,1 > > |-> (x |->
+    1, y |-> 0, z |-> 1)) >
+
+Solution 6 (state 49030)
+states: 49048  rewrites: 1668489 in 4248ms cpu (4248ms real) (392770
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[1],< 1,1 > >, < y,[
+    0],version(0, 0) >),sqn: 1,executing: null,submitted: null,committed: 
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) >,aborted: (
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    true) ; vote(t1, 3, true)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: noVS,commitSites: voteSites(t1, emptyAddressSet),certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: null,aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t2, 1,
+    false) ; vote(t2, 3, true)),voteSites: voteSites(t2, emptyAddressSet),
+    abortSites: voteSites(t2, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: empty > 
+< 3 : Replica | datastore: (< z,[0],version(0, 0) >, < z,[2],< 1,1 > >),sqn: 1,
+    executing: null,submitted: null,committed: 
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) >,aborted: (
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),gotTxns: emptyTxnList,votes: vote(t3, 1,
+    false),voteSites: voteSites(t3, emptyAddressSet),abortSites: voteSites(t3,
+    emptyAddressSet),commitSites: noVS,certifying: null,depVector: (< z,
+    version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < z,< 1,1 > > |-> (x |->
+    1, y |-> 0, z |-> 1)) >
+
+Solution 7 (state 49031)
+states: 49048  rewrites: 1668489 in 4248ms cpu (4248ms real) (392770
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[1],< 1,1 > >, < x,[
+    5],< 3,1 > >, < y,[0],version(0, 0) >, < y,[6],< 3,1 > >),sqn: 1,executing:
+    null,submitted: null,committed: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    true) ; vote(t1, 3, true)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: noVS,commitSites: voteSites(t1, emptyAddressSet),certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < x,< 3,1 > > |-> (x |-> 1, y |->
+    1, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < y,< 3,1
+    > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: null,aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t2, 1,
+    false) ; vote(t2, 3, false)),voteSites: voteSites(t2, emptyAddressSet),
+    abortSites: voteSites(t2, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: empty > 
+< 3 : Replica | datastore: (< z,[0],version(0, 0) >, < z,[2],< 1,1 > >),sqn: 1,
+    executing: null,submitted: null,committed: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: vote(t3, 1,
+    true),voteSites: voteSites(t3, emptyAddressSet),abortSites: noVS,
+    commitSites: voteSites(t3, emptyAddressSet),certifying: null,depVector: (<
+    z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < z,< 1,1 > > |-> (x |->
+    1, y |-> 0, z |-> 1)) >
+
+Solution 8 (state 49032)
+states: 49048  rewrites: 1668489 in 4248ms cpu (4248ms real) (392770
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[1],< 1,1 > >, < y,[
+    0],version(0, 0) >),sqn: 1,executing: null,submitted: null,committed: 
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) >,aborted: (
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    true) ; vote(t1, 3, true)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: noVS,commitSites: voteSites(t1, emptyAddressSet),certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: null,aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t2, 1,
+    false) ; vote(t2, 3, false)),voteSites: voteSites(t2, emptyAddressSet),
+    abortSites: voteSites(t2, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: empty > 
+< 3 : Replica | datastore: (< z,[0],version(0, 0) >, < z,[2],< 1,1 > >),sqn: 1,
+    executing: null,submitted: null,committed: 
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) >,aborted: (
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),gotTxns: emptyTxnList,votes: vote(t3, 1,
+    false),voteSites: voteSites(t3, emptyAddressSet),abortSites: voteSites(t3,
+    emptyAddressSet),commitSites: noVS,certifying: null,depVector: (< z,
+    version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < z,< 1,1 > > |-> (x |->
+    1, y |-> 0, z |-> 1)) >
+
+Solution 9 (state 49033)
+states: 49048  rewrites: 1668489 in 4248ms cpu (4249ms real) (392770
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[5],< 3,1 > >, < y,[
+    0],version(0, 0) >, < y,[6],< 3,1 > >, < y,[8],< 2,1 > >),sqn: 1,executing:
+    null,submitted: null,committed: (
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),aborted: 
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    true) ; vote(t1, 3, false)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: voteSites(t1, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0), < y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < y,< 3,1
+    > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,aborted: null,gotTxns: emptyTxnList,votes: (
+    vote(t2, 1, true) ; vote(t2, 3, true)),voteSites: voteSites(t2,
+    emptyAddressSet),abortSites: noVS,commitSites: voteSites(t2,
+    emptyAddressSet),certifying: null,depVector: empty > 
+< 3 : Replica | datastore: (< z,[0],version(0, 0) >, < z,[7],< 2,1 > >),sqn: 1,
+    executing: null,submitted: null,committed: (
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),aborted: 
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) >,gotTxns: emptyTxnList,votes: vote(t3, 1,
+    true),voteSites: voteSites(t3, emptyAddressSet),abortSites: noVS,
+    commitSites: voteSites(t3, emptyAddressSet),certifying: null,depVector: (<
+    z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < z,< 2,1 > > |-> (x |->
+    0, y |-> 1, z |-> 1)) >
+
+Solution 10 (state 49034)
+states: 49048  rewrites: 1668489 in 4248ms cpu (4249ms real) (392770
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < y,[0],version(0, 0) >, <
+    y,[8],< 2,1 > >),sqn: 1,executing: null,submitted: null,committed: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    true) ; vote(t1, 3, false)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: voteSites(t1, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < y,
+    version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < y,< 2,1 > > |-> (x |->
+    0, y |-> 1, z |-> 1)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,aborted: null,gotTxns: emptyTxnList,votes: (
+    vote(t2, 1, true) ; vote(t2, 3, true)),voteSites: voteSites(t2,
+    emptyAddressSet),abortSites: noVS,commitSites: voteSites(t2,
+    emptyAddressSet),certifying: null,depVector: empty > 
+< 3 : Replica | datastore: (< z,[0],version(0, 0) >, < z,[7],< 2,1 > >),sqn: 1,
+    executing: null,submitted: null,committed: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),gotTxns: emptyTxnList,votes: vote(t3, 1,
+    false),voteSites: voteSites(t3, emptyAddressSet),abortSites: voteSites(t3,
+    emptyAddressSet),commitSites: noVS,certifying: null,depVector: (< z,
+    version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < z,< 2,1 > > |-> (x |->
+    0, y |-> 1, z |-> 1)) >
+
+Solution 11 (state 49035)
+states: 49048  rewrites: 1668489 in 4248ms cpu (4249ms real) (392770
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[5],< 3,1 > >, < y,[
+    0],version(0, 0) >, < y,[6],< 3,1 > >),sqn: 1,executing: null,submitted:
+    null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    true) ; vote(t1, 3, false)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: voteSites(t1, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0), < y,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: null,aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t2, 1,
+    true) ; vote(t2, 3, false)),voteSites: voteSites(t2, emptyAddressSet),
+    abortSites: voteSites(t2, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: empty > 
+< 3 : Replica | datastore: < z,[0],version(0, 0) >,sqn: 1,executing: null,
+    submitted: null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: vote(t3, 1,
+    true),voteSites: voteSites(t3, emptyAddressSet),abortSites: noVS,
+    commitSites: voteSites(t3, emptyAddressSet),certifying: null,depVector: (<
+    z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)) >
+
+Solution 12 (state 49036)
+states: 49048  rewrites: 1668489 in 4248ms cpu (4249ms real) (392770
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[5],< 3,1 > >, < y,[
+    0],version(0, 0) >, < y,[6],< 3,1 > >),sqn: 1,executing: null,submitted:
+    null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    true) ; vote(t1, 3, false)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: voteSites(t1, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0), < y,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: null,aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t2, 1,
+    false) ; vote(t2, 3, true)),voteSites: voteSites(t2, emptyAddressSet),
+    abortSites: voteSites(t2, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: empty > 
+< 3 : Replica | datastore: < z,[0],version(0, 0) >,sqn: 1,executing: null,
+    submitted: null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: vote(t3, 1,
+    true),voteSites: voteSites(t3, emptyAddressSet),abortSites: noVS,
+    commitSites: voteSites(t3, emptyAddressSet),certifying: null,depVector: (<
+    z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)) >
+
+Solution 13 (state 49037)
+states: 49048  rewrites: 1668489 in 4252ms cpu (4250ms real) (392400
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[5],< 3,1 > >, < y,[
+    0],version(0, 0) >, < y,[6],< 3,1 > >),sqn: 1,executing: null,submitted:
+    null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    true) ; vote(t1, 3, false)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: voteSites(t1, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0), < y,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: null,aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t2, 1,
+    false) ; vote(t2, 3, false)),voteSites: voteSites(t2, emptyAddressSet),
+    abortSites: voteSites(t2, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: empty > 
+< 3 : Replica | datastore: < z,[0],version(0, 0) >,sqn: 1,executing: null,
+    submitted: null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: vote(t3, 1,
+    true),voteSites: voteSites(t3, emptyAddressSet),abortSites: noVS,
+    commitSites: voteSites(t3, emptyAddressSet),certifying: null,depVector: (<
+    z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)) >
+
+Solution 14 (state 49038)
+states: 49048  rewrites: 1668489 in 4252ms cpu (4250ms real) (392400
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[5],< 3,1 > >, < y,[
+    0],version(0, 0) >, < y,[6],< 3,1 > >, < y,[8],< 2,1 > >),sqn: 1,executing:
+    null,submitted: null,committed: (
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),aborted: 
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    false) ; vote(t1, 3, true)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: voteSites(t1, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0), < y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < y,< 3,1
+    > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,aborted: null,gotTxns: emptyTxnList,votes: (
+    vote(t2, 1, true) ; vote(t2, 3, true)),voteSites: voteSites(t2,
+    emptyAddressSet),abortSites: noVS,commitSites: voteSites(t2,
+    emptyAddressSet),certifying: null,depVector: empty > 
+< 3 : Replica | datastore: (< z,[0],version(0, 0) >, < z,[7],< 2,1 > >),sqn: 1,
+    executing: null,submitted: null,committed: (
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),aborted: 
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) >,gotTxns: emptyTxnList,votes: vote(t3, 1,
+    true),voteSites: voteSites(t3, emptyAddressSet),abortSites: noVS,
+    commitSites: voteSites(t3, emptyAddressSet),certifying: null,depVector: (<
+    z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < z,< 2,1 > > |-> (x |->
+    0, y |-> 1, z |-> 1)) >
+
+Solution 15 (state 49039)
+states: 49048  rewrites: 1668489 in 4252ms cpu (4250ms real) (392400
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < y,[0],version(0, 0) >, <
+    y,[8],< 2,1 > >),sqn: 1,executing: null,submitted: null,committed: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    false) ; vote(t1, 3, true)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: voteSites(t1, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < y,
+    version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < y,< 2,1 > > |-> (x |->
+    0, y |-> 1, z |-> 1)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,aborted: null,gotTxns: emptyTxnList,votes: (
+    vote(t2, 1, true) ; vote(t2, 3, true)),voteSites: voteSites(t2,
+    emptyAddressSet),abortSites: noVS,commitSites: voteSites(t2,
+    emptyAddressSet),certifying: null,depVector: empty > 
+< 3 : Replica | datastore: (< z,[0],version(0, 0) >, < z,[7],< 2,1 > >),sqn: 1,
+    executing: null,submitted: null,committed: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),gotTxns: emptyTxnList,votes: vote(t3, 1,
+    false),voteSites: voteSites(t3, emptyAddressSet),abortSites: voteSites(t3,
+    emptyAddressSet),commitSites: noVS,certifying: null,depVector: (< z,
+    version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < z,< 2,1 > > |-> (x |->
+    0, y |-> 1, z |-> 1)) >
+
+Solution 16 (state 49040)
+states: 49048  rewrites: 1668489 in 4252ms cpu (4250ms real) (392400
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[5],< 3,1 > >, < y,[
+    0],version(0, 0) >, < y,[6],< 3,1 > >),sqn: 1,executing: null,submitted:
+    null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    false) ; vote(t1, 3, true)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: voteSites(t1, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0), < y,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: null,aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t2, 1,
+    true) ; vote(t2, 3, false)),voteSites: voteSites(t2, emptyAddressSet),
+    abortSites: voteSites(t2, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: empty > 
+< 3 : Replica | datastore: < z,[0],version(0, 0) >,sqn: 1,executing: null,
+    submitted: null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: vote(t3, 1,
+    true),voteSites: voteSites(t3, emptyAddressSet),abortSites: noVS,
+    commitSites: voteSites(t3, emptyAddressSet),certifying: null,depVector: (<
+    z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)) >
+
+Solution 17 (state 49041)
+states: 49048  rewrites: 1668489 in 4252ms cpu (4251ms real) (392400
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[5],< 3,1 > >, < y,[
+    0],version(0, 0) >, < y,[6],< 3,1 > >),sqn: 1,executing: null,submitted:
+    null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    false) ; vote(t1, 3, true)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: voteSites(t1, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0), < y,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: null,aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t2, 1,
+    false) ; vote(t2, 3, true)),voteSites: voteSites(t2, emptyAddressSet),
+    abortSites: voteSites(t2, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: empty > 
+< 3 : Replica | datastore: < z,[0],version(0, 0) >,sqn: 1,executing: null,
+    submitted: null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: vote(t3, 1,
+    true),voteSites: voteSites(t3, emptyAddressSet),abortSites: noVS,
+    commitSites: voteSites(t3, emptyAddressSet),certifying: null,depVector: (<
+    z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)) >
+
+Solution 18 (state 49042)
+states: 49048  rewrites: 1668489 in 4252ms cpu (4251ms real) (392400
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[5],< 3,1 > >, < y,[
+    0],version(0, 0) >, < y,[6],< 3,1 > >),sqn: 1,executing: null,submitted:
+    null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    false) ; vote(t1, 3, true)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: voteSites(t1, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0), < y,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: null,aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t2, 1,
+    false) ; vote(t2, 3, false)),voteSites: voteSites(t2, emptyAddressSet),
+    abortSites: voteSites(t2, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: empty > 
+< 3 : Replica | datastore: < z,[0],version(0, 0) >,sqn: 1,executing: null,
+    submitted: null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: vote(t3, 1,
+    true),voteSites: voteSites(t3, emptyAddressSet),abortSites: noVS,
+    commitSites: voteSites(t3, emptyAddressSet),certifying: null,depVector: (<
+    z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)) >
+
+Solution 19 (state 49043)
+states: 49048  rewrites: 1668489 in 4252ms cpu (4251ms real) (392400
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[5],< 3,1 > >, < y,[
+    0],version(0, 0) >, < y,[6],< 3,1 > >, < y,[8],< 2,1 > >),sqn: 1,executing:
+    null,submitted: null,committed: (
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),aborted: 
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    false) ; vote(t1, 3, false)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: voteSites(t1, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0), < y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < y,< 3,1
+    > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,aborted: null,gotTxns: emptyTxnList,votes: (
+    vote(t2, 1, true) ; vote(t2, 3, true)),voteSites: voteSites(t2,
+    emptyAddressSet),abortSites: noVS,commitSites: voteSites(t2,
+    emptyAddressSet),certifying: null,depVector: empty > 
+< 3 : Replica | datastore: (< z,[0],version(0, 0) >, < z,[7],< 2,1 > >),sqn: 1,
+    executing: null,submitted: null,committed: (
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),aborted: 
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) >,gotTxns: emptyTxnList,votes: vote(t3, 1,
+    true),voteSites: voteSites(t3, emptyAddressSet),abortSites: noVS,
+    commitSites: voteSites(t3, emptyAddressSet),certifying: null,depVector: (<
+    z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < z,< 2,1 > > |-> (x |->
+    0, y |-> 1, z |-> 1)) >
+
+Solution 20 (state 49044)
+states: 49048  rewrites: 1668489 in 4252ms cpu (4251ms real) (392400
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < y,[0],version(0, 0) >, <
+    y,[8],< 2,1 > >),sqn: 1,executing: null,submitted: null,committed: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    false) ; vote(t1, 3, false)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: voteSites(t1, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < y,
+    version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < y,< 2,1 > > |-> (x |->
+    0, y |-> 1, z |-> 1)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,aborted: null,gotTxns: emptyTxnList,votes: (
+    vote(t2, 1, true) ; vote(t2, 3, true)),voteSites: voteSites(t2,
+    emptyAddressSet),abortSites: noVS,commitSites: voteSites(t2,
+    emptyAddressSet),certifying: null,depVector: empty > 
+< 3 : Replica | datastore: (< z,[0],version(0, 0) >, < z,[7],< 2,1 > >),sqn: 1,
+    executing: null,submitted: null,committed: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >),gotTxns: emptyTxnList,votes: vote(t3, 1,
+    false),voteSites: voteSites(t3, emptyAddressSet),abortSites: voteSites(t3,
+    emptyAddressSet),commitSites: noVS,certifying: null,depVector: (< z,
+    version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < z,< 2,1 > > |-> (x |->
+    0, y |-> 1, z |-> 1)) >
+
+Solution 21 (state 49045)
+states: 49048  rewrites: 1668489 in 4252ms cpu (4252ms real) (392400
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[5],< 3,1 > >, < y,[
+    0],version(0, 0) >, < y,[6],< 3,1 > >),sqn: 1,executing: null,submitted:
+    null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    false) ; vote(t1, 3, false)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: voteSites(t1, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0), < y,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: null,aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t2, 1,
+    true) ; vote(t2, 3, false)),voteSites: voteSites(t2, emptyAddressSet),
+    abortSites: voteSites(t2, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: empty > 
+< 3 : Replica | datastore: < z,[0],version(0, 0) >,sqn: 1,executing: null,
+    submitted: null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: vote(t3, 1,
+    true),voteSites: voteSites(t3, emptyAddressSet),abortSites: noVS,
+    commitSites: voteSites(t3, emptyAddressSet),certifying: null,depVector: (<
+    z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)) >
+
+Solution 22 (state 49046)
+states: 49048  rewrites: 1668489 in 4252ms cpu (4252ms real) (392400
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[5],< 3,1 > >, < y,[
+    0],version(0, 0) >, < y,[6],< 3,1 > >),sqn: 1,executing: null,submitted:
+    null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    false) ; vote(t1, 3, false)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: voteSites(t1, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0), < y,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: null,aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t2, 1,
+    false) ; vote(t2, 3, true)),voteSites: voteSites(t2, emptyAddressSet),
+    abortSites: voteSites(t2, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: empty > 
+< 3 : Replica | datastore: < z,[0],version(0, 0) >,sqn: 1,executing: null,
+    submitted: null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: vote(t3, 1,
+    true),voteSites: voteSites(t3, emptyAddressSet),abortSites: noVS,
+    commitSites: voteSites(t3, emptyAddressSet),certifying: null,depVector: (<
+    z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)) >
+
+Solution 23 (state 49047)
+states: 49048  rewrites: 1668489 in 4252ms cpu (4252ms real) (392400
+    rewrites/second)
+C:Config --> 
+< m : Monitor | log: empty,clock: 0 > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 1) ;;
+    replicatingSites(z, 3)] > 
+< 1 : Replica | datastore: (< x,[0],version(0, 0) >, < x,[5],< 3,1 > >, < y,[
+    0],version(0, 0) >, < y,[6],< 3,1 > >),sqn: 1,executing: null,submitted:
+    null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: (vote(t1, 1,
+    false) ; vote(t1, 3, false)),voteSites: voteSites(t1, emptyAddressSet),
+    abortSites: voteSites(t1, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: (< x,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0), < x,<
+    3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,version(0, 0) > |-> (x |-> 0,
+    y |-> 0, z |-> 0), < y,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: null,aborted: 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >,gotTxns: emptyTxnList,votes: (vote(t2, 1,
+    false) ; vote(t2, 3, false)),voteSites: voteSites(t2, emptyAddressSet),
+    abortSites: voteSites(t2, emptyAddressSet),commitSites: noVS,certifying:
+    null,depVector: empty > 
+< 3 : Replica | datastore: < z,[0],version(0, 0) >,sqn: 1,executing: null,
+    submitted: null,committed: 
+< t3 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[5] >, < y,[6] >),localVars: (xl |-> [0], yl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 3,1 > > |-> (x |-> 1, y |-> 1, z |-> 0), < y,< 3,1 > > |->
+    (x |-> 1, y |-> 1, z |-> 0)) >,aborted: (
+< t1 : Txn | operations: nil,readSet: (< x,version(0, 0) >, < y,version(0, 0)
+    >),writeSet: (< x,[1] >, < z,[2] >),localVars: (xl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< x,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < y,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< x,< 1,1 > > |-> (x |-> 1, y |-> 0, z |-> 1), < z,< 1,1 > > |->
+    (x |-> 1, y |-> 0, z |-> 1)) > 
+< t2 : Txn | operations: nil,readSet: (< y,version(0, 0) >, < z,version(0, 0)
+    >),writeSet: (< y,[8] >, < z,[7] >),localVars: (yl |-> [0], zl |-> [0]),
+    txnSQN: 1,version: eptVersion,vecRead: (< y,version(0, 0) > |-> (x |-> 0, y
+    |-> 0, z |-> 0), < z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)),
+    vecWrite: (< y,< 2,1 > > |-> (x |-> 0, y |-> 1, z |-> 1), < z,< 2,1 > > |->
+    (x |-> 0, y |-> 1, z |-> 1)) >),gotTxns: emptyTxnList,votes: vote(t3, 1,
+    true),voteSites: voteSites(t3, emptyAddressSet),abortSites: noVS,
+    commitSites: voteSites(t3, emptyAddressSet),certifying: null,depVector: (<
+    z,version(0, 0) > |-> (x |-> 0, y |-> 0, z |-> 0)) >
+
+No more solutions.
+states: 49048  rewrites: 1668489 in 4252ms cpu (4252ms real) (392400
+    rewrites/second)
+
+Bye.
