@@ -1,0 +1,185 @@
+load replica-table-smc
+
+mod JESSY-AUX is
+  including DELAY .
+  including CLIENT-REPLICA .
+  including MESSAGE .
+  including REPLICA-TABLE .
+  including VERSION-JESSY .
+  including SAMPLER .
+  including VALUES-NAT .
+
+
+*** NEW
+  op delay : -> Delay .
+  eq delay = sampleLogNormal(3.0,2.0) .
+
+  op ld : -> Delay .  --- local delay 
+  op rd : -> Delay .  --- remote delay
+  op nd : -> Delay .  --- no delay
+  eq nd = 0.0 .
+
+  --- lognormal distribution
+  eq ld = sampleLogNormal(0.0,1.0) . --- miu, sigma 
+  eq rd = sampleLogNormal(3.0,2.0) .
+
+  --- weibull distribution
+  --- eq ld = sampleWeibull(5.0,1.0) 
+  --- eq rd = sampleWeibull(3.0,300.0) .
+
+  --- or, ld = 0.0
+  --- in our model, local delay seems to be local "processing" delay,
+  --- which is negligible compared to the distributed data communication
+  --- thus, the settings in our experiments could be:
+---  eq ld = 0.0 .
+---  eq rd = sampleLogNormal(0.0,1.0) .
+--- eq rd = sampleWeibull(5.0,1.0) .
+
+
+  vars AS AS' : AttributeSet .
+  vars TID RID RID' TABLE M : Address .
+  vars RIDS DSTXNS GVTXNS RIDS' : AddressSet .
+  vars TXNS TXNS' TXNS'' : ConfigList .
+  vars C C' C'' : Config .
+  vars T T1 : Float .
+  var OPS : OperationList .
+  vars K K' : Key .
+  vars V V' : Value .
+  var X : LocalVar .
+  var VARS : LocalVars .
+  var REPLICA-TABLE : ReplicaTable .
+  vars VERSION VERSION' : Version .
+  vars VTS VTS' VTS'' : VectorTime .
+  vars DS DS' : Datastore .
+  vars VVS VVS' : ValueVersionList .
+  vars SQN SQN' TXNSQN N N' : Nat .
+  var EXPR : Expression .
+  vars KS KS' : KeySet .
+  var TXN : Actor .
+  var LOCKS : Locks .
+  vars VSTS VSTS' VSBS VSBS' ABORTS ABORTS' CSTS CSTS' : VoteSites .
+  vars RIDSS RIDSS' : AddressList .
+  var RT : KeyReplicas .
+  vars VOTES VOTES' : Vote .
+  var FLAG : Bool .
+---  vars PSTS PSTS' : PropagateSites .
+---  vars PTXNS PTXNS' PTXNS'' : PropagatedTxns .
+---  vars DTXNS DTXNS' : DurableTxns .
+  vars RECORD RECORD' : Record .
+  vars DV DV' VR VW VW' : DepVector .
+  vars VEC VEC' : Vector .
+  var RS : Set{KeyVersion} .
+  var WS : Set{KeyValue} .
+
+
+  op choose : Key DepVector DepVector Datastore -> ValueVersion .
+ ceq choose(K,DV,(< K,VERSION > |-> VEC,DV'),(< K,V,VERSION >,DS)) 
+       = < V,VERSION > if compat(< K,VERSION > |-> VEC,DV) .
+  eq choose(K,DV,DV',DS) = dftValueVersion [owise] . 
+
+
+  op compat : DepVector DepVector -> Bool .
+ ceq compat(< K,VERSION > |-> VEC,(< K',VERSION' > |-> VEC',DV)) 
+       = false if VEC[K] < VEC'[K] or VEC'[K'] < VEC[K'] .
+  eq compat(< K,VERSION > |-> VEC,DV) = true [owise] . 
+
+
+  op onSite : KeySet Address ReplicaTable -> KeySet .
+  eq onSite((K,KS),RID,[replicatingSites(K,RID ;; RIDSS) ;; RT]) = 
+       K, onSite(KS,RID,[RT]) .
+  eq onSite(KS,RID,[RT]) = empty [owise] .
+  
+  op onSite : DepVector Address ReplicaTable -> DepVector .
+  op $onSite : DepVector Address ReplicaTable DepVector -> DepVector .
+  eq onSite(VW,RID,[RT]) = $onSite(VW,RID,[RT],empty) .
+  eq $onSite(VW,RID,[RT],VW') = VW' [owise] .
+  eq $onSite((< K,VERSION > |-> VEC,VW),RID,[replicatingSites(K,RID ;; RIDSS) ;; RT],VW') =
+       $onSite(VW,RID,[RT],insert(< K,VERSION >,VEC,VW')) .
+
+  op _in_ : Address VoteSites -> Bool .
+  eq TID in (voteSites(TID,RIDS) ; VSTS) = true .
+  eq TID in VSTS = false [owise] .
+
+  ---??? cannot deal with VEC==empty
+  ---??? i.e., Jessy cannot deal with write-only txns  
+  op vw : Vector KeySet Address Nat -> DepVector .
+  op $vw : Vector KeySet Address Nat KeySet DepVector -> DepVector .
+  eq vw(VEC,KS,RID,SQN) = $vw(VEC,KS,RID,SQN,KS,empty) .
+  eq $vw((K |-> N,VEC),(K,KS),RID,SQN,KS',DV) = 
+       $vw((K |-> N + 1,VEC),KS,RID,SQN,KS',DV) .
+  eq $vw(VEC,empty,RID,SQN,(K,KS'),DV) =
+       $vw(VEC,empty,RID,SQN,KS',insert(< K,< RID,SQN > >,VEC,DV)) .
+  eq $vw(VEC,empty,RID,SQN,empty,DV) = DV .
+
+
+  op max : DepVector -> Vector .
+  op $max : Vector DepVector -> Vector .
+  eq max(empty) = empty .
+  eq max((< K,VERSION > |-> VEC,DV)) = 
+       $max(VEC,DV) .
+  eq $max(VEC,(< K,VERSION > |-> VEC',DV)) =
+       $max(max(VEC,VEC'),DV) .
+  eq $max(VEC,empty) = VEC .
+
+  op max : Vector Vector -> Vector .
+  eq max((K |-> N,VEC),(K |-> N',VEC')) = 
+       K |-> max(N,N'), max(VEC,VEC') .
+  eq max(empty,VEC') = VEC' .
+  eq max(VEC,empty) = VEC .
+
+
+  op certify : DepVector Config -> Bool .
+  eq certify(VW,C) = true [owise] .
+ ceq certify((< K,VERSION' > |-> VEC',DV),
+       C < TID : Txn | vecWrite: (< K,VERSION > |-> VEC,VW), AS >) =
+         false if VEC'[K] <= VEC[K] .  --- <= here!!!    
+
+
+
+  op _\_ : AddressSet Address -> AddressSet .
+  eq (RID ; RIDS) \ RID = RIDS .
+  eq RIDS \ RID = RIDS [owise] .
+
+  op yesSites : Address Vote -> AddressSet .
+  eq yesSites(TID,(vote(TID,RID',true) ; VOTES)) = RID' ; yesSites(TID,VOTES) .
+  eq yesSites(TID,VOTES) = emptyAddressSet [owise] .
+
+  op allYes : Address Vote -> Bool .
+  eq allYes(TID,(vote(TID,RID',false) ; VOTES)) = false .
+  eq allYes(TID,VOTES) = true [owise] .
+
+  op remove : Address Address VoteSites -> VoteSites .
+  eq remove(TID,RID,(voteSites(TID,(RID ; RIDS)) ; VSTS)) =
+       voteSites(TID,RIDS) ; VSTS .
+  eq remove(TID,RID,VSTS) = VSTS [owise] .
+
+  op _[_] : VoteSites Address -> AddressSet .
+  eq (voteSites(TID,RIDS) ; VSTS)[TID] = RIDS . 
+
+
+  op update : Set{KeyValue} DepVector Address ReplicaTable -> Datastore .
+  eq update((< K,V >,WS),(< K,VERSION > |-> VEC,DV),RID,[replicatingSites(K,RIDSS ;; RID ;; RIDSS') ;; RT]) = 
+       update(WS,DV,RID,[replicatingSites(K,RIDSS ;; RID ;; RIDSS') ;; RT]), < K,V,VERSION > .
+  eq update(empty,DV,RID,[RT]) = empty .
+  eq update(WS,empty,RID,[RT]) = empty .
+  eq update(WS,DV,RID,[RT]) = empty [owise] .
+
+  op update : DepVector Address ReplicaTable DepVector -> DepVector .
+  eq update((< K,VERSION > |-> VEC,DV),RID,[replicatingSites(K,RIDSS ;; RID ;; RIDSS') ;; RT],DV') = 
+       update(DV,RID,[replicatingSites(K,RIDSS ;; RID ;; RIDSS') ;; RT],insert(< K,VERSION >,VEC,DV')) .
+  eq update(empty,RID,[RT],DV') = DV' .
+  eq update(DV,RID,[RT],DV') = DV' [owise] .
+
+  op _in_ : Key Set{KeyValue} -> Bool .
+  eq K in (WS,< K,V >) = true .
+  eq K in WS = false [owise] .
+
+
+*** NEW
+  op kver : Set{KeyValue} Version -> Set{KeyVersion} . 
+  eq kver((< K,V >,WS),VERSION) = < K,VERSION >, kver(WS,VERSION) .
+  eq kver(empty,VERSION) = empty .
+endm 
+
+
+
