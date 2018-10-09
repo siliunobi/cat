@@ -145,8 +145,7 @@ view AddressList from TRIV to TXN-AUX1 is sort Elt to AddressList . endv
 
 
 fmod VECTOR-TIMESTAMP is
-  pr MAP{Address,Nat} * (sort Map{Address,Nat} to VectorTime,
-                         op undefined to 0) .  ---??? need to define "undefined"
+  pr MAP{Address,Nat} * (sort Map{Address,Nat} to VectorTime) .  ---??? need to define "undefined"
 endfm
 
 
