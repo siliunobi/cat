@@ -1,4 +1,4 @@
-load ramp-f-aux-smc
+load ramp-faster-aux-smc
 
 mod RAMP-F is
   including CLIENT-REPLICA .
@@ -107,7 +107,7 @@ mod RAMP-F is
      if (not write-only(OPS)) /\
         RIDS := 1stSites(OPS,RID,REPLICA-TABLE) .
 
-
+***NEW
   ---!!! RAMP doesn't need "txnSQN" as ROLA does because "sqn" could only be updated at the beginning of the txn
  crl [start-wo-txn] :
      {GT, start to RID}  ---??? "start"
@@ -119,7 +119,7 @@ mod RAMP-F is
                                                version: VERSION, AS > ;; TXNS),
                        executing: noActor,
                        sqn: SQN,
-                       voteSites: VSTS, AS' >
+                       commitSites: CMTS, AS' >
    =>
      < O@M : Monitor | log: insert(TID,< RID |-> GT,empty,false,empty,empty >,LOG@M) >
      < TABLE : Table | table: REPLICA-TABLE >
@@ -129,7 +129,7 @@ mod RAMP-F is
                                                 writeSet: WS',
                                                 version: < RID,SQN' >, AS >,
                        sqn: SQN',
-                       voteSites: (VSTS ; voteSites(TID,RIDS)), AS' >
+                       commitSites: (CMTS ; voteSites(TID,RIDS)), AS' >
      genPuts(OPS,RID,TID,SQN',VARS,REPLICA-TABLE)
      if SQN' := SQN + 1 /\
         write-only(OPS) /\
@@ -137,14 +137,17 @@ mod RAMP-F is
         WS' := ws(OPS,VARS) .
 
 
+***NEW
   rl [receive-prepare] :
-     < RID : Replica | datastore: VS, AS' >
+     < RID : Replica | datastore: VS,
+                       latestCommit: LC, AS' >
      {GT, msg prepare(TID,VERSION) from RID' to RID}
    =>
-     < RID : Replica | datastore: (VS,VERSION), AS' >
-     [delay, msg prepare-reply(TID,true) from RID to RID'] .  --- always "true" in RAMP
+     < RID : Replica | datastore: (VS,VERSION),
+                       latestCommit: cmt(LC,(VS,VERSION),ver2Ts(VERSION)), AS' >
+     [delay, msg committed(TID) from RID to RID'] .
 
-
+---(
  crl [receive-prepare-reply] :
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | executing: < TID : Txn | operations: OPS, AS >,
@@ -178,7 +181,7 @@ mod RAMP-F is
      < RID : Replica | datastore: VS,
                        latestCommit: cmt(LC,VS,ts(RID',SQN)), AS' >
      [delay, msg committed(TID) from RID to RID'] .
-
+)
 
  crl [receive-committed] :
      < O@M : Monitor | log: (TID |-> 
@@ -271,7 +274,7 @@ mod RAMP-F is
                        2ndGetSites: remove(TID,RID',2NDGETS), AS' >
      [delay, commit-reads(TID) to RID] .
 
-
+***NEW
   --- RAMP deals with rw-txns in a different way than Walter, 
   --- that is, all reads are sent out at the beginning of the txn
   --- so "writeSet" not needed: no read-your-write-in-the-same-txn
@@ -289,7 +292,7 @@ mod RAMP-F is
                        1stGetSites: 1STGETS,
                        2ndGetSites: 2NDGETS,
                        sqn: SQN,
-                       voteSites: VSTS, AS' >
+                       commitSites: CMTS, AS' >
    =>
      < TABLE : Table | table: REPLICA-TABLE >
      if read-only(OPS)
@@ -304,7 +307,7 @@ mod RAMP-F is
                               1stGetSites: delete(TID,1STGETS),
                               2ndGetSites: delete(TID,2NDGETS),
                               sqn: SQN,
-                              voteSites: VSTS, AS' >
+                              commitSites: CMTS, AS' >
             [delay, start to RID]  ---??? "start"
        else < O@M : Monitor | log: (TID |-> 
               < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
@@ -317,7 +320,7 @@ mod RAMP-F is
                               1stGetSites: delete(TID,1STGETS),
                               2ndGetSites: delete(TID,2NDGETS),
                               sqn: SQN',
-                              voteSites: (VSTS ; voteSites(TID,RIDS)), AS' >
+                              commitSites: (CMTS ; voteSites(TID,RIDS)), AS' >
             genPuts(OPS,RID,TID,SQN',VARS,REPLICA-TABLE)
      fi 
      if 1STGETS[TID] == empty /\

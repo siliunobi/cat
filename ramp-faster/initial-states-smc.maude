@@ -1,4 +1,4 @@
-load ramp-f-smc
+load ramp-faster-smc
 
 mod INITIAL-STATES is
   including RAMP-F .
