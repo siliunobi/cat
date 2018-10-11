@@ -25,10 +25,6 @@ mod WALTER-ANALYSIS is
                  < 0 : Monitor | log: empty > 
      < 1 : Replica | gotTxns: ( < t1 : Txn | operations: ((xl :=read x) write(x,1) (yl :=read y) write(y,1)), readSet: empty, 
                                              writeSet: empty, localVars: (xl |-> [0], yl |-> [0]), 
-                                             startVTS: empty, txnSQN: 0, version: eptVersion > 
-                                ;; 
-                                < t3 : Txn | operations: ((xl :=read x) write(x,3) (yl :=read y) write(y,4)), readSet: empty, 
-                                             writeSet: empty, localVars: (xl |-> [0], yl |-> [0]), 
                                              startVTS: empty, txnSQN: 0, version: eptVersion >),
                      history: (x |-> (< [0],< 0,0 > >)), sqn: 0, 
                       executing: noActor, 

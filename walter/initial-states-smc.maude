@@ -1,5 +1,5 @@
-load walter-smc-original
----load walter-smc
+---load walter-smc-original
+load walter-smc
 
 mod INITIAL-STATES is
   including WALTER .
