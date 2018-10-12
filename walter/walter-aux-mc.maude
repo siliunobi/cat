@@ -1,0 +1,251 @@
+  --- Is history a sorted list? 
+  --- Section 5.3, what does "last upate" mean? Last in list order, or in time?
+  --- When initializing VTS, all replicas know each other, i.e., each replica holds
+  --- the same length of vector, or VTS is simply set to empty?
+  --- As of now, we implement the latter
+
+load replica-table-mc
+
+mod WALTER-AUX is
+  including DELAY .
+  including CLIENT-REPLICA .
+  including MESSAGE .
+  including REPLICA-TABLE .
+  including VERSION-WALTER .
+  including SAMPLER .
+  including VALUES-NAT .
+
+*** NEW
+  op delay : -> Delay .
+  eq delay = sampleLogNormal(3.0,2.0) .
+
+
+  op ld : -> Delay .  --- local delay 
+  op rd : -> Delay .  --- remote delay
+  op nd : -> Delay .  --- no delay
+  eq nd = 0.0 .
+
+  --- lognormal distribution
+  eq ld = sampleLogNormal(0.0,1.0) . --- miu, sigma 
+  eq rd = sampleLogNormal(3.0,2.0) .
+
+  --- weibull distribution
+  --- eq ld = sampleWeibull(5.0,1.0) 
+  --- eq rd = sampleWeibull(3.0,300.0) .
+
+  --- or, ld = 0.0
+  --- in our model, local delay seems to be local "processing" delay,
+  --- which is negligible compared to the distributed data communication
+  --- thus, the settings in our experiments could be:
+---  eq ld = 0.0 .
+---  eq rd = sampleLogNormal(0.0,1.0) .
+--- eq rd = sampleWeibull(5.0,1.0) .
+
+  op f : -> Nat .  --- disaster-safe tolerance parameter
+  eq f = 0 .  --- no failure
+
+
+
+  op _in_ : Address PropagatedTxns -> Bool .
+  eq TID in (propagatedTxns(TID,SQN,VTS) ; PTXNS) = true .
+  eq TID in (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS) = true .
+  eq TID in PTXNS = false [owise] .
+
+  op _in_ : Address VoteSites -> Bool .
+  eq TID in (voteSites(TID,RIDS) ; VSTS) = true .
+  eq TID in VSTS = false [owise] .
+
+
+  vars AS AS' : AttributeSet .
+  vars TID RID RID' TABLE M : Address .
+  vars RIDS DSTXNS GVTXNS : AddressSet .
+  vars TXNS TXNS' TXNS'' : ConfigList .
+  vars T T1 : Float .
+  var OPS : OperationList .
+  var K : Key .
+  vars V V' : Value .
+  var X : LocalVar .
+  var WS : Set{KeyValue} .
+  var VARS : LocalVars .
+  var RS : Set{KeyVersion} .
+  var REPLICA-TABLE : ReplicaTable .
+  var VERSION : Version .
+  vars VTS VTS' VTS'' : VectorTime .
+  vars DS DS' : Datastore .
+  vars VVS VVS' : ValueVersionList .
+  vars SQN SQN' TXNSQN : Nat .
+  var EXPR : Expression .
+  var KS : KeySet .
+  var TXN : Actor .
+  var LOCKS : Locks .
+  vars VSTS VSTS' VSBS VSBS' ABORTS ABORTS' : VoteSites .
+  vars RIDSS RIDSS' : AddressList .
+  var RT : KeyReplicas .
+  vars VOTES VOTES' : Vote .
+  var FLAG : Bool .
+  vars PSTS PSTS' : PropagateSites .
+  vars PTXNS PTXNS' PTXNS'' : PropagatedTxns .
+  vars DTXNS DTXNS' : DurableTxns .
+  vars RECORD RECORD' : Record .
+
+
+  --- choose the last update in the history visible to startVTS
+  op choose : VectorTime ValueVersionList -> ValueVersion .
+  eq choose(VTS,(VVS < V,< RID,SQN > >)) = 
+       if VTS[RID] == 0
+         then choose(VTS,VVS)
+         else if SQN <= VTS[RID]
+                then < V,< RID,SQN > >
+                else choose(VTS,VVS)
+              fi 
+       fi [owise] .
+---  eq choose(VTS,nil) = dftValueVersion .  ---??? at this moment we return default ValueVersion if none found
+                                          ---??? or, we could use < [0], version(0,0) >
+                                          ---??? assume the initial sqn is 0
+  eq choose(VTS,nil) = < [0], < 0,0 > > .
+  eq choose(empty,VVS) = < [0],< 0,0 > > .  ---??? the first incoming read 
+  eq choose(VTS,undefined) = < [0], < 0,0 > > .
+
+  ---??? the explanation of "merge" in the Walter paper is vague...
+  op merge : Key ValueVersion Datastore -> Datastore .
+  eq merge(K,< V,VERSION >,(K |-> (VVS < V,VERSION > VVS'),DS)) = K |-> (VVS < V,VERSION > VVS'),DS .
+ ceq merge(K,< V,VERSION >,(K |-> VVS,DS)) = K |-> (VVS < V,VERSION >),DS 
+       if (not occurs(< V,VERSION >, VVS)) .
+  eq merge(K,< V,VERSION >,DS) = K |-> < V,VERSION >, DS [owise] .  
+
+  op modified : Set{KeyValue} VectorTime Datastore -> Bool .
+ ceq modified((< K,V >,WS),VTS,(K |-> (VVS < V',< RID,SQN > > VVS'),DS)) = true
+       if SQN > VTS[RID] .
+  eq modified(WS,VTS,DS) = false [owise] .
+
+  op modified : KeySet VectorTime Datastore -> Bool .
+ ceq modified((K,KS),VTS,(K |-> (VVS < V',< RID,SQN > > VVS'),DS)) = true
+       if SQN > VTS[RID] .
+  eq modified(KS,VTS,DS) = false [owise] .
+
+  op locked : Set{KeyValue} Locks -> Bool .
+  eq locked((< K,V >,WS),(lock(TID,K),LOCKS)) = true .
+  eq locked(WS,LOCKS) = false [owise] .
+ 
+  op locked : KeySet Locks -> Bool .
+  eq locked((K,KS),(lock(TID,K),LOCKS)) = true .
+  eq locked(KS,LOCKS) = false [owise] .
+
+  op update : Set{KeyValue} Version Datastore -> Datastore .
+  eq update((< K,V >,WS),< RID,SQN >,(K |-> VVS,DS)) = 
+       update(WS,< RID,SQN >,(K |-> (VVS < V,< RID,SQN > >),DS)) .
+  eq update((< K,V >,WS),< RID,SQN >,DS) = 
+       update(WS,< RID,SQN >,(K |-> < V,< RID,SQN > >,DS)) [owise] .
+  eq update(empty,VERSION,DS) = DS .
+
+---(
+  ---??? Fig.13 in the walter paper says propagating a txn to ALL servers, why ALL?
+  ---??? shouldn't all replicas concerning keys in the write set be enough?
+  ---??? As explained in Section 4.4, ALL is for disaster-safe durability
+  op propagateTxn : Address Nat VectorTime WriteSet AddressSet Address -> Config .
+  eq propagateTxn(TID,SQN,VTS,WS,(RID ; RIDS),RID') = 
+       propagateTxn(TID,SQN,VTS,WS,RIDS,RID')
+       [if RID == RID' then ld else rd fi, RID <- propagate(TID,SQN,VTS,WS,RID')] .
+  eq propagateTxn(TID,SQN,VTS,WS,emptyAddressSet,RID') = null .
+
+  --- Walter runs 2pc among preferred sites of updated objects
+  --- the key set sent to a server is a subset of the entire key set where each key's 
+  --- preferred site is that server
+  op prepareTxn : Address KeySet VectorTime AddressSet ReplicaTable Address -> Config .
+  eq prepareTxn(TID,KS,VTS,(RID ; RIDS),REPLICA-TABLE,RID') =
+       prepareTxn(TID,KS,VTS,RIDS,REPLICA-TABLE,RID')
+       [if RID == RID' then ld else rd fi, RID <- prepare(TID,onSite(KS,RID,REPLICA-TABLE),VTS,RID')] .
+  eq prepareTxn(TID,KS,VTS,emptyAddressSet,REPLICA-TABLE,RID') = null .
+)
+
+
+  op onSite : KeySet Address ReplicaTable -> KeySet .
+  eq onSite((K,KS),RID,[replicatingSites(K,RID ;; RIDSS) ;; RT]) = 
+       K, onSite(KS,RID,[RT]) .
+  eq onSite(KS,RID,[RT]) = empty [owise] .
+
+---(
+  op propagateAbort : Address AddressSet Address -> Config .
+  eq propagateAbort(TID,(RID ; RIDS),RID') = 
+       propagateAbort(TID,RIDS,RID')
+       [if RID == RID' then ld else rd fi, RID <- abort(TID,RID')] .
+  eq propagateAbort(TID,emptyAddressSet,RID') = null .
+)
+
+  op addLock : KeySet Address -> Locks .
+  eq addLock((K,KS),TID) = lock(TID,K), addLock(KS,TID) .
+  eq addLock(empty,TID) = empty . 
+
+  op release : Address Locks -> Locks .
+  eq release(TID,(lock(TID,K),LOCKS)) =
+       release(TID,LOCKS) .
+  eq release(TID,LOCKS) = LOCKS [owise] .
+
+  op remove : Address Address VoteSites -> VoteSites .
+  eq remove(TID,RID,(voteSites(TID,(RID ; RIDS)) ; VSTS)) =
+       voteSites(TID,RIDS) ; VSTS .
+  eq remove(TID,RID,VSTS) = VSTS [owise] .
+
+  op _[_] : VoteSites Address -> AddressSet .
+  eq (voteSites(TID,RIDS) ; VSTS)[TID] = RIDS . 
+
+  op yesSites : Address Vote -> AddressSet .
+  eq yesSites(TID,(vote(TID,RID',true) ; VOTES)) = RID' ; yesSites(TID,VOTES) .
+  eq yesSites(TID,VOTES) = emptyAddressSet [owise] .
+
+  op allYes : Address Vote -> Bool .
+  eq allYes(TID,(vote(TID,RID',false) ; VOTES)) = false .
+  eq allYes(TID,VOTES) = true [owise] .
+
+  op txnPropagateSites : Address Set{KeyValue} -> PropagateSites .
+  eq txnPropagateSites(TID,(< K,V >,WS)) = 
+       propagateSites(TID,K,emptyAddressSet) ; txnPropagateSites(TID,WS) .
+  eq txnPropagateSites(TID,empty) = noPS . 
+
+  op dsDurable : Address PropagateSites -> Bool .  --- filter for TID
+  eq dsDurable(TID,(propagateSites(TID,K,RIDS) ; PSTS)) = | RIDS | >= (f + 1) and dsDurable(TID,PSTS) .
+  eq dsDurable(TID,PSTS) = true [owise] .
+
+  op add : Address KeySet Address ReplicaTable PropagateSites -> PropagateSites .  --- TID, RID
+  eq add(TID,(K,KS),RID,[replicatingSites(K,RIDSS ;; RID ;; RIDSS') ;; RT],(propagateSites(TID,K,RIDS) ; PSTS)) =
+       add(TID,KS,RID,[RT],(propagateSites(TID,K,(RID ; RIDS)) ; PSTS)) .
+  eq add(TID,KS,RID,[RT],PSTS) = PSTS [owise] .
+
+---(
+  op dsDurableTxn : Address AddressSet Address -> Config .
+  eq dsDurableTxn(TID,(RID ; RIDS),RID') =
+       dsDurableTxn(TID,RIDS,RID')
+       [if RID == RID' then ld else rd fi, RID <- ds-durable(TID,RID')] .
+  eq dsDurableTxn(TID,emptyAddressSet,RID') = null .
+)
+
+  ---??? the walter paper doesn't mention how to compare two VectorTimes
+  ---??? so I define based on my understanding
+  op _gt_ : VectorTime VectorTime -> Bool .
+ ceq ((RID |-> SQN), VTS) gt ((RID |-> SQN'), VTS') = false 
+       if SQN < SQN' .
+  eq VTS gt VTS' = true [owise] .
+
+  ---(
+  op _gt_ : VectorTime VectorTime -> Bool .
+ ceq ((RID |-> SQN), VTS) gt ((RID |-> SQN'), VTS') = false 
+       if SQN < SQN' .
+ ceq VTS gt ((RID |-> SQN'), VTS') = false
+       if not $hasMapping(VTS,RID) .  
+  eq VTS gt VTS' = true [owise] .
+  )
+
+
+  op _in_ : Key Set{KeyValue} -> Bool .
+  eq K in (WS,< K,V >) = true .
+  eq K in WS = false [owise] .
+
+
+*** NEW
+  op kver : Set{KeyValue} Version -> Set{KeyVersion} . 
+  eq kver((< K,V >,WS),VERSION) = < K,VERSION >, kver(WS,VERSION) .
+  eq kver(empty,VERSION) = empty .
+
+endm 
+
+
