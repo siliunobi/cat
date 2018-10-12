@@ -10,37 +10,82 @@ load rola-aux
   including SCHEDULER .
   including ROLA-AUX .
 
-  vars RID TID RID' TABLE M : Address .
-  var RIDS : AddressSet .
-  vars AS AS' : AttributeSet .
-  vars TXNS TXNS' : ConfigList .
-  vars K K' : Key .
-  var X : LocalVar .
-  var REPLICA-TABLE : ReplicaTable .
-  vars OPS OPS' OPS'' : OperationList .
-  vars V V' : Value .
-  var VARS : LocalVars .
-  var DS : Versions .
-  vars LC VL VL' : KeyTimestamps .
-  vars VER VERSION : Version .
-  vars TS TS' : Timestamp .
-  vars MD MD' KS : KeySet .
-  vars VS VS' : Versions .
-  vars SQN SQN' TXNSQN : Int .
-  var EXPR : Expression .
-  var RT : KeyReplicas .
-  vars 1STGETS 1STGETS' : 1stGets .
-  vars 2NDGETS 2NDGETS' : 2ndGets .
-  vars VSTS CMTS VSTS' CMTS' : VoteSites .
-  vars T GT T1 : Float .
-  var FLAG : Bool .
-  var TSSQN : TimestampSqn .
-  vars VOTES VOTES' : Vote .
-  vars RECORD RECORD' : Record .
-  vars WRITES READS WRITES' : VersionSet .
-  var SL : ScheduleList .
-  vars WS WS' : Set{KeyValue} .
-  vars RS RS' : Set{KeyVersion} .
+  vars RID TID RID' TABLE : Address .  var RIDS : AddressSet .
+  vars AS AS' : AttributeSet .  vars TXNS TXNS' : ConfigList .
+  vars K K' : Key .  var X : LocalVar .
+  var REPLICA-TABLE : ReplicaTable .  vars OPS OPS' OPS'' : OperationList .
+  vars V V' : Value .  var VARS : LocalVars .  var DS : Versions .
+  vars LC VL VL' : KeyTimestamps .  vars VER VERSION : Version .
+  vars TS TS' : Timestamp .  vars MD MD' KS : KeySet .  vars VS VS' : Versions .
+  vars SQN SQN' TXNSQN : Int .  var EXPR : Expression .
+  var RT : KeyReplicas .  vars 1STGETS 1STGETS' : 1stGets .
+  vars 2NDGETS 2NDGETS' : 2ndGets .  vars VSTS CMTS VSTS' CMTS' : VoteSites .
+  vars T T1 : Float .  var FLAG : Bool .  var TSSQN : TimestampSqn .
+  vars VOTES VOTES' : Vote .  vars RECORD RECORD' : Record .
+  vars WRITES READS WRITES' : VersionSet .  var SL : ScheduleList .
+  vars WS WS' : Set{KeyValue} .  vars RS RS' : Set{KeyVersion} .
+
+
+  --- Aux functions
+  op genGets : OperationList Address Address ReplicaTable -> Config .
+  eq genGets(((X :=read K) OPS),RID,TID,REPLICA-TABLE) = 
+       genGets(OPS,RID,TID,REPLICA-TABLE)
+       if localReplica(K,RID,REPLICA-TABLE)
+         then (msg get(TID,K,eptTS) from RID to RID)  --- eptTS denotes "empty" in line 25
+         else (msg get(TID,K,eptTS) from RID to preferredSite(K,REPLICA-TABLE))
+       fi .
+  eq genGets((write(K,EXPR) OPS),RID,TID,REPLICA-TABLE) =
+       genGets(OPS,RID,TID,REPLICA-TABLE) .
+  eq genGets(nil,RID,TID,REPLICA-TABLE) = null .
+
+  --- deal with wo-txns in ROLA
+  op genPuts : OperationList Address Address Nat LocalVars ReplicaTable -> Config .
+  op $genPuts : OperationList Address Address Nat LocalVars ReplicaTable OperationList -> Config .
+  eq genPuts(OPS,RID,TID,SQN,VARS,REPLICA-TABLE) = $genPuts(OPS,RID,TID,SQN,VARS,REPLICA-TABLE,OPS) .
+  eq $genPuts((write(K,EXPR) OPS),RID,TID,SQN,VARS,REPLICA-TABLE,(OPS' write(K,EXPR) OPS'')) =
+       $genPuts(OPS,RID,TID,SQN,VARS,REPLICA-TABLE,(OPS' write(K,EXPR) OPS''))
+       if localReplica(K,RID,REPLICA-TABLE)
+         then (msg prepare(TID,version(K,eval(EXPR,VARS),ts(RID,SQN),md(OPS' OPS''))) from RID to RID)
+         else (msg prepare(TID,version(K,eval(EXPR,VARS),ts(RID,SQN),md(OPS' OPS''))) from RID to preferredSite(K,REPLICA-TABLE))
+       fi .
+  eq $genPuts(((X :=read K) OPS),RID,TID,SQN,VARS,REPLICA-TABLE,OPS') = 
+       $genPuts(OPS,RID,TID,SQN,VARS,REPLICA-TABLE,OPS') .  --- deal with rw-txns
+  eq $genPuts(nil,RID,TID,SQN,VARS,REPLICA-TABLE,OPS') = null .  
+  --- Note that when initializing write-only txns EXPR should be Value, e.g., [0]
+  --- That is, VARS is useless to genPuts in write-only txns
+
+  op genCommits : Address Nat AddressSet Address -> Config .
+  eq genCommits(TID,SQN,(RID' ; RIDS),RID) =
+       genCommits(TID,SQN,RIDS,RID)
+       (msg commit(TID,ts(RID,SQN)) from RID to RID') .
+  eq genCommits(TID,SQN,empty,RID) = null .
+  
+  op gen2ndGets : Address KeyTimestamps Set{KeyVersion} Address ReplicaTable -> Config .
+  eq gen2ndGets(TID,(K |-> TS',VL),(< K,VERSION >,RS),RID,REPLICA-TABLE) = 
+       gen2ndGets(TID,(K |-> TS',VL),RS,RID,REPLICA-TABLE)
+       if ver2Ts(VERSION) less-than TS'
+         then if localReplica(K,RID,REPLICA-TABLE)
+                then (msg get(TID,K,TS') from RID to RID)
+                else (msg get(TID,K,TS') from RID to preferredSite(K,REPLICA-TABLE))
+              fi
+         else null
+       fi .
+  eq gen2ndGets(TID,VL,RS,RID,REPLICA-TABLE) = null [owise] .  --- if K is not in VL
+  eq gen2ndGets(TID,VL,empty,RID,REPLICA-TABLE) = null .
+
+  --- deal with rw-txns in ROLA
+  op genPuts : OperationList Address Address Nat LocalVars Set{KeyVersion} ReplicaTable -> Config .
+  op $genPuts : OperationList Address Address Nat LocalVars Set{KeyVersion} ReplicaTable OperationList -> Config .
+  eq genPuts(OPS,RID,TID,SQN,VARS,RS,REPLICA-TABLE) = $genPuts(OPS,RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS) .
+  eq $genPuts((write(K,EXPR) OPS),RID,TID,SQN,VARS,(RS,< K,VERSION >),REPLICA-TABLE,(OPS' write(K,EXPR) OPS'')) =
+       $genPuts(OPS,RID,TID,SQN,VARS,(RS,< K,VERSION >),REPLICA-TABLE,(OPS' write(K,EXPR) OPS''))
+       if localReplica(K,RID,REPLICA-TABLE)
+         then (msg prepare(TID,version(K,eval(EXPR,VARS),ts(RID,SQN),md(OPS' OPS'')),ver2Ts(VERSION)) from RID to RID)
+         else (msg prepare(TID,version(K,eval(EXPR,VARS),ts(RID,SQN),md(OPS' OPS'')),ver2Ts(VERSION)) from RID to preferredSite(K,REPLICA-TABLE))
+       fi .
+  eq $genPuts(((X :=read K) OPS),RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS') = 
+       $genPuts(OPS,RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS') . 
+  eq $genPuts(nil,RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS') = null . 
 
 
   ---??? simply consume "start" if no txn needs to start
@@ -51,6 +96,7 @@ load rola-aux
      < RID : Replica | gotTxns: emptyTxnList, AS > .
 
 
+    
   --- "gotTxns" abstracts "client" away
   --- we consider one-shot reads that can be issued in a single parallel batch
  crl [start-ro-or-rw-txn] :
@@ -69,7 +115,9 @@ load rola-aux
      genGets(OPS,RID,TID,REPLICA-TABLE) 
      if (not write-only(OPS)) /\
         RIDS := 1stSites(OPS,RID,REPLICA-TABLE) .
-
+		
+endm)
+eof		
 
   ---!!! ROLA needs "txnSQN" because "sqn" could be updated by "prepare"
   ---!!! so "txnSQN" holds the sqn when the txn started executing
