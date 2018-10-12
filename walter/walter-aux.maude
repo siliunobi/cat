@@ -15,6 +15,11 @@ mod WALTER-AUX is
   including SAMPLER .
   including VALUES-NAT .
 
+*** NEW
+  op delay : -> Delay .
+  eq delay = sampleLogNormal(3.0,2.0) .
+
+
   op ld : -> Delay .  --- local delay 
   op rd : -> Delay .  --- remote delay
   op nd : -> Delay .  --- no delay
@@ -38,6 +43,18 @@ mod WALTER-AUX is
 
   op f : -> Nat .  --- disaster-safe tolerance parameter
   eq f = 0 .  --- no failure
+
+
+
+  op _in_ : Address PropagatedTxns -> Bool .
+  eq TID in (propagatedTxns(TID,SQN,VTS) ; PTXNS) = true .
+  eq TID in (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS) = true .
+  eq TID in PTXNS = false [owise] .
+
+  op _in_ : Address VoteSites -> Bool .
+  eq TID in (voteSites(TID,RIDS) ; VSTS) = true .
+  eq TID in VSTS = false [owise] .
+
 
   vars AS AS' : AttributeSet .
   vars TID RID RID' TABLE M : Address .
@@ -71,10 +88,11 @@ mod WALTER-AUX is
   vars DTXNS DTXNS' : DurableTxns .
   vars RECORD RECORD' : Record .
 
+
   --- choose the last update in the history visible to startVTS
   op choose : VectorTime ValueVersionList -> ValueVersion .
   eq choose(VTS,(VVS < V,< RID,SQN > >)) = 
-       if VTS[RID] == undefined
+       if VTS[RID] == 0
          then choose(VTS,VVS)
          else if SQN <= VTS[RID]
                 then < V,< RID,SQN > >
@@ -82,7 +100,7 @@ mod WALTER-AUX is
               fi 
        fi [owise] .
 ---  eq choose(VTS,nil) = dftValueVersion .  ---??? at this moment we return default ValueVersion if none found
-                                          ---??? or, we could use < [0], < 0,0 > >
+                                          ---??? or, we could use < [0], version(0,0) >
                                           ---??? assume the initial sqn is 0
   eq choose(VTS,nil) = < [0], < 0,0 > > .
   eq choose(empty,VVS) = < [0],< 0,0 > > .  ---??? the first incoming read 
@@ -120,13 +138,14 @@ mod WALTER-AUX is
        update(WS,< RID,SQN >,(K |-> < V,< RID,SQN > >,DS)) [owise] .
   eq update(empty,VERSION,DS) = DS .
 
+---(
   ---??? Fig.13 in the walter paper says propagating a txn to ALL servers, why ALL?
   ---??? shouldn't all replicas concerning keys in the write set be enough?
   ---??? As explained in Section 4.4, ALL is for disaster-safe durability
-  op propagateTxn : Address Nat VectorTime Set{KeyValue} AddressSet Address -> Config .
+  op propagateTxn : Address Nat VectorTime WriteSet AddressSet Address -> Config .
   eq propagateTxn(TID,SQN,VTS,WS,(RID ; RIDS),RID') = 
        propagateTxn(TID,SQN,VTS,WS,RIDS,RID')
-       (msg propagate(TID,SQN,VTS,WS) from RID' to RID) .
+       [if RID == RID' then ld else rd fi, RID <- propagate(TID,SQN,VTS,WS,RID')] .
   eq propagateTxn(TID,SQN,VTS,WS,emptyAddressSet,RID') = null .
 
   --- Walter runs 2pc among preferred sites of updated objects
@@ -135,20 +154,23 @@ mod WALTER-AUX is
   op prepareTxn : Address KeySet VectorTime AddressSet ReplicaTable Address -> Config .
   eq prepareTxn(TID,KS,VTS,(RID ; RIDS),REPLICA-TABLE,RID') =
        prepareTxn(TID,KS,VTS,RIDS,REPLICA-TABLE,RID')
-       (msg prepare(TID,onSite(KS,RID,REPLICA-TABLE),VTS) from RID' to RID) .
+       [if RID == RID' then ld else rd fi, RID <- prepare(TID,onSite(KS,RID,REPLICA-TABLE),VTS,RID')] .
   eq prepareTxn(TID,KS,VTS,emptyAddressSet,REPLICA-TABLE,RID') = null .
+)
+
 
   op onSite : KeySet Address ReplicaTable -> KeySet .
   eq onSite((K,KS),RID,[replicatingSites(K,RID ;; RIDSS) ;; RT]) = 
        K, onSite(KS,RID,[RT]) .
   eq onSite(KS,RID,[RT]) = empty [owise] .
 
+---(
   op propagateAbort : Address AddressSet Address -> Config .
   eq propagateAbort(TID,(RID ; RIDS),RID') = 
        propagateAbort(TID,RIDS,RID')
-       (msg abort(TID) from RID' to RID) .
+       [if RID == RID' then ld else rd fi, RID <- abort(TID,RID')] .
   eq propagateAbort(TID,emptyAddressSet,RID') = null .
-
+)
 
   op addLock : KeySet Address -> Locks .
   eq addLock((K,KS),TID) = lock(TID,K), addLock(KS,TID) .
@@ -189,12 +211,13 @@ mod WALTER-AUX is
        add(TID,KS,RID,[RT],(propagateSites(TID,K,(RID ; RIDS)) ; PSTS)) .
   eq add(TID,KS,RID,[RT],PSTS) = PSTS [owise] .
 
-
+---(
   op dsDurableTxn : Address AddressSet Address -> Config .
   eq dsDurableTxn(TID,(RID ; RIDS),RID') =
        dsDurableTxn(TID,RIDS,RID')
-       (msg ds-durable(TID) from RID' to RID) .
+       [if RID == RID' then ld else rd fi, RID <- ds-durable(TID,RID')] .
   eq dsDurableTxn(TID,emptyAddressSet,RID') = null .
+)
 
   ---??? the walter paper doesn't mention how to compare two VectorTimes
   ---??? so I define based on my understanding
@@ -213,19 +236,15 @@ mod WALTER-AUX is
   )
 
 
-  op _in_ : Address PropagatedTxns -> Bool .
-  eq TID in (propagatedTxns(TID,SQN,VTS) ; PTXNS) = true .
-  eq TID in (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS) = true .
-  eq TID in PTXNS = false [owise] .
-
-  op _in_ : Address VoteSites -> Bool .
-  eq TID in (voteSites(TID,RIDS) ; VSTS) = true .
-  eq TID in VSTS = false [owise] .
-
-***NEW
   op _in_ : Key Set{KeyValue} -> Bool .
   eq K in (WS,< K,V >) = true .
   eq K in WS = false [owise] .
+
+
+*** NEW
+  op kver : Set{KeyValue} Version -> Set{KeyVersion} . 
+  eq kver((< K,V >,WS),VERSION) = < K,VERSION >, kver(WS,VERSION) .
+  eq kver(empty,VERSION) = empty .
 
 endm 
 

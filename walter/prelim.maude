@@ -13,8 +13,7 @@ fmod TXN-SORTS is
   including SOME-PARAMETERS .
 
   sorts Key Value Operation LocalVar Expression ConfigList AddressList AddressSet
-        KeyVersion KeyValueVersion ValueVersion Lock Vote ReplicaTable Record 
-        KeyValue .
+        KeyVersion KeyValueVersion ValueVersion Lock Vote ReplicaTable Record KeyValue .
   subsort Config < ConfigList .
   subsort LocalVar < Expression .
   subsort Nat < Expression .
@@ -49,18 +48,17 @@ view Vote from TRIV to TXN-SORTS is sort Elt to Vote . endv
 view Record from TRIV to TXN-SORTS is sort Elt to Record . endv
 view KeyValue from TRIV to TXN-SORTS is sort Elt to KeyValue . endv
 
-
 fmod TXN-AUX1 is
   pr LIST{Operation} * (sort List{Operation} to OperationList) .
   pr MAP{LocalVar,Value} * (sort Map{LocalVar,Value} to LocalVars) .
-  pr MAP{Key,Value} * (sort Map{Key,Value} to WriteSet, op undefined to undefinedWriteSet) .
+---  pr MAP{Key,Value} * (sort Map{Key,Value} to WriteSet, op undefined to undefinedWriteSet) .
 ---  pr SET{Address} * (sort Set{Address} to AddressSet) . 
 ---  pr LIST{Address} * (sort List{Address} to AddressList) .
   pr LIST{ValueVersion} * (sort List{ValueVersion} to ValueVersionList) .
   pr SET{Key} * (sort Set{Key} to KeySet) .
   pr SET{Lock} * (sort Set{Lock} to Locks) .
   pr LIST{Key} * (sort List{Key} to KeyList) .
-***NEW
+*** NEW
   pr SET{KeyValue} .
 
   op write : Key Expression -> Operation [ctor] .
@@ -120,10 +118,19 @@ view AddressSet from TRIV to TXN-AUX1 is sort Elt to AddressSet . endv
 view ValueVersionList from TRIV to TXN-AUX1 is sort Elt to ValueVersionList . endv
 view AddressList from TRIV to TXN-AUX1 is sort Elt to AddressList . endv
 
+***NEW: for MC we need to change VectorTime to VectorTime
 fmod VECTOR-TIMESTAMP is
-  pr MAP{Address,Nat} * (sort Map{Address,Nat} to VectorTime) .  ---??? need to define "undefined"
+  pr MAP{Address,Nat} * (sort Map{Address,Nat} to VectorTime,
+                         op undefined to 0) .  ---??? need to define "undefined"
 endfm
 
+---(
+***NEW: used for LOG; different from the above vector-timestamp
+***that is used for Walter itself 
+fmod VECTOR-TIME is
+  pr MAP{Address,Float} * (sort Map{Address,Float} to VectorTime) .
+endfm
+)
 
 fmod TXN-AUX2 is
   including TXN-AUX1 .
@@ -189,14 +196,14 @@ fmod MESSAGE is
   including TXN-AUX1 .
   including VECTOR-TIMESTAMP .
   
-  ---(
+---(
   op executeTxn : Actor Address -> Content .
   op done : Address -> Content .
-  op request : Key Address VectorTimestamp Address -> Content .
+  op request : Key Address VectorTime Address -> Content .
   op reply : Address Key ValueVersion Address -> Content .
-  op propagate : Address Nat VectorTimestamp WriteSet Address -> Content .
+  op propagate : Address Nat VectorTime WriteSet Address -> Content .
   op propagate-ack : Address Address -> Content .
-  op prepare : Address KeySet VectorTimestamp Address -> Content .
+  op prepare : Address KeySet VectorTime Address -> Content .
   op prepare-reply : Address Bool Address -> Content . --- TID, yes/no, RID
   op prepare-yes : Address Address -> Content .  --- TID, RID
   op prepare-no : Address Address -> Content .
@@ -204,14 +211,15 @@ fmod MESSAGE is
   op ds-durable : Address Address -> Content .  --- TID, RID
   op visible : Address Address -> Content .
   op aborted : Address Address -> Content .
+)
 
   --- aux msgs
   op start : -> Content .
   op execute : -> Content .
   op readyForPropagateAck : Address -> Content .
   op readyForVisible : Address -> Content .
-  )
 
+***NEW
   op executeTxn : Actor -> Content .
   op done : -> Content .
   op request : Key Address VectorTime -> Content .
@@ -219,19 +227,18 @@ fmod MESSAGE is
   op propagate : Address Nat VectorTime Set{KeyValue} -> Content .
   op propagate-ack : Address -> Content .
   op prepare : Address KeySet VectorTime -> Content .
-  op prepare-reply : Address Bool -> Content . --- TID, yes/no, RID
-  op prepare-yes : Address -> Content .  --- TID, RID
+  op prepare-reply : Address Bool -> Content . --- TID, yes/no
+  op prepare-yes : Address -> Content .  --- TID
   op prepare-no : Address -> Content .
-  op abort : Address -> Content . --- TID, RID
-  op ds-durable : Address -> Content .  --- TID, RID
+  op abort : Address -> Content . --- TID
+  op ds-durable : Address -> Content .  --- TID
   op visible : Address -> Content .
   op aborted : Address -> Content .
 
-  --- aux msgs
-  op start : -> Content .
-  op execute : -> Content .
-  op readyForPropagateAck : -> Content .
-  op readyForVisible : -> Content .
+***
+***NEW
+  op durable : Address -> Content .
+  op propagate : Address -> Content .
 endfm
 
 fmod CLIENT-REPLICA is
@@ -240,8 +247,10 @@ fmod CLIENT-REPLICA is
   including READSET-WALTER .
   including DATASTORE-WALTER .
   including VECTOR-TIMESTAMP .
+---  including VECTOR-TIME .
 *** NEW
   pr MAP{Address,Record} * (sort Map{Address,Record} to Log) .
+
 
 ---  op Client : -> ActorType .
 ---  op txns:_ : ConfigList -> Attribute .
@@ -269,6 +278,8 @@ fmod CLIENT-REPLICA is
   op votes:_ : Vote -> Attribute .
   op voteSites:_ : VoteSites -> Attribute .
   op abortSites:_ : VoteSites -> Attribute .
+***NEW
+  op rmtCommitted:_ : AddressSet -> Attribute .
 
 
   op Txn : -> ActorType .
@@ -283,13 +294,14 @@ fmod CLIENT-REPLICA is
 *** NEW
   op version:_ : Version -> Attribute .
 
+
   op Table : -> ActorType .
   op table:_ : ReplicaTable -> Attribute .
 
   op Monitor : -> ActorType .
   op log:_ : Log -> Attribute .
 
-***NEW
+*** New
   op clock:_ : Nat -> Attribute .
 
 ---(
@@ -301,6 +313,7 @@ fmod CLIENT-REPLICA is
   op record : Address Float Float Bool -> Record [ctor] .
   op _;_ : Record Record -> Record [ctor assoc id: noRecord] . 
 )
+
 
 *** NEW 
   op <_,_,_,_,_> : VectorTime VectorTime Bool Set{KeyVersion} Set{KeyVersion} -> Record [ctor] .

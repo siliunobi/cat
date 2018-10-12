@@ -185,7 +185,9 @@ k101l k102l k103l k104l k105l k106l k107l k108l k109l k110l k111l k112l k113l k1
                                locked: empty, dsSites: noPS, vsbSites: noVS,
                                dsTxns: emptyAddressSet, gvTxns: emptyAddressSet, recPropTxns: noPT,
                                recDurableTxns: noDT, votes: noVote,
-                               voteSites: noVS, abortSites: noVS >) 
+                               voteSites: noVS, abortSites: noVS,
+***NEW
+                               rmtCommitted: emptyAddressSet >) 
          (start to (s REPLS)) .  ---??? manually start to run ROLA
                                     ---??? we can't put it into C; owise ROLA rules could apply
                                     ---??? this msg should pair the rule [receiving-start-when-no-txn-to-start]  
