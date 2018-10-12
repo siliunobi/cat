@@ -53,6 +53,7 @@ mod JESSY is
   var O@M : Address .  var GT@M : Nat .  var LOG@M : Log .
   vars VTS1@M VTS2@M : VectorTime . var FLAG@M : Bool . 
   vars READS@M WRITES@M : Set{KeyVersion} .
+  var GT : Float .
 
 
   --- simply consume "start" if no txn needs to start
