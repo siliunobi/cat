@@ -93,37 +93,79 @@ rl '__['_to_['start.Content,'RID:Address],'<_:_|_>['RID:Address,'Replica.ActorTy
     'AS':AttributeSet,'tsSqn:_['TSSQN:TimestampSqn]]]]]]] if 'SQN':Int := '_+_['SQN:Int,'s_[
     '0.Zero]] /\ 'VERSION:Version := 'latestPrepared['K:Key,'VS:Versions] [label(
     'receive-prepare-rw)] .
-  crl '__['msg_from_to_['committed['TID:Address],'RID':Address,'RID:Address],'<_:_|_>[
-    'RID:Address,'Replica.ActorType,'_`,_['AS':AttributeSet,'executing:_['<_:_|_>['TID:Address,
+
+
+  red tagLeftRightHand('__['msg_from_to_['committed['TID:Address],'RID':Address,'RID:Address],'<_:_|_>['RID:Address,'Replica.ActorType,'_`,_['AS':AttributeSet,'executing:_['<_:_|_>['TID:Address,
     'Txn.ActorType,'_`,_['AS:AttributeSet,'readSet:_['RS:Set`{KeyVersion`}],'writeSet:_[
     'WS:Set`{KeyValue`}],'version:_['VERSION:Version]]]],'committed:_['TXNS:ConfigList],
     'commitSites:_['CMTS:VoteSites]]],'<_:_|_>['O@M:Address,'Monitor.ActorType,'_`,_['log:_[
     '_`,_['LOG@M:Log,'_|->_['TID:Address,'<_`,_`,_`,_`,_>['VTS1@M:VectorTime,
     'VTS2@M:VectorTime,'FLAG@M:Bool,'READS@M:Set`{KeyVersion`},'WRITES@M:Set`{KeyVersion`}]]]],
-    'clock:_['GT@M:Nat]]]] => 'if_then_else_fi['_==_['_`[_`]['CMTS':VoteSites,'TID:Address],
+    'clock:_['GT@M:Nat]]]],'if_then_else_fi['_==_['_`[_`]['CMTS':VoteSites,'TID:Address],
     'empty.AddressSet],'__['__['_to_['start.Content,'RID:Address],'<_:_|_>['RID:Address,
     'Replica.ActorType,'_`,_['executing:_['noActor.Actor],'_`,_['committed:_['_;;_[
     'TXNS:ConfigList,'<_:_|_>['TID:Address,'Txn.ActorType,'_`,_['readSet:_[
     'RS:Set`{KeyVersion`}],'_`,_['writeSet:_['WS:Set`{KeyValue`}],'_`,_['AS:AttributeSet,
     'version:_['VERSION:Version]]]]]]],'_`,_['AS':AttributeSet,'commitSites:_[
     'CMTS':VoteSites]]]]]],'<_:_|_>['O@M:Address,'Monitor.ActorType,'_`,_['log:_['_`,_[
-    'LOG@M:Log,'_|->_['TID:Address,'<_`,_`,_`,_`,_>['VTS1@M:VectorTime,'insert['RID:Address,
+    'LOG@M:Log,'_|->_['TID:Address,
+
+    '<_`,_`,_`,_`,_>['VTS1@M:VectorTime,'insert['RID:Address,
     'GT@M:Nat,'VTS2@M:VectorTime],'true.Bool,'RS:Set`{KeyVersion`},'kver['WS:Set`{KeyValue`},
-    'VERSION:Version]]]]],'clock:_['_+_['GT@M:Nat,'s_['0.Zero]]]]]],'__['<_:_|_>['RID:Address,
+    'VERSION:Version]]
+
+
+    ]]],'clock:_['_+_['GT@M:Nat,'s_['0.Zero]]]]]],'__['<_:_|_>['RID:Address,
     'Replica.ActorType,'_`,_['executing:_['<_:_|_>['TID:Address,'Txn.ActorType,'_`,_[
     'readSet:_['RS:Set`{KeyVersion`}],'_`,_['writeSet:_['WS:Set`{KeyValue`}],'_`,_[
     'AS:AttributeSet,'version:_['VERSION:Version]]]]]],'_`,_['committed:_['TXNS:ConfigList],
     '_`,_['AS':AttributeSet,'commitSites:_['CMTS':VoteSites]]]]],'<_:_|_>['O@M:Address,
     'Monitor.ActorType,'_`,_['log:_['_`,_['LOG@M:Log,'_|->_['TID:Address,'<_`,_`,_`,_`,_>[
     'VTS1@M:VectorTime,'VTS2@M:VectorTime,'FLAG@M:Bool,'READS@M:Set`{KeyVersion`},
-    'WRITES@M:Set`{KeyVersion`}]]]],'clock:_['GT@M:Nat]]]]] if 'CMTS':VoteSites := 'remove[
-    'TID:Address,'RID':Address,'CMTS:VoteSites] [label('receive-committed)] .
-  crl '__['msg_from_to_['prepare-reply['TID:Address,'true.Bool],'RID':Address,'RID:Address],
+    'WRITES@M:Set`{KeyVersion`}]]]],'clock:_['GT@M:Nat]]]]], false) .
+
+
+
+'__['__['<_:_|_>['M:Address,'Monitor.ActorType,
+    '_`,_['clock:_['GT:Nat],'log:_['_`,_['_|->_['TID:Address,'<_`,_`,_`,_`,_>['_|->_[
+    'RID@M:Address,'T1:Nat],'VTS1:VectorTime,'FFLAG:Bool,'READS:Set`{KeyVersion`},
+    'WRITES:Set`{KeyVersion`}]],'LOG:Log]]]],'__['msg_from_to_['committed['TID:Address],
+    'RID':Address,'RID:Address],'<_:_|_>['RID:Address,'Replica.ActorType,'_`,_[
+    'AS':AttributeSet,'executing:_['<_:_|_>['TID:Address,'Txn.ActorType,'_`,_['AS:AttributeSet,
+    'readSet:_['RS:Set`{KeyVersion`}],'writeSet:_['WS:Set`{KeyValue`}],'version:_[
+    'VERSION:Version]]]],'committed:_['TXNS:ConfigList],'commitSites:_['CMTS:VoteSites]]],
+    '<_:_|_>['O@M:Address,'Monitor.ActorType,'_`,_['log:_['_`,_['LOG@M:Log,'_|->_['TID:Address,
+    '<_`,_`,_`,_`,_>['VTS1@M:VectorTime,'VTS2@M:VectorTime,'FLAG@M:Bool,
+    'READS@M:Set`{KeyVersion`},'WRITES@M:Set`{KeyVersion`}]]]],'clock:_['GT@M:Nat]]]]],
+
+    '__[
+    resultMonitorObjInsert('TID:Address, 'RID:Address, 'true.Bool, 'RS:Set`{KeyVersion`},
+    'WS:Set`{KeyValue`}, empty),'<_:_|_>['TID:Address,'Txn.ActorType,'_`,_['AS:AttributeSet,
+    'readSet:_['RS:Set`{KeyVersion`}],'writeSet:_['WS:Set`{KeyValue`}],'version:_[
+    'VERSION:Version]]]]]
+
+
+     if 'CMTS':VoteSites := 'remove[
+    'TID:Address,'RID':Address,'CMTS:VoteSites] [label('receive-committed)] .) .
+  
+
+red getAttr('executing:_,'__['msg_from_to_['committed['TID:Address],'RID':Address,'RID:Address],'<_:_|_>[
+    'RID:Address,'Replica.ActorType,'_`,_['AS':AttributeSet,'executing:_['<_:_|_>['TID:Address,
+    'Txn.ActorType,'_`,_['AS:AttributeSet,'readSet:_['RS:Set`{KeyVersion`}],'writeSet:_[
+    'WS:Set`{KeyValue`}],'version:_['VERSION:Version]]]],'committed:_['TXNS:ConfigList],
+    'commitSites:_['CMTS:VoteSites]]],'<_:_|_>['O@M:Address,'Monitor.ActorType,'_`,_['log:_[
+    '_`,_['LOG@M:Log,'_|->_['TID:Address,'<_`,_`,_`,_`,_>['VTS1@M:VectorTime,
+    'VTS2@M:VectorTime,'FLAG@M:Bool,'READS@M:Set`{KeyVersion`},'WRITES@M:Set`{KeyVersion`}]]]],
+    'clock:_['GT@M:Nat]]]]) .
+
+--- this rule does not need to tag
+--- fix it 
+red  isExecuted('__['msg_from_to_['prepare-reply['TID:Address,'true.Bool],'RID':Address,'RID:Address],
     '<_:_|_>['RID:Address,'Replica.ActorType,'_`,_['AS':AttributeSet,'sqn:_['SQN:Int],
     'executing:_['<_:_|_>['TID:Address,'Txn.ActorType,'_`,_['AS:AttributeSet,'operations:_[
     'OPS:OperationList],'txnSQN:_['TXNSQN:Int]]]],'voteSites:_['VSTS:VoteSites],'commitSites:_[
     'CMTS:VoteSites]]],'<_:_|_>['TABLE:Address,'Table.ActorType,'table:_[
-    'REPLICA-TABLE:ReplicaTable]]] => '__['<_:_|_>['TABLE:Address,'Table.ActorType,'table:_[
+    'REPLICA-TABLE:ReplicaTable]]],'__['<_:_|_>['TABLE:Address,'Table.ActorType,'table:_[
     'REPLICA-TABLE:ReplicaTable]],'if_then_else_fi['_==_['_`[_`]['VSTS':VoteSites,
     'TID:Address],'empty.AddressSet],'__['<_:_|_>['RID:Address,'Replica.ActorType,'_`,_[
     'executing:_['<_:_|_>['TID:Address,'Txn.ActorType,'_`,_['operations:_['OPS:OperationList],
@@ -133,10 +175,9 @@ rl '__['_to_['start.Content,'RID:Address],'<_:_|_>['RID:Address,'Replica.ActorTy
     'RIDS:AddressSet,'RID:Address]],'<_:_|_>['RID:Address,'Replica.ActorType,'_`,_[
     'executing:_['<_:_|_>['TID:Address,'Txn.ActorType,'_`,_['operations:_['OPS:OperationList],
     '_`,_['AS:AttributeSet,'txnSQN:_['TXNSQN:Int]]]]],'_`,_['voteSites:_['VSTS':VoteSites],
-    '_`,_['sqn:_['SQN:Int],'_`,_['AS':AttributeSet,'commitSites:_['CMTS:VoteSites]]]]]]]] if
-    'VSTS':VoteSites := 'remove['TID:Address,'RID':Address,'VSTS:VoteSites] /\ 'RIDS:AddressSet
-    := 'prepareSites['OPS:OperationList,'RID:Address,'REPLICA-TABLE:ReplicaTable] [label(
-    'receive-prepare-reply-true-executing)] .
+    '_`,_['sqn:_['SQN:Int],'_`,_['AS':AttributeSet,'commitSites:_['CMTS:VoteSites]]]]]]]]) .
+
+
   crl '__['msg_from_to_['response1['TID:Address,'version['K:Key,'V:Value,'TS:Timestamp,
     'MD:KeySet]],'RID':Address,'RID:Address],'<_:_|_>['RID:Address,'Replica.ActorType,'_`,_[
     'AS':AttributeSet,'executing:_['<_:_|_>['TID:Address,'Txn.ActorType,'_`,_['AS:AttributeSet,
@@ -178,10 +219,14 @@ rl '__['_to_['start.Content,'RID:Address],'<_:_|_>['RID:Address,'Replica.ActorTy
     '_`,_['AS:AttributeSet,'latest:_['vl['OPS:OperationList]]]]]],'_`,_['AS':AttributeSet,
     '1stGetSites:_['_;_['1STGETS:1stGets,'1st['TID:Address,'RIDS:AddressSet]]]]]]],'genGets[
     'OPS:OperationList,'RID:Address,'TID:Address,'REPLICA-TABLE:ReplicaTable]],'<_:_|_>[
-    'TABLE:Address,'Table.ActorType,'table:_['REPLICA-TABLE:ReplicaTable]]],'<_:_|_>[
+    'TABLE:Address,'Table.ActorType,'table:_['REPLICA-TABLE:ReplicaTable]]],
+
+    '<_:_|_>[
     'O@M:Address,'Monitor.ActorType,'_`,_['log:_['insert['TID:Address,'<_`,_`,_`,_`,_>['_|->_[
     'RID:Address,'GT@M:Nat],'empty.VectorTime,'false.Bool,'empty.Set`{KeyVersion`},
-    'empty.Set`{KeyVersion`}],'LOG@M:Log]],'clock:_['_+_['GT@M:Nat,'s_['0.Zero]]]]]] if 'not_[
+    'empty.Set`{KeyVersion`}],'LOG@M:Log]],'clock:_['_+_['GT@M:Nat,'s_['0.Zero]]] ]]
+
+    ] if 'not_[
     'write-only['OPS:OperationList]] = 'true.Bool /\ 'RIDS:AddressSet := '1stSites[
     'OPS:OperationList,'RID:Address,'REPLICA-TABLE:ReplicaTable] [label('start-ro-or-rw-txn)] .
 

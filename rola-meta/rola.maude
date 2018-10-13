@@ -88,6 +88,8 @@ load rola-aux
   eq $genPuts(nil,RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS') = null . 
 
 
+
+
   ---??? simply consume "start" if no txn needs to start
   rl [receiving-start-when-no-txn-to-start] :
      < RID : Replica | gotTxns: emptyTxnList, AS >
@@ -96,7 +98,7 @@ load rola-aux
      < RID : Replica | gotTxns: emptyTxnList, AS > .
 
 
-    
+
   --- "gotTxns" abstracts "client" away
   --- we consider one-shot reads that can be issued in a single parallel batch
  crl [start-ro-or-rw-txn] :
@@ -116,8 +118,6 @@ load rola-aux
      if (not write-only(OPS)) /\
         RIDS := 1stSites(OPS,RID,REPLICA-TABLE) .
 		
-endm)
-eof		
 
   ---!!! ROLA needs "txnSQN" because "sqn" could be updated by "prepare"
   ---!!! so "txnSQN" holds the sqn when the txn started executing
@@ -148,6 +148,7 @@ eof
         RIDS := prepareSites(OPS,RID,REPLICA-TABLE) /\
         WS' := ws(OPS,VARS) .
   
+
 
 
  crl [receive-prepare-wo] :
@@ -181,6 +182,7 @@ eof
      fi
      if SQN' := SQN + 1 /\
         VERSION := latestPrepared(K,VS) .
+
 
 
   --- as of now, upon receiving "false" vote, the txn is aborted immediately
@@ -240,6 +242,7 @@ eof
         RIDS := prepareSites(OPS,RID,REPLICA-TABLE) .  --- as of now, commitSites == prepareSites .
 
 
+
   rl [receive-commit] :
      < RID : Replica | tsSqn: TSSQN,
                        datastore: VS, 
@@ -251,7 +254,8 @@ eof
                        latestCommit: cmt(LC,VS,TSSQN,TS), AS' >  --- cmt different from RAMP
      (msg committed(TID) from RID to RID') .
 
-
+--- to deal with if_then_else_fi statement, I need to know the 
+--- meaning of the condition. That would be an issue. 
  crl [receive-committed] :
      < RID : Replica | executing: < TID : Txn | readSet: RS,
                                                 writeSet: WS,
@@ -275,6 +279,8 @@ eof
      fi)
      if CMTS' := remove(TID,RID',CMTS) .
   
+
+
 
   rl [receive-get] :
      < RID : Replica | datastore: VS,
@@ -318,7 +324,7 @@ eof
         VL' := lat(VL,MD,TS) /\
         1STGETS' := remove(TID,RID',1STGETS) /\
         RIDS := 2ndSites(VL',RS',RID,REPLICA-TABLE) . 
-  
+
 
   rl [receive-response2] :
      < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
@@ -386,6 +392,8 @@ eof
         RIDS := prepareSites(OPS,RID,REPLICA-TABLE) /\
         WS' := ws(OPS,VARS) .
 
+  
+
 
  crl [not-ready-to-commit-reads] :
      (commit-reads(TID) to RID)
@@ -398,6 +406,8 @@ eof
                       2ndGetSites: 2NDGETS, AS' >
     if 1STGETS[TID] =/= empty or
         2NDGETS[TID] =/= empty .
+
+
 
 *** NEW
  crl [already-committed-reads] :

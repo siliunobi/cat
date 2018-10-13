@@ -124,6 +124,7 @@ mod ROLA is
         RIDS := 1stSites(OPS,RID,REPLICA-TABLE) .
 
 
+
   ---!!! ROLA needs "txnSQN" because "sqn" could be updated by "prepare"
   ---!!! so "txnSQN" holds the sqn when the txn started executing
  crl [start-wo-txn] : 
@@ -167,6 +168,7 @@ mod ROLA is
                        tsSqn: insert(TS,SQN',TSSQN), AS' >
      (msg prepare-reply(TID,true) from RID to RID')  --- always "true" in RAMP
      if SQN' := SQN + 1 .
+
 
 
  crl [receive-prepare-rw] :

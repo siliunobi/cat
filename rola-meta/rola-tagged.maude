@@ -1,0 +1,18 @@
+  rl
+< RID:Address : Replica | gotTxns: emptyTxnList,AS:AttributeSet > start to RID:Address
+    =>
+< RID:Address : Replica | gotTxns: emptyTxnList,AS:AttributeSet > [label receiving-start-when-no-txn-to-start] .
+
+
+  crl (start to RID:Address)
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | gotTxns:(
+< TID:Address : Txn | operations: OPS:OperationList,latest: empty,AS:AttributeSet > ;; TXNS:ConfigList),executing: noActor,1stGetSites: 1STGETS:1stGets,AS':AttributeSet >
+    =>
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | gotTxns: TXNS:ConfigList,executing:
+< TID:Address : Txn | operations: OPS:OperationList,latest: vl(OPS:OperationList),AS:AttributeSet >,1stGetSites:(1STGETS:1stGets ; 1st(TID:Address,RIDS:AddressSet)),
+    AS':AttributeSet > genGets(OPS:OperationList,RID:Address,TID:Address,REPLICA-TABLE:ReplicaTable)
+    if not write-only(OPS:OperationList)= true /\ RIDS:AddressSet := 1stSites(OPS:OperationList,RID:Address,REPLICA-TABLE:ReplicaTable) 
+	[label start-ro-or-rw-txn] .
+endm
