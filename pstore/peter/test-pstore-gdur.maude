@@ -1,0 +1,149 @@
+load gdur-pstore
+
+(omod TEST-GDUR-PSTORE is
+  including PSTORE-GDUR .
+  including VALUES-NAT .
+
+  ops r1 r2 r3 r4 : -> ReplicaId [ctor] .
+  ops t1 t2 t3 t4 t5 : -> TransId [ctor] .
+  ops c1 c2 c3 : -> Oid [ctor] .
+  ops x y z w : -> Key [ctor] .
+  ops xl yl zl : -> LocalVar [ctor] .
+
+  --- initial states:
+  ops init1 init2 init3 : -> Configuration .
+
+  eq init1
+   = [emptyAME]
+     [replicatingSites(x, r1)]
+     < c1 : Client | txns :
+                      < t1 : Transaction | operations : ((xl :=read x) (write(x, xl plus 1))),
+		                           proxy : r1,
+					   status : undecided, 
+					   readSet : emptyReadSet,
+					   writeSet : emptyWriteSet,
+					   localVars : (xl |-> [0]) >,
+		      pendingTrans : empty			   
+     >
+     < r1 : Replica | datastore : (< x, [2], 1 >),
+                      committed : none,
+		      aborted : none,
+		      executing : none,
+		      submitted : none,
+		      certificationQueue : noTrans,
+		      decidedTranses : noTS > .
+
+  eq init2
+   = [emptyAME]
+     [replicatingSites(x, (r1 , r2)) ;; replicatingSites(y, (r2 , r3)) ;;
+      replicatingSites(z, r3)]
+     < c1 : Client | txns :
+                      < t1 : Transaction | operations : ((xl :=read x) write(x, xl plus 1)
+		                                         (yl :=read y) write(y, yl plus 1)),
+		                           proxy : r1,
+					   status : undecided,    
+					   readSet : emptyReadSet,
+					   writeSet : emptyWriteSet,
+					   localVars : (xl |-> [0] , yl |-> [0]) >,
+		      pendingTrans : empty			   
+     >
+     < c2 : Client | txns :
+                      < t2 : Transaction | operations : ((xl :=read x) (yl :=read y)
+		                                         write(y, yl plus 1) write(x, xl plus 1)),
+		                           proxy : r2,
+					   status : undecided,    
+					   readSet : emptyReadSet,
+					   writeSet : emptyWriteSet,
+					   localVars : (xl |-> [0], yl |-> [0]) >,
+		      pendingTrans : empty			   
+     >
+     < c3 : Client | txns :
+                      < t3 : Transaction | operations : ((xl :=read x) (yl :=read y) (zl :=read z)
+		                                         write(y, yl plus 1) write(x, xl plus 1)
+							 write(z, (xl plus yl) plus zl)),
+		                           proxy : r3,
+					   status : undecided,    
+					   readSet : emptyReadSet,
+					   writeSet : emptyWriteSet,
+					   localVars : (xl |-> [0] , yl |-> [0] , zl |-> [0]) >,
+		      pendingTrans : empty			   
+     >
+     < r1 : Replica | datastore : (< x, [2], 1 >),
+                      committed : none,
+		      aborted : none,
+		      executing : none,
+		      submitted : none,
+		      certificationQueue : noTrans,
+		      decidedTranses : noTS >
+     < r2 : Replica | datastore : ((< x, [2], 1 >) , (< y, [2], 1 >)),
+                      committed : none,
+		      aborted : none,
+		      executing : none,
+		      submitted : none,
+		      certificationQueue : noTrans,
+		      decidedTranses : noTS >
+     < r3 : Replica | datastore : ((< y, [2], 1 >) , (< z, [2], 1 >)),
+                      committed : none,
+		      aborted : none,
+		      executing : none,
+		      submitted : none,
+		      certificationQueue : noTrans,
+		      decidedTranses : noTS > .
+--- a rew init2 commits t1 and t2 and aborts t3
+
+  eq init3
+   = [emptyAME]
+     [replicatingSites(x, (r2 , r3)) ;; replicatingSites(y, (r2 , r3)) ;;
+      replicatingSites(z, r1)]
+     < c1 : Client | txns :
+                      < t1 : Transaction | operations : ((xl :=read x)
+		                                         (yl :=read y)),
+		                           proxy : r1,
+					   status : undecided,   
+					   readSet : emptyReadSet,
+					   writeSet : emptyWriteSet,
+					   localVars : (xl |-> [0] , yl |-> [0]) >,
+		      pendingTrans : empty			   
+     >
+     < c2 : Client | txns :
+                      < t2 : Transaction | operations : (write(y, 5) write(x, 8)),
+		                           proxy : r2,
+					   status : undecided,   
+					   readSet : emptyReadSet,
+					   writeSet : emptyWriteSet,
+					   localVars : (xl |-> [0], yl |-> [0]) >,
+		      pendingTrans : empty			   
+     >
+     < r1 : Replica | datastore : (< z, [2], 1 >),
+                      committed : none,
+		      aborted : none,
+		      executing : none,
+		      submitted : none,
+		      certificationQueue : noTrans,
+		      decidedTranses : noTS >
+     < r2 : Replica | datastore : ((< x, [2], 1 >) , (< y, [2], 1 >)),
+                      committed : none,
+		      aborted : none,
+		      executing : none,
+		      submitted : none,
+		      certificationQueue : noTrans,
+		      decidedTranses : noTS >
+     < r3 : Replica | datastore : ((< x, [2], 1 >) , (< y, [2], 1 >)),
+                      committed : none,
+		      aborted : none,
+		      executing : none,
+		      submitted : none,
+		      certificationQueue : noTrans,
+		      decidedTranses : noTS > .
+
+endom)
+
+--- Analysis:
+
+
+(search init1 =>! C:[Configuration] .)
+--- returns the one desired solution
+
+(search init3 =>! C:[Configuration] .)
+--- returns the five desired solutions
+

@@ -1,0 +1,203 @@
+*** GDUR prelims. Declaration of data types and classes.
+
+*** Notice that even though it might not be
+*** strictly necessary, we include the actual values of
+*** the keys in our model, whch could be useful
+*** for analysis purposes. I think
+*** that we could abstract from the  actual values,
+*** also because that given a key and a version number,
+*** the corresponding value can be assumed given.
+*** In principle, it could be as easy as saying
+*** that version V of key K has value V ...
+
+load full-maude
+
+(fmod SOME-PARAMETERS is
+  sort Version .   --- could be different things
+endfm)  
+--- Maybe these parameters could be abstract theories
+--- instead of modules? Then we could also specify that
+--- the versions should be a partially ordered set. TO DO.
+
+--- Some simple sorts, which will later be used to define
+--- all our sets, lists, and maps. Many of these sorts
+--- are initially empty, like Key, TransId, ReplicaId, LocalVar,
+--- and must be given concrete values in actual applications.
+
+(omod BASIC-SORTS is
+  pr NAT .
+  including SOME-PARAMETERS .
+  sorts TransId ReplicaId Key Operation Expression 
+        Value TransStatus LocalVar
+	KeyValueVersion KeyVersion .
+
+  *** Constructors:
+  subsorts TransId ReplicaId < Oid .
+
+  op write : Key Expression -> Operation [ctor] .
+  op _:=read_ : LocalVar Key -> Operation [ctor] .
+  op waitRemote : Key LocalVar -> Operation [ctor] .  --- "internal" state:
+
+  subsort LocalVar < Expression .
+  subsort NzNat < Expression .
+  op _plus_ : Expression Expression -> Expression [ctor] .
+
+  op <_`,_`,_> : Key Value Version -> KeyValueVersion [ctor] .
+  op versionRead : Key Version -> KeyVersion [ctor] .
+  ops abort commit undecided : -> TransStatus [ctor] .
+endom)
+
+
+(view TransId from TRIV to BASIC-SORTS is sort Elt to TransId . endv)
+(view ReplicaId from TRIV to BASIC-SORTS is sort Elt to ReplicaId . endv)
+(view Operation from TRIV to BASIC-SORTS is sort Elt to Operation . endv)
+(view Version from TRIV to BASIC-SORTS is sort Elt to Version . endv)
+(view Key from TRIV to BASIC-SORTS is sort Elt to Key . endv)
+(view LocalVar from TRIV to BASIC-SORTS is sort Elt to LocalVar . endv)
+(view Value from TRIV to BASIC-SORTS is sort Elt to Value . endv)
+(view KeyVersion from TRIV to BASIC-SORTS is sort Elt to KeyVersion . endv)
+(view KeyValueVersion from TRIV to BASIC-SORTS is sort Elt to KeyValueVersion . endv)
+
+
+(omod SORTS is
+  including BASIC-SORTS .
+  inc SET{TransId} * (sort Set{TransId} to TransIdSet) .
+  inc SET{ReplicaId} * (sort Set{ReplicaId} to ReplicaIdSet) .
+  inc LIST{Operation} * (sort List{Operation} to OperationList) .
+  inc SET{Key} * (sort Set{Key} to KeySet, op empty to noKey) .
+  inc MAP{LocalVar,Value} * (sort Map{LocalVar,Value} to LocalVars, op empty to noVars) .
+  inc MAP{Key,Value} * (sort Map{Key,Value} to WriteSet, op empty to emptyWriteSet) .
+  pr SET{KeyVersion} * (sort Set{KeyVersion} to ReadSet, op empty to emptyReadSet) .
+  pr SET{KeyValueVersion} * (sort Set{KeyValueVersion} to DataStore) .
+
+--- NOTICE: We originally had the readSet as a map from key
+--- to version.  However, if we have an (admittedly stupid)
+--- transaction  ...; y :=read X; ...; z :=read X; ...
+--- with X non-local, then the FIRST read X could be inconsistent,
+--- and the second read X could be consistent. If we use maps,
+--- we would overwrite the first, bad, read and hence not discover
+--- it. Therefore, the readSet must be a set of key/version pairs.
+
+  sort ObjectList .
+  subsort Object < ObjectList .
+  op noTrans : -> ObjectList [ctor] .
+  op _::_ : ObjectList ObjectList -> ObjectList [ctor assoc id: noTrans] .
+
+  sort TransStatusSet .
+  op noTS : -> TransStatusSet [ctor] .
+  op transStatus : TransId TransStatus -> TransStatusSet [ctor] .
+  op _;_ : TransStatusSet TransStatusSet -> TransStatusSet [ctor assoc comm id: noTS] .
+
+  op eval : Expression LocalVars -> Value .
+  --- a parameter to be defined
+
+  --- Some projection and other functions:
+  op keys : ReadSet -> KeySet .
+
+  var K : Key .
+  var VERSION : Version .
+  var READSET : ReadSet .
+  var WRITESET : WriteSet .
+  var V : Value .
+  var DS : DataStore .
+
+  eq keys(emptyReadSet) = noKey .
+  eq keys((versionRead(K, VERSION) , READSET)) = K , keys(READSET) .
+
+  op keys : WriteSet -> KeySet .
+  eq keys(emptyWriteSet) = noKey .
+  eq keys(((K |-> V) , WRITESET)) = K , keys(WRITESET) .
+
+  op _in_ : Key DataStore -> Bool .
+  eq K in ((< K,V,VERSION >, DS)) = true .
+  eq K in DS = false [owise] .
+
+  op value : KeyValueVersion -> Value .
+  op version : KeyValueVersion -> Version .
+  eq value(< K, V, VERSION >) = V .
+  eq version(< K, V, VERSION >) = VERSION .
+
+  op keys : DataStore -> KeySet .
+  eq keys((< K, V, VERSION > , DS)) = K , keys(DS) .
+  eq keys(empty) = noKey .
+endom)
+
+
+
+(omod VALUES-NAT is --- define the sort Value; any such module will do
+  including SORTS .
+  op `[_`] : Nat -> Value [ctor] .     --- to avoid problems with preregularity
+  var X : LocalVar .  var VARS : LocalVars .  var N : Nat . vars EXPR1 EXPR2 : Expression .
+  op evalAux : Expression LocalVars -> Nat .
+  eq eval(EXPR1, VARS) = [evalAux(EXPR1, VARS)] .
+  eq evalAux(X, ((X |-> [N]), VARS)) = N .
+  eq evalAux(N, VARS) = N .
+  eq evalAux(EXPR1 plus EXPR2, VARS) = evalAux(EXPR1, VARS) + evalAux(EXPR2, VARS) .
+endom)
+
+
+
+(omod MESSAGES is
+  including SORTS .
+  sort MsgCont .
+
+  --- generic msg wrapper:
+  msg msg_from_to_ : MsgCont Oid Oid -> Msg .
+
+  op request : Key TransId -> MsgCont [ctor] .
+  op reply : TransId KeyValueVersion -> MsgCont [ctor] .
+  op executeTrans : Object -> MsgCont [ctor] .
+  msg done : TransId -> Msg .
+  op certify : Object -> MsgCont [ctor] .  --- message "term" in GDUR
+  op commit : TransId -> MsgCont [ctor] .
+  op abort : TransId -> MsgCont [ctor] .
+endom)
+
+
+
+(omod CLASSES is
+  including SORTS .  
+
+  --- transaction generator/client:
+  class Client | txns : ObjectList,            --- list of transes to run
+                 pendingTrans : TransIdSet .   --- a SINGLE TransId or empty
+
+
+  class Transaction | operations : OperationList, 
+                      proxy : Oid, 
+                      readSet : ReadSet, 
+                      writeSet : WriteSet,
+                      status : TransStatus,
+                      localVars : LocalVars .
+
+
+  class Replica | datastore : DataStore,
+                  committed : Configuration,      
+		  aborted   : Configuration,      
+		  executing : Configuration,
+                  submitted : Configuration,
+		  decidedTranses : TransStatusSet,  *** aborted/committed at non-proxies, 
+		                                    *** probably useful in general GDUR,
+						    *** Algo 2, lines 22 and 28.
+		  certificationQueue : ObjectList . *** The queue 'Q' in DUR paper.
+endom)
+
+
+
+
+*** Some actual parameters:
+*** ***********************
+
+(fmod VERSION-NAT is
+  including SORTS + NAT .
+  subsort NzNat < Version .
+
+  --- projection functions:
+  op timeStamp : KeyVersion -> NzNat .
+
+  var K : Key .  var VERSION : Version .
+  eq timeStamp(versionRead(K, VERSION)) = VERSION .
+  --- 
+endfm)
+
+
