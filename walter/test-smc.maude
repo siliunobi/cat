@@ -118,5 +118,30 @@ set clear rules off .
 ---rewrite (not modified((x |-> [1]),empty,(x |-> < [0],version(0, 0) >))) .
 ---rewrite (not locked((x |-> [1]),empty)) .
 ---rewrite update((x |-> [1]),version(1,2),(x |-> < [0],version(0, 0) >)) .
-rew initConfig .
-
+---rew initConfig .
+---(
+rew run(
+{0.0 |
+[toplevel,[2.4876941713491956,execute to 1]] ;
+[toplevel,[3.6440476531518917,execute to 2]]} 
+< 0 : Monitor | log: (t1 |-> < 1 |-> 0.0,empty,false,empty,empty >, t2 |-> < 2
+    |-> 0.0,empty,false,empty,empty >) > 
+< tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
+< 1 : Replica | history: (x |-> < [0],< 0,0 > >),sqn: 0,executing: 
+< t1 : Txn | operations: ((xl :=read x) write(x, 1) (yl :=read y) write(y, 1)),
+    readSet: empty,writeSet: empty,localVars: (xl |-> [0], yl |-> [0]),
+    startVTS: empty,txnSQN: 0,version: eptVersion >,committed: emptyTxnList,
+    aborted: emptyTxnList,committedVTS: empty,gotVTS: empty,locked: empty,
+    gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns: emptyAddressSet,
+    gvTxns: emptyAddressSet,recPropTxns: noPT,recDurableTxns: noDT,votes:
+    noVote,voteSites: noVS,abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (y |-> < [0],< 0,0 > >),sqn: 0,executing: 
+< t2 : Txn | operations: ((xl :=read x) write(x, 5) (yl :=read y) write(y, 6)),
+    readSet: empty,writeSet: empty,localVars: (xl |-> [0], yl |-> [0]),
+    startVTS: empty,txnSQN: 0,version: eptVersion >,committed: emptyTxnList,
+    aborted: emptyTxnList,committedVTS: empty,gotVTS: empty,locked: empty,
+    gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns: emptyAddressSet,
+    gvTxns: emptyAddressSet,recPropTxns: noPT,recDurableTxns: noDT,votes:
+    noVote,voteSites: noVS,abortSites: noVS,rmtCommitted: emptyAddressSet >,
+    1.0e+7) .
+)

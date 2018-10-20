@@ -244,6 +244,21 @@ mod SCHEDULER is
       AC {gt | SL}
     fi .
   
+---(
+ ceq run(AC {gt | SL}, LIMIT) =
+    if (gt <= LIMIT and SL =/= nil) then
+      run(step(AC {gt | SL}), LIMIT)
+    else
+      AC {gt | SL}
+    fi
+    if not eagerEnabled(AC) .
+
+  op eagerEnabled : ActorConfig -> Bool .
+ crl eagerEnabled(AC) => true 
+       if AC => C /\ AC =/= C .
+ crl eagerEnabled(AC) => false 
+       if AC => C /\ AC == C .
+)
 endm
 
 mod APMAUDE is

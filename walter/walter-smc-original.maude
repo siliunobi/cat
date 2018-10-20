@@ -660,6 +660,7 @@ mod WALTER is
         VTS =/= empty .
 
 
+---(
   --- ??? Deal with the buffered propagate msgs
   --- ??? recPropTxns may now have nondeterminism!!!
  crl [later-propagate-ack] :
@@ -668,6 +669,33 @@ mod WALTER is
                        history: DS,
                        recPropTxns: (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS), AS >
    =>
+     < TABLE : Table | table: REPLICA-TABLE >
+     if RID =/= RID'
+       then < RID : Replica | gotVTS: VTS'', 
+                              history: DS', 
+                              recPropTxns: (propagatedTxns(TID,SQN,VTS) ; PTXNS), AS >
+            [delay, msg propagate-ack(TID) from RID to RID']
+       else < RID : Replica | gotVTS: VTS'', 
+                              history: DS,
+                              recPropTxns: (propagatedTxns(TID,SQN,VTS) ; PTXNS), AS >
+            [delay, msg propagate-ack(TID) from RID to RID']
+     fi
+     if s(VTS'[RID']) == SQN /\
+        VTS' gt VTS /\
+        VTS'' := insert(RID',SQN,VTS') /\
+        DS' := update(locRepWS(WS,RID,REPLICA-TABLE),< RID',SQN >,DS) .
+)
+
+***
+***NEW
+*** should be 'eq'
+
+ ceq
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | gotVTS: VTS',
+                       history: DS,
+                       recPropTxns: (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS), AS >
+   =
      < TABLE : Table | table: REPLICA-TABLE >
      if RID =/= RID'
        then < RID : Replica | gotVTS: VTS'', 
@@ -742,7 +770,7 @@ mod WALTER is
                        recDurableTxns: (nonDurableTxns(TID,RID') ; DTXNS), AS' >
      if not TID in PTXNS .
 
-
+---(
   --- ??? Deal with the buffered ds-durable msgs
   --- ??? recDurableTxns may now have nondeterminism!!!
  crl [later-visible] :
@@ -767,7 +795,34 @@ mod WALTER is
      [delay, msg visible(TID) from RID to RID']    
      if VTS' gt VTS /\
         s(VTS'[RID']) == SQN .
+)
 
+***
+***NEW
+*** should be 'eq'
+
+ ceq 
+     { GT | MSGS }
+     < O@M : Monitor | log: (TID |-> 
+       < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < RID : Replica | recPropTxns: (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+                       recDurableTxns: (nonDurableTxns(TID,RID') ; DTXNS),
+                       committedVTS: VTS',
+                       locked: LOCKS,
+***NEW
+                       rmtCommitted: RIDS, AS' >
+   =
+     { GT | MSGS }
+     < O@M : Monitor | log: (TID |-> 
+       < VTS1@M,insert(RID,GT,VTS2@M),FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < RID : Replica | recPropTxns: (propagatedTxns(TID,SQN,VTS) ; PTXNS),
+                       recDurableTxns: (durableTxns(TID) ; DTXNS),
+                       committedVTS: insert(RID',SQN,VTS'),
+                       locked: release(TID,LOCKS),
+                       rmtCommitted: (RIDS ; TID), AS' >
+     [delay, msg visible(TID) from RID to RID']    
+     if VTS' gt VTS /\
+        s(VTS'[RID']) == SQN .
 endm 
 
 
