@@ -235,10 +235,6 @@ fmod MESSAGE is
   op visible : Address -> Content .
   op aborted : Address -> Content .
 
-***
-***NEW
-  op durable : Address -> Content .
-  op propagate : Address -> Content .
 endfm
 
 fmod CLIENT-REPLICA is

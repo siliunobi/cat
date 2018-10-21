@@ -244,20 +244,17 @@ mod SCHEDULER is
       AC {gt | SL}
     fi .
   
+
 ---(
  ceq run(AC {gt | SL}, LIMIT) =
-    if (gt <= LIMIT and SL =/= nil) then
+    (if (gt <= LIMIT and SL =/= nil) then
       run(step(AC {gt | SL}), LIMIT)
     else
       AC {gt | SL}
-    fi
+    fi)
     if not eagerEnabled(AC) .
 
-  op eagerEnabled : ActorConfig -> Bool .
- crl eagerEnabled(AC) => true 
-       if AC => C /\ AC =/= C .
- crl eagerEnabled(AC) => false 
-       if AC => C /\ AC == C .
+  op eagerEnabled : Config -> Bool .
 )
 endm
 
@@ -283,5 +280,54 @@ mod APMAUDE is
   eq getTime(C {gt | SL}) =  gt .
 endm
 
----rewrite run({0.0 | [toplevel,[0.0,1 <- start]]}, LIMIT) . 
+---(
+mod TEST is
+  inc NAT + APMAUDE .
 
+  op v : Nat -> Content .
+
+  op Client : -> ActorType .
+  op value:_ : Nat -> Attribute .
+  op Server : -> ActorType .
+
+  op start : -> Content .
+
+  vars C S : Address .
+  vars N N' : Nat .
+  var GT : Float .
+  var CONF : Config .
+
+ ceq eagerEnabled(CONF < C : Client | value: N >) = true
+     if N < 10 .
+  eq eagerEnabled(CONF) = false [owise] .
+
+
+  crl < C : Client | value: N >
+     {GT, msg v(N') from S to C}
+   =>
+     < C : Client | value: (N + N') >
+     if N' > N .
+
+  crl < C : Client | value: N > 
+   =>
+     < C : Client | value: (N + 10) >
+     if N < 10 .
+
+
+  eq LIMIT = 10000000.0 .
+
+  op initConfig : -> Config .
+  eq initConfig = run(initState,LIMIT) .
+
+  eq initState = { 0.0 | nil} 
+                 < 1 : Client | value: 0 >
+                 [1.0, msg v(1) from 2 to 1] .
+endm
+
+
+---rew initConfig .
+search initConfig =>! C:Config .
+--- the following two have the same result
+---rew insertList({0.0 | [1, [1.0, start to 1]] }, [1, [1.0, msg v(1) from 2 to 1] ]) .
+---rew insertList({0.0 | [1, [1.0, msg v(1) from 2 to 1] ] }, [1, [1.0, start to 1]]) .
+)

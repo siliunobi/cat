@@ -653,9 +653,6 @@ mod WALTER is
        else < RID : Replica | gotVTS: VTS', 
                               history: DS,
                               recPropTxns: PTXNS'', AS' >
-***
-***NEW
-            (propagate(TID) to RID)
      fi
      if PTXNS' := propagatedTxns(TID,SQN,VTS) ; PTXNS /\
         PTXNS'' := nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS /\  
@@ -663,27 +660,10 @@ mod WALTER is
         DS' := update(locRepWS(WS,RID,REPLICA-TABLE),< RID',SQN >,DS) /\
         VTS =/= empty .
 
-***
-***
-***NEW: NOT for MC; fairness issue
- crl [later-propagate-not-ready] :
-     (propagate(TID) to RID)
-     < RID : Replica | gotVTS: VTS',
-                       recPropTxns: (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS), AS >
-   =>
-     < RID : Replica | gotVTS: VTS',  
-                       recPropTxns: (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS), AS >
-     (propagate(TID) to RID)
-     if (s(VTS'[RID']) =/= SQN) or
-        (not VTS' gt VTS) . 
 
-
-***
-***NEW
   --- ??? Deal with the buffered propagate msgs
   --- ??? recPropTxns may now have nondeterminism!!!
  crl [later-propagate-ack] :
-     (propagate(TID) to RID)
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | gotVTS: VTS',
                        history: DS,
@@ -740,9 +720,7 @@ mod WALTER is
      < RID : Replica | recPropTxns: (propagatedTxns(TID,SQN,VTS) ; PTXNS),
                        recDurableTxns: (nonDurableTxns(TID,RID') ; DTXNS),
                        committedVTS: VTS', AS' >
-***
-***NEW
-     (durable(TID) to RID)
+
      if ((not VTS' gt VTS) or 
         s(VTS'[RID']) =/= SQN) . 
 
@@ -754,10 +732,7 @@ mod WALTER is
      (msg ds-durable(TID) from RID' to RID)
    =>
      < RID : Replica | recPropTxns: (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS),
-                       recDurableTxns: (nonDurableTxns(TID,RID') ; DTXNS), AS' >
-***
-***NEW
-     (durable(TID) to RID)  .
+                       recDurableTxns: (nonDurableTxns(TID,RID') ; DTXNS), AS' > .
 
   --- ??? the replica hasn't got the propagate msg
  crl [receive-ds-durable-not-visible-non-propagated-2] :
@@ -767,16 +742,14 @@ mod WALTER is
    =>
      < RID : Replica | recPropTxns: PTXNS,
                        recDurableTxns: (nonDurableTxns(TID,RID') ; DTXNS), AS' >
-***
-***NEW
-     (durable(TID) to RID)
+
      if not TID in PTXNS .
 
 
   --- ??? Deal with the buffered ds-durable msgs
   --- ??? recDurableTxns may now have nondeterminism!!!
  crl [later-visible] :
-     (durable(TID) to RID)
+
      < O@M : Monitor | clock: GT@M, log: (TID |-> 
        < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
      < RID : Replica | recPropTxns: (propagatedTxns(TID,SQN,VTS) ; PTXNS),
@@ -797,51 +770,6 @@ mod WALTER is
      if VTS' gt VTS /\
         s(VTS'[RID']) == SQN .
 
-
-***
-***
-***NEW
-  --- ???
- crl [receive-ds-durable-not-visible-not-match-condition-new] :
-     < RID : Replica | recPropTxns: (propagatedTxns(TID,SQN,VTS) ; PTXNS),
-                       recDurableTxns: (nonDurableTxns(TID,RID') ; DTXNS),
-                       committedVTS: VTS', AS' >
-     (durable(TID) to RID)
-   =>
-     < RID : Replica | recPropTxns: (propagatedTxns(TID,SQN,VTS) ; PTXNS),
-                       recDurableTxns: (nonDurableTxns(TID,RID') ; DTXNS),
-                       committedVTS: VTS', AS' >
-***
-***NEW
-     (durable(TID) to RID)
-     if ((not VTS' gt VTS) or 
-        s(VTS'[RID']) =/= SQN) . 
-
-
-  --- ??? the replica has got the propagate msg but failed to ack it
-  rl [receive-ds-durable-not-visible-non-propagated-1-new] :
-     < RID : Replica | recPropTxns: (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS),
-                       recDurableTxns: DTXNS, AS' >
-     (durable(TID) to RID)
-   =>
-     < RID : Replica | recPropTxns: (nonPropagatedTxns(TID,SQN,VTS,WS,RID') ; PTXNS),
-                       recDurableTxns: (nonDurableTxns(TID,RID') ; DTXNS), AS' >
-***
-***NEW
-     (durable(TID) to RID)  .
-
-  --- ??? the replica hasn't got the propagate msg
- crl [receive-ds-durable-not-visible-non-propagated-2-new] :
-     < RID : Replica | recPropTxns: PTXNS,
-                       recDurableTxns: (nonDurableTxns(TID,RID') ; DTXNS), AS' >
-     (durable(TID) to RID)
-   =>
-     < RID : Replica | recPropTxns: PTXNS,
-                       recDurableTxns: (nonDurableTxns(TID,RID') ; DTXNS), AS' >
-***
-***NEW
-     (durable(TID) to RID)
-     if not TID in PTXNS .
 endm 
 
 
