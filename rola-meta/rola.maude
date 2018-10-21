@@ -119,6 +119,7 @@ load rola-aux
         RIDS := 1stSites(OPS,RID,REPLICA-TABLE) .
 		
 
+
   ---!!! ROLA needs "txnSQN" because "sqn" could be updated by "prepare"
   ---!!! so "txnSQN" holds the sqn when the txn started executing
  crl [start-wo-txn] : 
@@ -147,9 +148,7 @@ load rola-aux
         write-only(OPS) /\
         RIDS := prepareSites(OPS,RID,REPLICA-TABLE) /\
         WS' := ws(OPS,VARS) .
-  
-
-
+      
 
  crl [receive-prepare-wo] :
      < RID : Replica | datastore: VS,
@@ -162,6 +161,8 @@ load rola-aux
                        tsSqn: insert(TS,SQN',TSSQN), AS' >
      (msg prepare-reply(TID,true) from RID to RID')  --- always "true" in RAMP
      if SQN' := SQN + 1 .
+
+
 
 
  crl [receive-prepare-rw] :
@@ -215,6 +216,7 @@ load rola-aux
 
 
 
+
  crl [receive-prepare-reply-true-executing] :
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | executing: < TID : Txn | operations: OPS,
@@ -254,6 +256,7 @@ load rola-aux
                        latestCommit: cmt(LC,VS,TSSQN,TS), AS' >  --- cmt different from RAMP
      (msg committed(TID) from RID to RID') .
 
+
 --- to deal with if_then_else_fi statement, I need to know the 
 --- meaning of the condition. That would be an issue. 
  crl [receive-committed] :
@@ -279,7 +282,6 @@ load rola-aux
      fi)
      if CMTS' := remove(TID,RID',CMTS) .
   
-
 
 
   rl [receive-get] :
@@ -341,6 +343,8 @@ load rola-aux
      (commit-reads(TID) to RID) .
 
 
+
+
   --- Similar to RAMP, ROLA deals with rw-txns in a different way than Walter, 
   --- that is, all reads are sent out at the beginning of the txn
   --- so "writeSet" not needed: no read-your-write-in-the-same-txn
@@ -391,8 +395,6 @@ load rola-aux
         SQN' := SQN + 1 /\
         RIDS := prepareSites(OPS,RID,REPLICA-TABLE) /\
         WS' := ws(OPS,VARS) .
-
-  
 
 
  crl [not-ready-to-commit-reads] :

@@ -123,6 +123,8 @@ mod ROLA is
      if (not write-only(OPS)) /\
         RIDS := 1stSites(OPS,RID,REPLICA-TABLE) .
 
+endm)
+eof 
 
 
   ---!!! ROLA needs "txnSQN" because "sqn" could be updated by "prepare"
