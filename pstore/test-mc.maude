@@ -1,4 +1,4 @@
-load gdur-pstore
+load gdur-pstore-mc
 
 mod TEST-GDUR-PSTORE is
   including PSTORE-GDUR .

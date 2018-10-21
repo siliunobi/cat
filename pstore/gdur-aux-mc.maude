@@ -16,9 +16,9 @@
 *** only about the write sets. Read sets are just assumed
 *** informally without further discussions ...
 
-load prelim
-load replica-table
-load atomic-multicast
+load prelim-mc
+load replica-table-mc
+load atomic-multicast-mc
 
 *** Some parameters in GDUR Algorithms 1 and 2:
 

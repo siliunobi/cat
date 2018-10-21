@@ -8,7 +8,7 @@
 
 *** Let's start with the most advanced one.
 
-load gdur
+load gdur-mc
 
 mod XCAST-IS-ATOMIC-MULTICAST is
   including SOME-PARAMETERS-2 .
