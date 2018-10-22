@@ -1,0 +1,344 @@
+    --- This is a PMaude specification based on 072314
+    --- Similar to 112814 except that we do not have "Digest Read"
+    --- Basically this is an extension with "Issuing time" and "Finishing time"
+    --- Note that we use "val" in maude, but "rval" in quatex.
+
+    --- No "Digest Read"! 
+    --- "Issuing time" and "Finishing time" added!
+    --- "Read Repair" invalidated
+    --- "TA" commented out
+
+set show advisories off .
+
+load generic
+load apmaude
+load apcommon
+load table
+
+fmod CASSANDRA-PARAMETERS is
+    pr NAT .
+    pr FLOAT .
+
+    op ringSize : -> Nat .
+    eq ringSize = 16 .
+
+    op replicaFactor : -> Nat .
+    eq replicaFactor = 3 .
+
+    op readRepairID : -> Nat .
+    eq readRepairID = 55 .
+
+    op delayInTotal : -> Float .
+    --- eq delayInTotal = 4.0 .
+
+    op exp2Time : -> Float .
+    --- eq exp2Time = 1.0 .
+endfm
+
+fth NZNAT# is
+    pr NAT .
+    
+    op # : -> NzNat .
+endfth
+
+fmod NAT/{N :: NZNAT#} is
+    sort Nat/{N} .
+
+    op [_] : Nat -> Nat/{N} [ctor] .
+    op _+_ : Nat/{N} Nat/{N} -> Nat/{N} .
+    op s_ : Nat/{N} -> Nat/{N} .
+	
+    vars N M : Nat .
+	
+   ceq [ N ] = [ N rem # ] if N >= # .
+    eq [ N ] + [ M ] = [ N + M ] .
+    eq [ N ] + [ M ] = [ N * M ] .
+    eq s [ N ] = [ s N ] .
+endfm
+view RingSize from NZNAT# to CASSANDRA-PARAMETERS is op # to ringSize . endv
+
+fmod CASSANDRA-SORTS is
+    pr CASSANDRA-PARAMETERS .
+    pr INT .
+    pr STRING .
+
+    sort Position .
+    sort ConsistLevel .
+
+    subsort Nat < ConsistLevel .
+
+    op zero   : -> ConsistLevel .
+    op any    : -> ConsistLevel .
+    op one    : -> ConsistLevel .
+    op two    : -> ConsistLevel .
+    op three  : -> ConsistLevel . 
+    op quorum : -> ConsistLevel .	
+    op all    : -> ConsistLevel .
+
+    eq zero   = 0 .
+    eq one    = 1 .
+    eq two    = 2 .
+    eq three  = 3 .
+    eq quorum = (replicaFactor quo 2) + 1 .
+    eq all    = replicaFactor .
+
+
+    sort Result .
+    subsort String < Result .
+
+
+    sort RequestID . 
+    sort RequestCounter .
+
+    subsort Int < RequestID RequestCounter .
+endfm 
+view Position from TRIV to CASSANDRA-SORTS is sort Elt to Position .   endv
+view RequestID from TRIV to CASSANDRA-SORTS is sort Elt to RequestID . endv
+
+fmod CASSANDRA-IFACE is
+    pr TUPLE2{Position,Address} * (sort Tuple2 to RingPair) .
+    pr LIST{TableData} * (sort List{TableData} to TableDataQueue) .
+    pr TUPLE2{RequestID,Key} * (sort Tuple2 to PendingKey,
+                                op ((_,_)) to ((_~_))) .
+    pr LIST{Content} * (sort List{Content} to Contents) .
+endfm
+view RingPair from TRIV to CASSANDRA-IFACE is sort Elt to RingPair .             endv
+view RequestCounter from TRIV to CASSANDRA-SORTS is sort Elt to RequestCounter . endv
+view TableDataQueue from TRIV to CASSANDRA-IFACE is sort Elt to TableDataQueue . endv
+view PendingKey from TRIV to CASSANDRA-IFACE is sort Elt to PendingKey .         endv
+view Contents from TRIV to CASSANDRA-IFACE is sort Elt to Contents .             endv
+
+fmod CASSANDRA-IFACE2 is
+    pr TUPLE4{Int,RequestCounter,TableDataQueue,Key} * (sort Tuple4 to Response) .
+    pr TUPLE2{Contents,Contents} * (sort Tuple2 to ContentsPair) .
+endfm
+view Response from TRIV to CASSANDRA-IFACE2 is sort Elt to Response .            endv
+view ContentsPair from TRIV to CASSANDRA-IFACE2 is sort Elt to ContentsPair .    endv
+
+view Delay from TRIV to DELAY is sort Elt to Delay .                             endv 
+
+fmod CASSANDRA-RING is
+    pr NAT/{RingSize} .
+    pr SET{RingPair} .
+    pr SET{Position} .
+    pr SET{Address} .
+
+    subsort Nat/{RingSize} < Position .
+
+    op nextPosition   : Position Set{Position} -> Position          [memo] .
+    op nextNPositions : Position Set{Position} Int -> Set{Position} [memo] .
+    op nextRingPair   : Position Set{RingPair} -> RingPair          [memo] .
+    op nextNRingPairs : Position Set{RingPair} Int -> Set{RingPair} [memo] .
+    op nextAddress    : Position Set{RingPair} -> Address           [memo] .
+    op nextNAddresses : Position Set{RingPair} Int -> Set{Address}  [memo] .
+    op getPositions   : Set{RingPair} -> Set{Position}              [memo] .
+    op getAddresses   : Set{RingPair} -> Set{Address}               [memo] .
+
+    vars P P' : Position .
+    var PS    : Set{Position} .
+    var I     : Int .
+    var A     : Address .
+    var RPS   : Set{RingPair} .
+    var RP    : RingPair .
+
+    eq nextPosition(P, (P,PS)) = P .
+   ceq nextPosition(P, PS) = nextPosition(s P, PS) if not (P in PS) .
+
+    eq nextNPositions(P, PS, 0) = empty . 
+   ceq nextNPositions(P, PS, I) = (nextPosition(P, PS), 
+                                   nextNPositions(s nextPosition(P, PS), PS, I - 1)) 
+       if I > 0 .
+
+    eq nextRingPair(P, ((P, A), RPS)) = (P, A) .
+   ceq nextRingPair(P, RPS) = nextRingPair(s P, RPS) if not (P in getPositions(RPS)) .
+
+    eq nextNRingPairs(P, RPS, 0) = empty .
+   ceq nextNRingPairs(P, RPS, I) = (nextRingPair(P, RPS), 
+                                    nextNRingPairs(s nextPosition(P, getPositions(RPS)), RPS, I - 1)) 
+       if I > 0 .
+
+    eq nextAddress(P, ((P, A), RPS)) = A .
+   ceq nextAddress(P, RPS) = nextAddress(s P, RPS) if not (P in getPositions(RPS)) .
+
+    eq nextNAddresses(P, RPS, 0) = empty .
+   ceq nextNAddresses(P, RPS, I) = (nextAddress(P, RPS), 
+                                    nextNAddresses(s nextPosition(P, getPositions(RPS)), RPS, I - 1)) 
+       if I > 0 .
+    
+    eq getPositions((RP, RPS)) = (p1(RP), getPositions(RPS)) . 
+    eq getPositions(empty) = empty .
+
+    eq getAddresses((RP, RPS)) = (p2(RP), getAddresses(RPS)) .
+    eq getAddresses(empty) = empty .
+endfm
+
+fmod CASSANDRA-LOCALRQ is
+    pr MAP-EXTRA{RequestID,Response} * (sort MapX{RequestID,Response} to LocalRequestQueue, 
+			                sort EntryX{RequestID,Response} to LocalRequestQueueEntry) .	
+    pr CONVERSION .
+    pr SET{Address} .
+    pr STRING . 
+
+    subsort String < Value .
+
+    op latestValue  : TableDataQueue -> TableData [memo] .
+    op $latestValue : TableDataQueue TableData -> TableData .
+
+    var TDQ     : TableDataQueue .
+    vars TD TD' : TableData .
+
+    eq latestValue(TDQ) = $latestValue(TDQ, (null, - 1.0, 0)) .
+    eq $latestValue(nil, TD') = TD' .
+    eq $latestValue(TD TDQ, TD') = 
+         if p2(TD) > p2(TD') 
+           then $latestValue(TDQ, TD) 
+           else $latestValue(TDQ, TD') 
+         fi . 
+
+
+    --- TableData should be the latest value.
+    op readRepairAds  : TableDataQueue TableData -> Set{Address} [memo] .                             
+    op $readRepairAds : TableDataQueue TableData Set{Address} -> Set{Address} .
+
+    var AS : Set{Address} .
+
+    eq readRepairAds(TDQ, TD') = $readRepairAds(TDQ, TD', empty) .
+    eq $readRepairAds(TD TDQ, TD', AS) = 
+         if p1(TD) >= p1(TD') and p1(TD) <= p1(TD') 
+           then $readRepairAds(TDQ, TD', AS) 
+           else $readRepairAds(TDQ, TD', insert(p3(TD), AS)) 
+         fi .
+    eq $readRepairAds(nil, TD', AS) = AS .
+
+    op projAddress : RequestID -> Nat .
+    op projRW      : RequestID -> Nat . 
+    op projMsg     : RequestID -> Nat .
+
+    var RID : RequestID .
+
+    eq projAddress(RID) = rat(substr(string(RID,10),0,3),10) .
+    eq projRW(RID)      = rat(substr(string(RID,10),3,1),10) .
+    eq projMsg(RID)     = rat(substr(string(RID,10),4,2),10) .
+endfm
+
+
+fmod VALUE4TEST is
+---    pr TUPLE3{RequestID,Value,Float} * (sort Tuple3 to Value4Test, 
+---                                        op ((_,_,_)) to ((_@_@_))) .
+
+    pr TUPLE4{RequestID,Value,Float,Float} * (sort Tuple4 to Value4Test, 
+                                              op ((_,_,_,_)) to ((_@_@_@_))) .
+endfm
+view Value4Test from TRIV to VALUE4TEST is sort Elt to Value4Test . endv
+
+fmod CASSANDRA-SERVER-CLIENT is
+    pr ACTOR-MODEL .
+    pr CASSANDRA-LOCALRQ .
+    pr CASSANDRA-SORTS .
+    pr CASSANDRA-RING .
+    pr TABLE .
+    pr SET{Delay} .
+    pr LIST{Delay} * (op __ to (_@_)) .
+    pr LIST{Value} .                                        
+    pr SET{PendingKey} * (op empty to emptypk) .
+    pr LIST{Value4Test} .
+    pr MAP{Address,Value} .
+
+
+    --- This is for Sever
+    op CSDServer    : -> ActorType .
+    op serverBook:_ : Set{Address} -> Attribute .                       
+    op localRing:_  : Set{RingPair} -> Attribute .
+    op localTable:_ : Table -> Attribute .
+    op delaySet:_   : Set{Delay} -> Attribute .
+    op lrq:_        : LocalRequestQueue -> Attribute .
+    op delayList:_  : List{Delay} -> Attribute .
+
+
+    op ReadRequestCS  : RequestID Key Float ConsistLevel Address -> Content .
+    op ReadResponseCS : RequestID TableData Address Address Float -> Content .
+    op ReadRequestSS  : RequestID Key Float ConsistLevel Address Address Float -> Content .
+    op ReadResponseSS : RequestID TableData Float ConsistLevel Address Float -> Content .
+
+    op WriteRequestCS  : RequestID Key Value Float ConsistLevel Address -> Content .
+    op WriteResponseCS : RequestID Result Address Address Float -> Content .
+    op WriteRequestSS  : RequestID Key Value Float Address Address Float -> Content .
+    op WriteResponseSS : RequestID Result Float Address Float -> Content .
+
+
+    --- This is for Observer
+    op SnapshotSO : Address Value -> Content .
+
+
+    op pr1   : Content -> RequestID .
+    op pr2   : Content -> Key .
+    op rrpr3 : Content -> Float .
+    op wrpr4 : Content -> Float .
+
+    var RID  : RequestID .
+    var K    : Key .
+    var T    : Float .
+    var V    : Value .
+    var CL   : ConsistLevel .
+    var A    : Address .
+
+    eq pr1(ReadRequestCS(RID,K,T,CL,A))      = RID .
+    eq pr1(WriteRequestCS(RID,K,V,T,CL,A))   = RID .	
+    eq pr2(ReadRequestCS(RID,K,T,CL,A))      = K .
+    eq pr2(WriteRequestCS(RID,K,V,T,CL,A))   = K .
+    eq rrpr3(ReadRequestCS(RID,K,T,CL,A))    = T .
+    eq wrpr4(WriteRequestCS(RID,K,V,T,CL,A)) = T .
+
+
+    --- This is for Client
+    subsort Nat < Key .
+
+    op CSDClient       : -> ActorType .
+    op currentServer:_ : Address -> Attribute .
+    op store:_         : List{Value4Test} -> Attribute .
+    op crq:_           : Contents -> Attribute .
+    op cwrq:_          : Contents -> Attribute .
+    op pk:_            : Set{PendingKey} -> Attribute .
+
+
+    op isPending    : Key Set{PendingKey} -> Bool .
+    op _in_         : RequestID Set{PendingKey} -> Bool .
+    op getKey       : RequestID Set{PendingKey} -> Key .
+    op delete       : RequestID Set{PendingKey} -> Set{PendingKey} .
+    op removeWait   : Contents Contents RequestID Set{PendingKey} -> ContentsPair [memo] .
+    op $removeWait  : Contents Contents RequestID Set{PendingKey} Contents -> ContentsPair .
+
+
+    --- This is for Observer
+
+    op Observer : -> ActorType .
+    op flag:_ : Bool -> Attribute .
+    op snapshot:_ : Map{Address,Value} -> Attribute . 
+
+
+    var PKS          : Set{PendingKey} .
+    vars C C'        : Content .
+    vars CS CS' CS'' : Contents .
+
+    eq isPending(K, ((RID ~ K), PKS)) = true .
+    eq isPending(K, PKS) = false [owise] .
+
+    eq delete(RID, ((RID ~ K), PKS)) = delete(RID, PKS) .
+    eq delete(RID, PKS) = PKS [owise] .
+ 
+    eq RID in ((RID ~ K), PKS) = true .
+    eq RID in PKS = false [owise] .
+
+    eq getKey(RID, ((RID ~ K), PKS)) = K .
+    eq getKey(RID, PKS) = null [owise] .
+
+    eq removeWait(CS, CS', RID, PKS) = $removeWait(CS, CS', RID, PKS, nil) .
+    eq $removeWait(CS, nil, RID, PKS, CS'') = (CS, CS'') .
+    eq $removeWait(CS, (C' CS'), RID, PKS, CS'') = 
+         if pr2(C') == getKey(RID, PKS) 
+           then $removeWait(append(C', CS), CS', RID, PKS, CS'') 
+           else $removeWait(CS, CS', RID, PKS, append(C', CS'')) 
+         fi .  
+endfm
+
+

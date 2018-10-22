@@ -1,4 +1,4 @@
-load gdur-aux
+load gdur-aux-mc
 
 mod GDUR is
   pr VALUES-NAT .
@@ -83,11 +83,12 @@ mod GDUR is
   *** Algorithm 1, lines 4-6(7):
 
   rl [receiveTransaction] :
-
+     < O@M : Monitor | clock: GT@M, log: LOG@M >
      (msg executeTrans(< TID : Transaction | AS' >) from C to RID)
      < RID : Replica | executing: TRANSES, AS >
    =>
-
+     < O@M : Monitor | clock: (GT@M + 1), log: 
+       insert(TID,< RID |-> GT@M,empty,false,empty,empty >,LOG@M) >
      < RID : Replica | executing: (TRANSES < TID : Transaction | AS' >), AS > .
   *** we don't know what 'init' in the DUR paper should be ...
   --- but notice that some kind of init function could/should
@@ -251,14 +252,16 @@ mod GDUR is
   *** Algorithm 2, lines 7-13 (if branch):
 
   crl [certificationNotNeeded] :
-
+      < O@M : Monitor | clock: GT@M, log: (TID |-> 
+        < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) > 
       < RID : Replica | executing: (TRANSES < TID : Transaction | operations: nil,
                                                                   status: undecided,
                           readSet: RS, writeSet: WS, version: KVER, AS' >),
   	                    committed: TRANSES2, AS >
       < TABLE : Table | table: REPLICA-TABLE >	       
     =>
-
+      < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+        < VTS1@M,insert(RID,GT@M,VTS2@M),true,RS,kver(WS,KVER) >,LOG@M) >
       < RID : Replica | executing: TRANSES,
         	            committed: (TRANSES2 < TID : Transaction | operations: nil, 
                                                                    status: commit, 
@@ -310,7 +313,8 @@ mod GDUR is
   *** decided that the trans can be committed:
   
   rl [finalizeCommit] :
-
+     < O@M : Monitor | clock: GT@M, log: (TID |-> 
+       < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
      < RID : Replica | certificationQueue:
                          (QUEUE ::
 			  < TID : Transaction | proxy: RID3, readSet: RS, writeSet: WS,
@@ -319,7 +323,8 @@ mod GDUR is
 		       datastore: DS,
 		       rmtCommitted: TSS, AS >
    =>
-
+     < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+       < VTS1@M,insert(RID,GT@M,VTS2@M),FLAG@M,READS@M,WRITES@M >,LOG@M) >
      < RID : Replica | certificationQueue: QUEUE2,
 		       datastore: applyUpdates(DS, WS),
 		       rmtCommitted: (TSS ; transStatus(TID, commit)), AS >
@@ -348,14 +353,16 @@ mod GDUR is
   *** certification process:
 
   rl [finalizeAbort] :
-
+     < O@M : Monitor | clock: GT@M, log: (TID |-> 
+       < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
      < RID : Replica | certificationQueue:
                          (QUEUE :: < TID : Transaction | proxy: RID3, readSet: RS,
 				                               writeSet: WS, status: abort, AS' >
 		       :: QUEUE2),
 		       rmtCommitted: TSS, AS >
     =>
-
+     < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+       < VTS1@M,insert(RID,GT@M,VTS2@M),FLAG@M,READS@M,WRITES@M >,LOG@M) >
      < RID : Replica | certificationQueue: (QUEUE :: QUEUE2),
                        rmtCommitted: (TSS ; transStatus(TID, abort)), AS >
      $$postAbort(TID, RID, RID3, RS, WS) .
@@ -372,13 +379,15 @@ mod GDUR is
 
   --- Proxy gets notification, maybe too many times, and possibly from itself:
   rl [proxyGetsNotification1] :
-
+     < O@M : Monitor | clock: GT@M, log: (TID |-> 
+       < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
      (msg abort(TID) from RID2 to RID)
      < RID : Replica | submitted: (TRANSES < TID : Transaction |
                          readSet: RS, writeSet: WS, version: KVER, AS' >),
                        aborted: TRANSES2, AS >
     =>
-
+     < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+       < VTS1@M,insert(RID,GT@M,VTS2@M),false,RS,kver(WS,KVER) >,LOG@M) >
      < RID : Replica | submitted: TRANSES,
                        aborted: (TRANSES2 < TID : Transaction |
                          readSet: RS, writeSet: WS, version: KVER, AS' >), AS > 
@@ -386,14 +395,16 @@ mod GDUR is
 
 
   rl [proxyGetsNotification2] :
-
+     < O@M : Monitor | clock: GT@M, log: (TID |-> 
+       < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
 *** NEW
      (msg commit(TID,WRITES) from RID2 to RID)
      < RID : Replica | submitted: (TRANSES < TID : Transaction |
                          readSet: RS, writeSet: WS, version: KVER, AS' >),
                        committed: TRANSES2, AS >
     =>
-
+     < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+       < VTS1@M,insert(RID,GT@M,VTS2@M),true,RS,WRITES >,LOG@M) >
      < RID : Replica | submitted: TRANSES,
                        committed: (TRANSES2 < TID : Transaction |
                          readSet: RS, writeSet: WS, version: WRITES, AS' >), AS > 
