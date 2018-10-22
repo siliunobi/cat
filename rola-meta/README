@@ -10,3 +10,12 @@ op <_,_> : Key Version   -> KeyVersion [ctor] .
 pr MAP{Address,Nat} * (sort Map{Address,Nat} to VectorTime) .  --- Float for SMC
 pr MAP{Address,Record} * (sort Map{Address,Record} to Log) .
 op <_,_,_,_,_> : VectorTime VectorTime Bool Set{KeyVersion} Set{KeyVersion} -> Record [ctor] .
+
+
+Try the following commands to see the result 
+
+cd rola-meta 
+load ../meta.maude
+load rola.maude
+(tag ROLA .)
+(show module ROLA-TAGGED .)
