@@ -1,19 +1,6 @@
-    --- This is a PMaude specification based on 072314
-    --- Similar to 112814 except that we do not have "Digest Read"
-    --- Basically this is an extension with "Issuing time" and "Finishing time"
-    --- Note that we use "val" in maude, but "rval" in quatex.
-
-    --- No "Digest Read"! 
-    --- "Issuing time" and "Finishing time" added!
-    --- "Read Repair" invalidated
-    --- "TA" commented out
-
 set show advisories off .
 
-load generic
 load apmaude
-load apcommon
-load table
 load model-checker
 
 fmod CASSANDRA-PARAMETERS is
@@ -25,15 +12,17 @@ fmod CASSANDRA-PARAMETERS is
 
     op replicaFactor : -> Nat .
     eq replicaFactor = 3 .
+endfm
 
-    op readRepairID : -> Nat .
-    eq readRepairID = 55 .
-
-    op delayInTotal : -> Float .
-    --- eq delayInTotal = 4.0 .
-
-    op exp2Time : -> Float .
-    --- eq exp2Time = 1.0 .
+fmod TUPLE2{X :: TRIV, Y :: TRIV} is
+	sort Tuple2 .
+	op ((_,_)) : X$Elt Y$Elt -> Tuple2 .
+	op p1 : Tuple2 -> X$Elt .
+	op p2 : Tuple2 -> Y$Elt .
+	var X : X$Elt .
+	var Y : Y$Elt .
+	eq p1((X,Y)) = X .
+	eq p2((X,Y)) = Y .
 endfm
 
 fth NZNAT# is
@@ -61,10 +50,10 @@ view RingSize from NZNAT# to CASSANDRA-PARAMETERS is op # to ringSize . endv
 fmod CASSANDRA-SORTS is
     pr CASSANDRA-PARAMETERS .
     pr INT .
-    pr STRING .
+    pr ADDRESS .
 *** NEW
-  inc TABLE-SORTS .
   inc ACTOR-MODEL .
+  pr STRING .
 
     sort Position .
     sort ConsistLevel .
@@ -86,20 +75,11 @@ fmod CASSANDRA-SORTS is
     eq quorum = (replicaFactor quo 2) + 1 .
     eq all    = replicaFactor .
 
-
-    sort Result .
-    subsort String < Result .
-
-
-    sort RequestID . 
-    sort RequestCounter .
-
-    subsort Int < RequestID RequestCounter .
-
 *** NEW
   sorts Version KeyVersion KeyValue Record ConfigList Operation 
-        LockedKey Response KeyValueVersion ReqConsLv .
+        LockedKey Response KeyValueVersion ReqConsLv Key Value .
   subsort Nat < Version .
+  subsort String < Value .
   subsort Config < ConfigList .
 
   op eptVersion : -> Version .
@@ -122,10 +102,9 @@ fmod CASSANDRA-SORTS is
   op [_,_] : Address ConsistLevel -> ReqConsLv .
   op empty : -> ReqConsLv [ctor] .
   op _;_ : ReqConsLv ReqConsLv -> ReqConsLv [ctor assoc id: empty] .
- 
+
 endfm 
 view Position from TRIV to CASSANDRA-SORTS is sort Elt to Position .   endv
-view RequestID from TRIV to CASSANDRA-SORTS is sort Elt to RequestID . endv
 view KeyVersion from TRIV to CASSANDRA-SORTS is sort Elt to KeyVersion . endv
 view KeyValue from TRIV to CASSANDRA-SORTS is sort Elt to KeyValue . endv
 view Record from TRIV to CASSANDRA-SORTS is sort Elt to Record . endv
@@ -133,6 +112,9 @@ view Operation from TRIV to CASSANDRA-SORTS is sort Elt to Operation . endv
 view LockedKey from TRIV to CASSANDRA-SORTS is sort Elt to LockedKey . endv
 view Response from TRIV to CASSANDRA-SORTS is sort Elt to Response . endv
 view KeyValueVersion from TRIV to CASSANDRA-SORTS is sort Elt to KeyValueVersion . endv
+view Key      from TRIV to CASSANDRA-SORTS is sort Elt to Key .      endv
+view Value    from TRIV to CASSANDRA-SORTS is sort Elt to Value .    endv
+view Content from TRIV to ACTOR-MODEL is sort Elt to Content . endv 
 
 *** NEW
 fmod VECTOR-TIME is
@@ -141,9 +123,6 @@ endfm
 
 fmod CASSANDRA-IFACE is
     pr TUPLE2{Position,Address} * (sort Tuple2 to RingPair) .
-    pr LIST{TableData} * (sort List{TableData} to TableDataQueue) .
-    pr TUPLE2{RequestID,Key} * (sort Tuple2 to PendingKey, op ((_,_)) to ((_~_))) .
-    pr LIST{Content} * (sort List{Content} to Contents) .
 
 *** NEW
   pr SET{KeyVersion} .
@@ -159,20 +138,8 @@ fmod CASSANDRA-IFACE is
   eq kver(empty,VERSION) = empty .
 endfm
 view RingPair from TRIV to CASSANDRA-IFACE is sort Elt to RingPair .             endv
-view RequestCounter from TRIV to CASSANDRA-SORTS is sort Elt to RequestCounter . endv
-view TableDataQueue from TRIV to CASSANDRA-IFACE is sort Elt to TableDataQueue . endv
-view PendingKey from TRIV to CASSANDRA-IFACE is sort Elt to PendingKey .         endv
-view Contents from TRIV to CASSANDRA-IFACE is sort Elt to Contents .             endv
 view ResponseSet from TRIV to CASSANDRA-IFACE is sort Elt to ResponseSet .       endv
 
-fmod CASSANDRA-IFACE2 is
----    pr TUPLE4{Int,RequestCounter,TableDataQueue,Key} * (sort Tuple4 to Response) .
-    pr TUPLE2{Contents,Contents} * (sort Tuple2 to ContentsPair) .
-endfm
----view Response from TRIV to CASSANDRA-IFACE2 is sort Elt to Response .            endv
-view ContentsPair from TRIV to CASSANDRA-IFACE2 is sort Elt to ContentsPair .    endv
-
-view Delay from TRIV to DELAY is sort Elt to Delay .                             endv 
 
 fmod CASSANDRA-RING is
     pr NAT/{RingSize} .
@@ -229,81 +196,13 @@ fmod CASSANDRA-RING is
     eq getAddresses(empty) = empty .
 endfm
 
-fmod CASSANDRA-LOCALRQ is
----    pr MAP-EXTRA{RequestID,Response} * (sort MapX{RequestID,Response} to LocalRequestQueue, 
----			                sort EntryX{RequestID,Response} to LocalRequestQueueEntry) .	
----    pr CONVERSION .
-    pr SET{Address} .
-    pr STRING . 
-
-    subsort String < Value .
-
----(
-    op latestValue  : TableDataQueue -> TableData [memo] .
-    op $latestValue : TableDataQueue TableData -> TableData .
-
-    var TDQ     : TableDataQueue .
-    vars TD TD' : TableData .
-
-    eq latestValue(TDQ) = $latestValue(TDQ, (null, - 1.0, 0)) .
-    eq $latestValue(nil, TD') = TD' .
-    eq $latestValue(TD TDQ, TD') = 
-         if p2(TD) > p2(TD') 
-           then $latestValue(TDQ, TD) 
-           else $latestValue(TDQ, TD') 
-         fi . 
-
-
-    --- TableData should be the latest value.
-    op readRepairAds  : TableDataQueue TableData -> Set{Address} [memo] .                             
-    op $readRepairAds : TableDataQueue TableData Set{Address} -> Set{Address} .
-
-    var AS : Set{Address} .
-
-    eq readRepairAds(TDQ, TD') = $readRepairAds(TDQ, TD', empty) .
-    eq $readRepairAds(TD TDQ, TD', AS) = 
-         if p1(TD) >= p1(TD') and p1(TD) <= p1(TD') 
-           then $readRepairAds(TDQ, TD', AS) 
-           else $readRepairAds(TDQ, TD', insert(p3(TD), AS)) 
-         fi .
-    eq $readRepairAds(nil, TD', AS) = AS .
-
-    op projAddress : RequestID -> Nat .
-    op projRW      : RequestID -> Nat . 
-    op projMsg     : RequestID -> Nat .
-
-    var RID : RequestID .
-
-    eq projAddress(RID) = rat(substr(string(RID,10),0,3),10) .
-    eq projRW(RID)      = rat(substr(string(RID,10),3,1),10) .
-    eq projMsg(RID)     = rat(substr(string(RID,10),4,2),10) .
-)
-endfm
-
-
-fmod VALUE4TEST is
----    pr TUPLE3{RequestID,Value,Float} * (sort Tuple3 to Value4Test, 
----                                        op ((_,_,_)) to ((_@_@_))) .
-
-    pr TUPLE4{RequestID,Value,Float,Float} * (sort Tuple4 to Value4Test, 
-                                              op ((_,_,_,_)) to ((_@_@_@_))) .
-endfm
-view Value4Test from TRIV to VALUE4TEST is sort Elt to Value4Test . endv
-
 fmod CASSANDRA-SERVER-CLIENT is
     pr ACTOR-MODEL .
-    pr CASSANDRA-LOCALRQ .
     pr CASSANDRA-SORTS .
     pr CASSANDRA-RING .
-    pr TABLE .
-    pr SET{Delay} .
-    pr LIST{Delay} * (op __ to (_@_)) .
-    pr LIST{Value} .                                        
-    pr SET{PendingKey} * (op empty to emptypk) .
-    pr LIST{Value4Test} .
-    pr MAP{Address,Value} .
 
 *** NEW
+  pr SET{Address} .
   pr LIST{Operation} * (sort List{Operation} to OperationList) .
   pr MAP{Address,Record} * (sort Map{Address,Record} to Log) .
   pr VECTOR-TIME .
@@ -312,33 +211,13 @@ fmod CASSANDRA-SERVER-CLIENT is
 
 
     --- This is for Sever
-    op Server    : -> ActorType .
----    op serverBook:_ : Set{Address} -> Attribute .                       
+    op Server    : -> ActorType .                     
     op localRing:_  : Set{RingPair} -> Attribute .
----    op localTable:_ : Table -> Attribute .
----    op delaySet:_   : Set{Delay} -> Attribute .
----    op lrq:_        : LocalRequestQueue -> Attribute .
----    op delayList:_  : List{Delay} -> Attribute .
-
 *** NEW 
   op respFromRepl:_ : Responses -> Attribute .
   op reqConsLv:_ : ReqConsLv -> Attribute .
   op datastore:_ : Set{KeyValueVersion} -> Attribute .
 
----(
-    op ReadRequestCS  : RequestID Key Float ConsistLevel Address -> Content .
-    op ReadResponseCS : RequestID TableData Address Address Float -> Content .
-    op ReadRequestSS  : RequestID Key Float ConsistLevel Address Address Float -> Content .
-    op ReadResponseSS : RequestID TableData Float ConsistLevel Address Float -> Content .
-
-    op WriteRequestCS  : RequestID Key Value Float ConsistLevel Address -> Content .
-    op WriteResponseCS : RequestID Result Address Address Float -> Content .
-    op WriteRequestSS  : RequestID Key Value Float Address Address Float -> Content .
-    op WriteResponseSS : RequestID Result Float Address Float -> Content .
-)
-
-    op bootstrap : -> Content .
-    op snapshot : -> Content .
 
 *** NEW
   op request : Address Operation ConsistLevel -> Content .  --- read
@@ -352,89 +231,18 @@ fmod CASSANDRA-SERVER-CLIENT is
   op done : Address Bool -> Msg .
   op done : Address KeyValueVersion -> Msg .
 
-    --- This is for Observer
-    op SnapshotSO : Address Value -> Content .
-
-
-    op pr1   : Content -> RequestID .
-    op pr2   : Content -> Key .
-    op rrpr3 : Content -> Float .
-    op wrpr4 : Content -> Float .
-
-    var RID  : RequestID .
-    var K    : Key .
-    var T    : Float .
-    var V    : Value .
-    var CL   : ConsistLevel .
-    var A    : Address .
-
----(
-    eq pr1(ReadRequestCS(RID,K,T,CL))      = RID .
-    eq pr1(WriteRequestCS(RID,K,V,T,CL))   = RID .	
-    eq pr2(ReadRequestCS(RID,K,T,CL))      = K .
-    eq pr2(WriteRequestCS(RID,K,V,T,CL))   = K .
-    eq rrpr3(ReadRequestCS(RID,K,T,CL))    = T .
-    eq wrpr4(WriteRequestCS(RID,K,V,T,CL)) = T .
-)
 
     --- This is for Client
     subsort Nat < Key .
 
     op Client       : -> ActorType .
-    op currentServer:_ : Address -> Attribute .
----(
-    op store:_         : List{Value4Test} -> Attribute .
----    op crq:_           : Contents -> Attribute .
----    op cwrq:_          : Contents -> Attribute .
-    op pk:_            : Set{PendingKey} -> Attribute .
-)
-
-    op isPending    : Key Set{PendingKey} -> Bool .
-    op _in_         : RequestID Set{PendingKey} -> Bool .
-    op getKey       : RequestID Set{PendingKey} -> Key .
-    op delete       : RequestID Set{PendingKey} -> Set{PendingKey} .
----    op removeWait   : Contents Contents RequestID Set{PendingKey} -> ContentsPair [memo] .
----    op $removeWait  : Contents Contents RequestID Set{PendingKey} Contents -> ContentsPair .
-
+    op coord:_ : Address -> Attribute .
 *** NEW
   op requestQueue:_ : ConfigList -> Attribute .
   op waitingList:_ : ConfigList -> Attribute .
   op lockedKeys:_ : Set{LockedKey} -> Attribute .
   op executing:_ : Config -> Attribute .
   op committed:_ : Config -> Attribute .
-
-
-    --- This is for Observer
-
-    op Observer : -> ActorType .
-    op flag:_ : Bool -> Attribute .
-    op snapshot:_ : Map{Address,Value} -> Attribute . 
-
-
-    var PKS          : Set{PendingKey} .
-    vars C C'        : Content .
-    vars CS CS' CS'' : Contents .
-
-    eq isPending(K, ((RID ~ K), PKS)) = true .
-    eq isPending(K, PKS) = false [owise] .
-
-    eq delete(RID, ((RID ~ K), PKS)) = delete(RID, PKS) .
-    eq delete(RID, PKS) = PKS [owise] .
- 
-    eq RID in ((RID ~ K), PKS) = true .
-    eq RID in PKS = false [owise] .
-
-    eq getKey(RID, ((RID ~ K), PKS)) = K .
-    eq getKey(RID, PKS) = null [owise] .
----(
-    eq removeWait(CS, CS', RID, PKS) = $removeWait(CS, CS', RID, PKS, nil) .
-    eq $removeWait(CS, nil, RID, PKS, CS'') = (CS, CS'') .
-    eq $removeWait(CS, (C' CS'), RID, PKS, CS'') = 
-         if pr2(C') == getKey(RID, PKS) 
-           then $removeWait(append(C', CS), CS', RID, PKS, CS'') 
-           else $removeWait(CS, CS', RID, PKS, append(C', CS'')) 
-         fi .  
-)
 
 *** NEW
   op Txn : -> ActorType .
@@ -445,7 +253,7 @@ fmod CASSANDRA-SERVER-CLIENT is
   op consLv:_ : ConsistLevel -> Attribute .
 
   op Timer : -> ActorType .
-  op globeTime:_ : Nat -> Attribute .
+  op globalTime:_ : Nat -> Attribute .
 
   op Monitor : -> ActorType .
   op log:_ : Log -> Attribute .

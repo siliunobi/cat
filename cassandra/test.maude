@@ -1,4 +1,5 @@
 load cassandra
+---load cassandra-mc
 
 mod CASSANDRA-ANALYSIS is
     pr CASSANDRA .
@@ -7,338 +8,55 @@ mod CASSANDRA-ANALYSIS is
 
     subsort Config < State .
 
-    eq LIMIT = 1000.0 .
+    ---eq LIMIT = 1000.0 .
 
     op initConfig : -> Config .
-    eq initConfig = run(initState,LIMIT) .
-
-    vars C C'              : Config .
-    var S                  : Scheduler .
-    var A A1 A2 A3         : Address .
-    var AD                 : Set{Address} .
-    vars AS AS' AS1 AS2 AS3 : AttributeSet .
-    vars T T' T'' T1 T2 T1' T2' T3 T3' T4 T4' : Float .
-    var SL                 : ScheduleList .
-    vars D1 D2 D3 D4 D5 D6 : Delay .
-    vars RID RID1 RID2 RID3 RID4    : RequestID .
-    vars V V' V1 V2 V3 V4          : Value .
-    var LRQ                : LocalRequestQueue .
-    var P                  : Prop .
-    var RP                 : Set{RingPair} .
-    var DL                 : List{Delay} .
-    var TB1 TB2 TB3        : Table .
-    var DS                 : Set{Delay} .
-    var K                  : Key .
+    ---eq initConfig = run(initState,LIMIT) .
 
 
-    
-    ---(
-    --- Strong Consistency
-    --- W1 (L1) W2 (L2) R3
-    --- L1,L2 = (0.1,1.0,10.0)
+    eq initConfig =
+       < 1001 : Monitor | clock: 0, log: empty >
+       < 1000 : Timer | globalTime: 0 >
 
-    op l1 : -> Float .
-    op l2 : -> Float .
-    eq l1 = 0.1 .    --- 0.001, 0.01, 0.1, 1.0, 10.0, 100.0
-    eq l2 = 0.0 .    --- 0.001, 0.01, 0.1, 1.0, 10.0, 100.0
+       < 1 : Client | coord: 10, 
+                      requestQueue: < 100 : Txn | operations: read(1),
+                                                  readSet: empty, writeSet: empty,
+                                                  version: eptVersion, consLv: quorum >,
+                      waitingList: emptyTxnList, lockedKeys: empty,
+                      executing: null, committed: null >
 
-    eq initState =
-         < 1 : Observer | flag: true, snapshot: (10 |-> "water", 20 |-> "water", 40 |-> "water") >
-         < 100 : CSDClient | currentServer: 10, 
-                             crq: ( WriteRequestCS(100101,10,"V1!",0.0,one,100) ), 
-                            cwrq: nil, pk: emptypk, store: nil >
-         < 101 : CSDClient | currentServer: 10, 
-                             crq: ( WriteRequestCS(101101,10,"V2!",0.0,one,101) ), 
-                            cwrq: nil, pk: emptypk, store: nil >
-         < 102 : CSDClient | currentServer: 10, 
-                             crq: ( ReadRequestCS(102001,10,0.0,all,102) ), 
-                            cwrq: nil, pk: emptypk, store: nil >
+       < 2 : Client | coord: 20, 
+                      requestQueue: < 200 : Txn | operations: write(1,"b"),
+                                                  readSet: empty, writeSet: empty,
+                                                  version: eptVersion, consLv: quorum >,
+                      waitingList: emptyTxnList, lockedKeys: empty,
+                      executing: null, committed: null >
+---(
+       < 3 : Client | coord: 30, 
+                      requestQueue: < 300 : Txn | operations: write(1,"c"),
+                                                  readSet: empty, writeSet: empty,
+                                                  version: eptVersion, consLv: one >,
+                      waitingList: emptyTxnList, lockedKeys: empty,
+                      executing: null, committed: null >
+)
+	   < 10 : Server | localRing: (([0],10),([4],20),([8],30),([12],40)), 
+                       respFromRepl: empty, reqConsLv: empty,
+                       datastore: empty > 
+	   < 20 : Server | localRing: (([0],10),([4],20),([8],30),([12],40)), 
+                       respFromRepl: empty, reqConsLv: empty,
+                       datastore: [1,"a",0] > 
+	   < 30 : Server | localRing: (([0],10),([4],20),([8],30),([12],40)), 
+                       respFromRepl: empty, reqConsLv: empty,
+                       datastore: [1,"a",0] > 
+	   < 40 : Server | localRing: (([0],10),([4],20),([8],30),([12],40)), 
+                       respFromRepl: empty, reqConsLv: empty,
+                       datastore: [1,"a",0] > .
 
-	 < 10 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("tea",10.0,10),  8  |-> ("coffee",15.0,10), 
-                                         10 |-> ("water", 0.0,10), 15 |-> ("coke",8.0,10)), 
-		            delaySet: empty, lrq: empty, delayList: nil >
-
-	 < 20 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("tea",10.0,20),  8  |-> ("coffee",15.0,20), 
-                                         10 |-> ("water", 0.0,20), 15 |-> ("coke",8.0,20)), 
-		            delaySet: empty, lrq: empty, delayList: nil >
-
-	 < 30 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("30tea",10.0,30),  8  |-> ("30coffee",15.0,30), 
-                                         10 |-> ("30water", 0.0,30), 15 |-> ("30coke",8.0,30)),
-               		    delaySet: empty, lrq: empty, delayList: nil >
-
-	 < 40 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("tea",10.0,40),  8  |-> ("coffee",15.0,40), 
-                                         10 |-> ("water", 0.0,40), 15 |-> ("coke",8.0,40)), 
-		            delaySet: empty, lrq: empty, delayList: nil > 
-
-	 [1.0, 100 <- bootstrap]
-	 [(1.0 + l1), 101 <- bootstrap]
-         [(1.0 + l1 + l2), 102 <- bootstrap]
-         {0.0 | nil} .
-    )
-
-
-    ---
-    --- Read-Your-Write
-    --- Strictly ordered: W1 W2 R1 by C1
-    ---                   -L1- W3 by C2 
-
-    op l1 : -> Float .
-    eq l1 = 10.0 .   
-
-    eq initState =
-         < 1 : Observer | flag: true, snapshot: (10 |-> "water", 20 |-> "water", 40 |-> "water") >
-         < 100 : CSDClient | currentServer: 10, 
-                             crq: (
-                                    WriteRequestCS(100101,10,"V1!",0.0,one,100)
-                                    WriteRequestCS(100102,10,"V2!",0.0,quorum,100)
-                                    ReadRequestCS(100001,10,0.0,quorum,100)
-                                  ), 
-                            cwrq: nil, pk: emptypk, store: nil >
-         < 101 : CSDClient | currentServer: 10, 
-                             crq: ( WriteRequestCS(101101,10,"V3!",0.0,one,101) ), 
-                             cwrq: nil, pk: emptypk, store: nil >
-
-	 < 10 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("tea",10.0,10),  8  |-> ("coffee",15.0,10), 
-                                         10 |-> ("water", 0.0,10), 15 |-> ("coke",8.0,10)), 
-		            delaySet: empty, lrq: empty, delayList: nil >
-
-	 < 20 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("tea",10.0,20),  8  |-> ("coffee",15.0,20), 
-                                         10 |-> ("water", 0.0,20), 15 |-> ("coke",8.0,20)), 
-		            delaySet: empty, lrq: empty, delayList: nil >
-
-	 < 30 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("30tea",10.0,30),  8  |-> ("30coffee",15.0,30), 
-                                         10 |-> ("30water", 0.0,30), 15 |-> ("30coke",8.0,30)),
-               		    delaySet: empty, lrq: empty, delayList: nil >
-
-	 < 40 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("tea",10.0,40),  8  |-> ("coffee",15.0,40), 
-                                         10 |-> ("water", 0.0,40), 15 |-> ("coke",8.0,40)), 
-		            delaySet: empty, lrq: empty, delayList: nil > 
-
-	 [1.0, 100 <- bootstrap]
-	 [(1.0 + l1), 101 <- bootstrap]
-         {0.0 | nil} .
-    
-
-
-    ---(
-    --- Monotonic Read
-    --- W1 "L1" W2 "L2" R1 R2
-    --- C1      C2      C3 C3
-
-    op l1 : -> Float .
-    op l2 : -> Float .
-    eq l1 = 0.1 .   
-    eq l2 = 0.1 .
-
-    eq initState =
-         < 1 : Observer | flag: true, snapshot: (10 |-> "water", 20 |-> "water", 40 |-> "water") >
-         < 100 : CSDClient | currentServer: 10, 
-                             crq: ( WriteRequestCS(100101,10,"V1!",0.0,one,100) ), 
-                            cwrq: nil, pk: emptypk, store: nil >
-         < 101 : CSDClient | currentServer: 10, 
-                             crq: ( WriteRequestCS(101101,10,"V2!",0.0,one,101) ), 
-                             cwrq: nil, pk: emptypk, store: nil >
-         < 102 : CSDClient | currentServer: 10, 
-                             crq: (
-                                    ReadRequestCS(102001,10,0.0,one,102)
-                                    ReadRequestCS(102002,10,0.0,one,102)
-                                  ), 
-                            cwrq: nil, pk: emptypk, store: nil >
-
-	 < 10 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("tea",10.0,10),  8  |-> ("coffee",15.0,10), 
-                                         10 |-> ("water", 0.0,10), 15 |-> ("coke",8.0,10)), 
-		            delaySet: empty, lrq: empty, delayList: nil >
-
-	 < 20 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("tea",10.0,20),  8  |-> ("coffee",15.0,20), 
-                                         10 |-> ("water", 0.0,20), 15 |-> ("coke",8.0,20)), 
-		            delaySet: empty, lrq: empty, delayList: nil >
-
-	 < 30 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("30tea",10.0,30),  8  |-> ("30coffee",15.0,30), 
-                                         10 |-> ("30water", 0.0,30), 15 |-> ("30coke",8.0,30)),
-               		    delaySet: empty, lrq: empty, delayList: nil >
-
-	 < 40 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("tea",10.0,40),  8  |-> ("coffee",15.0,40), 
-                                         10 |-> ("water", 0.0,40), 15 |-> ("coke",8.0,40)), 
-		            delaySet: empty, lrq: empty, delayList: nil > 
-
-	 [1.0, 100 <- bootstrap]
-	 [(1.0 + l1), 101 <- bootstrap]
-         [(1.0 + l1 + l2), 102 <- bootstrap]
-         {0.0 | nil} .
-    )
-    
-
-    ---(
-    --- Eventual Consistency at replica side
-    --- W1 (L1) W2
-    --- L1 = (0.1,1.0,10.0)
-
-    op l1 : -> Float .
-    eq l1 = 1.0 .    --- 0.001, 0.01, 0.1, 1.0, 10.0, 100.0
-
-    op l0 : -> Float .
-    eq l0 = 1.0 .
-
-
-    eq initState =
-         < 1 : Observer | flag: true, snapshot: (10 |-> "water", 20 |-> "water", 40 |-> "water") >
-         < 100 : CSDClient | currentServer: 10, 
-                             crq: ( WriteRequestCS(100101,10,"V1!",0.0,one,100) ), 
-                            cwrq: nil, pk: emptypk, store: nil >
-         < 101 : CSDClient | currentServer: 10, 
-                             crq: ( WriteRequestCS(101101,10,"V2!",0.0,one,101) ), 
-                            cwrq: nil, pk: emptypk, store: nil >
-
-	 < 10 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("tea",10.0,10),  8  |-> ("coffee",15.0,10), 
-                                         10 |-> ("water", 0.0,10), 15 |-> ("coke",8.0,10)), 
-		            delaySet: empty, lrq: empty, delayList: nil >
-
-	 < 20 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("tea",10.0,20),  8  |-> ("coffee",15.0,20), 
-                                         10 |-> ("water", 0.0,20), 15 |-> ("coke",8.0,20)), 
-		            delaySet: empty, lrq: empty, delayList: nil >
-
-	 < 30 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("30tea",10.0,30),  8  |-> ("30coffee",15.0,30), 
-                                         10 |-> ("30water", 0.0,30), 15 |-> ("30coke",8.0,30)),
-               		    delaySet: empty, lrq: empty, delayList: nil >
-
-	 < 40 : CSDServer | serverBook: (10,20,30,40), 
-                            localRing: (([0],10),([4],20),([8],30),([12],40)), 
-		            localTable: (3  |-> ("tea",10.0,40),  8  |-> ("coffee",15.0,40), 
-                                         10 |-> ("water", 0.0,40), 15 |-> ("coke",8.0,40)), 
-		            delaySet: empty, lrq: empty, delayList: nil > 
-
-	 [1.0, 100 <- bootstrap]
-	 [(1.0 + l1), 101 <- bootstrap]
-         [(1.0 + l1 + l0), 1 <- snapshot]
-         {0.0 | nil} .
-    )
-
-
-  op latestValue? : Value Address Config -> Float .
-  eq latestValue?(V, A, < A : CSDClient | store: (RID @ V @ T' @ T), AS > C) = 1.0 .
-  eq latestValue?(V, A, C) = 0.0 [owise] .
-
-
-  op evt-at-rpl? : Value Config -> Float .
-  eq evt-at-rpl?(V, < 1 : Observer | snapshot: (10 |-> V, 20 |-> V, 40 |-> V), AS1 > C) = 1.0 .
-  eq evt-at-rpl?(V, C) = 0.0 [owise] .
-
-
-  op latency? : Address Config -> Float .
-  eq latency?(A, < A : CSDClient | store: (RID @ V @ T' @ T), AS > C) = T - T' .
-  
-    
-  op readYourWrite? : Value Value Address Address Config -> Float .
-  ---
-  eq readYourWrite?(V,V',A1,A2,< A1 : CSDClient | store: ((RID1 @ V  @ T1' @ T1) 
-                                                          (RID2 @ V2 @ T2' @ T2) 
-                                                          (RID3 @ V3 @ T3' @ T3)), AS1 > 
-                               < A2 : CSDClient | store:  (RID4 @ V4 @ T4' @ T4),  AS2 > C) = 1.0 .
-
- ceq readYourWrite?(V,V',A1,A2,< A1 : CSDClient | store: ((RID1 @ V' @ T1' @ T1) 
-                                                          (RID2 @ V2 @ T2' @ T2) 
-                                                          (RID3 @ V3 @ T3' @ T3)), AS1 > 
-                               < A2 : CSDClient | store:  (RID4 @ V4 @ T4' @ T4),  AS2 > C) = 1.0 
-     if T4' >= T2' .
-  
-  ---(
-  eq readYourWrite?(V,V',A1,A2,< A1 : CSDClient | store: ((RID1 @ error  @ T1' @ T1) 
-                                                          (RID2 @ V2 @ T2' @ T2) 
-                                                          (RID3 @ V3 @ T3' @ T3)), AS1 > 
-                               < A2 : CSDClient | store:  (RID4 @ V4 @ T4' @ T4),  AS2 > C) = 1.0 .
-  )
-  eq readYourWrite?(V,V',A1,A2,C) = 0.0 [owise] .
-
-
-  op monotonicRead? : Value Address Config -> Float .
-  eq monotonicRead?(V,A1,< A1 : CSDClient | store: ((RID1 @ V1 @ T1' @ T1) 
-                                                    (RID2 @ V1 @ T2' @ T2)), AS1 > C) = 1.0 .
-  eq monotonicRead?(V,A1,< A1 : CSDClient | store: ((RID1 @ V  @ T1' @ T1) 
-                                                    (RID2 @ V2 @ T2' @ T2)), AS1 > C) = 1.0 .
-  eq monotonicRead?(V,A1,C) = 0.0 [owise] . 
-
-
-  ---
-  --- Read-Your-Write
-  op v  : -> Value .
-  op v' : -> Value .
-  eq v  = "V2!" .
-  eq v' = "V3!" .
-
-  eq val(0,C) = if readYourWrite?(v,v',100,101,C) > 0.0 then 1.0 else 0.0 fi .  
-  
-
-
-  ---(
-  --- Monotonic Read
-  op v : -> Value .
-  eq v = "V2!" .
-
-  eq val(0,C) = if monotonicRead?(v,102,C) > 0.0 then 1.0 else 0.0 fi .
-  )
-  
-
-  ---(
-  --- Strong Consistency
-  op v : -> Value .
-  eq v = "V2!" .
----  eq v = "V1!" .
----  eq v = "water" .
----  eq v = error .
-
-  eq val(0,C) = if latestValue?(v,102,C) > 0.0 then 1.0 else 0.0 fi .    
-  )
-
-
-  ---(
-  --- Eventual Consistency at Replica side
-  op v : -> Value .
-  eq v = "V2!" .
-
-  eq val(0,C) = if evt-at-rpl?(v,C) > 0.0 then 1.0 else 0.0 fi .    
-  )
-
-
-  ---(
----   eq val(0,C) = latency?(102,C) .    --- strong consistency
----  eq val(0,C) = latency?(100,C) .    --- read-your-write
-  )
 
 endm
 
-
----rewrite random(17) .
 ---set clear rules off .
----search test =>! C:Config .
 
 ---rew initConfig .
+search initConfig =>! C:Config .
+q

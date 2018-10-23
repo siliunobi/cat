@@ -20,17 +20,21 @@ mod CASSANDRA is
 
 
   rl [dequeue] :
+     < O@M : Monitor | clock: GT@M, log: LOG@M >
      < A : Client | requestQueue: (< TID : Txn | operations: OP, AS' > ;; TRANSES),
                     waitingList: TRANSES',
                     lockedKeys: LOCKS,
                     executing: TXNS, AS > 
    =>
      if isLocked(OP,LOCKS)
-       then < A : Client | requestQueue: TRANSES,
+       then < O@M : Monitor | clock: GT@M, log: LOG@M >
+            < A : Client | requestQueue: TRANSES,
                            waitingList: (TRANSES' ;; < TID : Txn | operations: OP, AS' >),
                            lockedKeys: LOCKS,
                            executing: TXNS, AS >  
-       else < A : Client | requestQueue: TRANSES,
+       else < O@M : Monitor | clock: (GT@M + 1), log: 
+              insert(TID,< A |-> GT@M,empty,false,empty,empty >,LOG@M) >
+            < A : Client | requestQueue: TRANSES,
                            waitingList: TRANSES',
                            lockedKeys: (lock(TID,OP),LOCKS),
                            executing: (< TID : Txn | operations: OP, AS' > TXNS), AS > 
@@ -38,10 +42,13 @@ mod CASSANDRA is
 
 
  crl [waiting-dequeue] :
+     < O@M : Monitor | clock: GT@M, log: LOG@M >
      < A : Client | waitingList: (TRANSES ;; < TID : Txn | operations: OP, AS' > ;; TRANSES'),
                     lockedKeys: LOCKS,
                     executing: TXNS, AS > 
    =>
+     < O@M : Monitor | clock: (GT@M + 1), log: 
+              insert(TID,< A |-> GT@M,empty,false,empty,empty >,LOG@M) >
      < A : Client | waitingList: (TRANSES ;; TRANSES'),
                     lockedKeys: (lock(TID,OP),LOCKS),
                     executing: (< TID : Txn | operations: OP, AS' > TXNS), AS > 
@@ -206,6 +213,8 @@ mod CASSANDRA is
 
 
   rl [rcv-done-read] :
+     < O@M : Monitor | clock: GT@M, log: (TID |-> 
+        < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) > 
      < A : Client | executing: (< TID : Txn | readSet: RS,
                                               writeSet: WS,
                                               version: VERSION, AS' > TXNS),
@@ -213,6 +222,8 @@ mod CASSANDRA is
                     lockedKeys: (lockedKey(TID,K),LOCKS), AS >
      done(TID,[K,V,VERSION'])
    =>
+     < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+        < VTS1@M,insert(A,GT@M,VTS2@M),true,(RS,< K,VERSION' >),kver(WS,VERSION) >,LOG@M) >
      < A : Client | executing: TXNS,
                     committed: (TXNS' < TID : Txn | readSet: (RS,< K,VERSION' >),
                                                     writeSet: WS,
@@ -221,6 +232,8 @@ mod CASSANDRA is
 
 
   rl [rcv-done-write] :
+     < O@M : Monitor | clock: GT@M, log: (TID |-> 
+        < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) > 
      < A : Client | executing: (< TID : Txn | readSet: RS,
                                               writeSet: WS,
                                               version: VERSION, AS' > TXNS),
@@ -228,6 +241,8 @@ mod CASSANDRA is
                     lockedKeys: (lockedKey(TID,K),LOCKS), AS >
      done(TID,FLAG)
    =>
+     < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+        < VTS1@M,insert(A,GT@M,VTS2@M),true,RS,kver(WS,VERSION) >,LOG@M) >
      < A : Client | executing: TXNS,
                     committed: (TXNS' < TID : Txn | readSet: RS,
                                                     writeSet: WS,

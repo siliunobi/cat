@@ -45,4 +45,7 @@ mod CASSANDRA-AUX is
   eq resultForWrite((response(RID,false),RSET)) = false .
   eq resultForWrite(RSET) = true [owise] .
 
+  op _in_ : Address ReqConsLv -> Bool .
+  eq TID in (RCL ; [TID,CL]) = true .
+  eq TID in RCL = false [owise] .
 endm
