@@ -14,6 +14,7 @@ load generic
 load apmaude
 load apcommon
 load table
+load model-checker
 
 fmod CASSANDRA-PARAMETERS is
     pr NAT .
@@ -61,6 +62,9 @@ fmod CASSANDRA-SORTS is
     pr CASSANDRA-PARAMETERS .
     pr INT .
     pr STRING .
+*** NEW
+  inc TABLE-SORTS .
+  inc ACTOR-MODEL .
 
     sort Position .
     sort ConsistLevel .
@@ -91,28 +95,81 @@ fmod CASSANDRA-SORTS is
     sort RequestCounter .
 
     subsort Int < RequestID RequestCounter .
+
+*** NEW
+  sorts Version KeyVersion KeyValue Record ConfigList Operation 
+        LockedKey Response KeyValueVersion ReqConsLv .
+  subsort Nat < Version .
+  subsort Config < ConfigList .
+
+  op eptVersion : -> Version .
+
+  op <_,_> : Key Version   -> KeyVersion [ctor] .
+  op <_,_> : Key Value -> KeyValue [ctor] .
+  op [_,_,_] : Key Value Version   -> KeyValueVersion [ctor] .
+
+  op emptyTxnList : -> ConfigList [ctor] .
+  op _;;_ : ConfigList ConfigList -> ConfigList [ctor assoc id: emptyTxnList] .
+
+  op write : Key Value -> Operation [ctor] .
+  op read : Key -> Operation [ctor] .
+
+  op lockedKey : Address Key -> LockedKey .
+
+  op response : Address KeyValueVersion -> Response .
+  op response : Address Bool -> Response .
+
+  op [_,_] : Address ConsistLevel -> ReqConsLv .
+  op empty : -> ReqConsLv [ctor] .
+  op _;_ : ReqConsLv ReqConsLv -> ReqConsLv [ctor assoc id: empty] .
+ 
 endfm 
 view Position from TRIV to CASSANDRA-SORTS is sort Elt to Position .   endv
 view RequestID from TRIV to CASSANDRA-SORTS is sort Elt to RequestID . endv
+view KeyVersion from TRIV to CASSANDRA-SORTS is sort Elt to KeyVersion . endv
+view KeyValue from TRIV to CASSANDRA-SORTS is sort Elt to KeyValue . endv
+view Record from TRIV to CASSANDRA-SORTS is sort Elt to Record . endv
+view Operation from TRIV to CASSANDRA-SORTS is sort Elt to Operation . endv
+view LockedKey from TRIV to CASSANDRA-SORTS is sort Elt to LockedKey . endv
+view Response from TRIV to CASSANDRA-SORTS is sort Elt to Response . endv
+view KeyValueVersion from TRIV to CASSANDRA-SORTS is sort Elt to KeyValueVersion . endv
+
+*** NEW
+fmod VECTOR-TIME is
+  pr MAP{Address,Nat} * (sort Map{Address,Nat} to VectorTime) .
+endfm
 
 fmod CASSANDRA-IFACE is
     pr TUPLE2{Position,Address} * (sort Tuple2 to RingPair) .
     pr LIST{TableData} * (sort List{TableData} to TableDataQueue) .
-    pr TUPLE2{RequestID,Key} * (sort Tuple2 to PendingKey,
-                                op ((_,_)) to ((_~_))) .
+    pr TUPLE2{RequestID,Key} * (sort Tuple2 to PendingKey, op ((_,_)) to ((_~_))) .
     pr LIST{Content} * (sort List{Content} to Contents) .
+
+*** NEW
+  pr SET{KeyVersion} .
+  pr SET{KeyValue} .
+  pr SET{LockedKey} .
+  pr SET{Response} * (sort Set{Response} to ResponseSet) .
+
+
+  var K : Key . var V : Value . var VERSION : Version . var WS : Set{KeyValue} .
+
+  op kver : Set{KeyValue} Version -> Set{KeyVersion} . 
+  eq kver((< K,V >,WS),VERSION) = < K,VERSION >, kver(WS,VERSION) .
+  eq kver(empty,VERSION) = empty .
 endfm
 view RingPair from TRIV to CASSANDRA-IFACE is sort Elt to RingPair .             endv
 view RequestCounter from TRIV to CASSANDRA-SORTS is sort Elt to RequestCounter . endv
 view TableDataQueue from TRIV to CASSANDRA-IFACE is sort Elt to TableDataQueue . endv
 view PendingKey from TRIV to CASSANDRA-IFACE is sort Elt to PendingKey .         endv
 view Contents from TRIV to CASSANDRA-IFACE is sort Elt to Contents .             endv
+view ResponseSet from TRIV to CASSANDRA-IFACE is sort Elt to ResponseSet .       endv
 
 fmod CASSANDRA-IFACE2 is
-    pr TUPLE4{Int,RequestCounter,TableDataQueue,Key} * (sort Tuple4 to Response) .
+---    pr TUPLE4{Int,RequestCounter,TableDataQueue,Key} * (sort Tuple4 to Response) .
     pr TUPLE2{Contents,Contents} * (sort Tuple2 to ContentsPair) .
 endfm
-view Response from TRIV to CASSANDRA-IFACE2 is sort Elt to Response .            endv
+---view Response from TRIV to CASSANDRA-IFACE2 is sort Elt to Response .            endv
 view ContentsPair from TRIV to CASSANDRA-IFACE2 is sort Elt to ContentsPair .    endv
 
 view Delay from TRIV to DELAY is sort Elt to Delay .                             endv 
@@ -173,14 +230,15 @@ fmod CASSANDRA-RING is
 endfm
 
 fmod CASSANDRA-LOCALRQ is
-    pr MAP-EXTRA{RequestID,Response} * (sort MapX{RequestID,Response} to LocalRequestQueue, 
-			                sort EntryX{RequestID,Response} to LocalRequestQueueEntry) .	
-    pr CONVERSION .
+---    pr MAP-EXTRA{RequestID,Response} * (sort MapX{RequestID,Response} to LocalRequestQueue, 
+---			                sort EntryX{RequestID,Response} to LocalRequestQueueEntry) .	
+---    pr CONVERSION .
     pr SET{Address} .
     pr STRING . 
 
     subsort String < Value .
 
+---(
     op latestValue  : TableDataQueue -> TableData [memo] .
     op $latestValue : TableDataQueue TableData -> TableData .
 
@@ -219,6 +277,7 @@ fmod CASSANDRA-LOCALRQ is
     eq projAddress(RID) = rat(substr(string(RID,10),0,3),10) .
     eq projRW(RID)      = rat(substr(string(RID,10),3,1),10) .
     eq projMsg(RID)     = rat(substr(string(RID,10),4,2),10) .
+)
 endfm
 
 
@@ -244,17 +303,29 @@ fmod CASSANDRA-SERVER-CLIENT is
     pr LIST{Value4Test} .
     pr MAP{Address,Value} .
 
+*** NEW
+  pr LIST{Operation} * (sort List{Operation} to OperationList) .
+  pr MAP{Address,Record} * (sort Map{Address,Record} to Log) .
+  pr VECTOR-TIME .
+  pr MAP{Address,ResponseSet} * (sort Map{Address,ResponseSet} to Responses) .
+  pr SET{KeyValueVersion} .
+
 
     --- This is for Sever
-    op CSDServer    : -> ActorType .
-    op serverBook:_ : Set{Address} -> Attribute .                       
+    op Server    : -> ActorType .
+---    op serverBook:_ : Set{Address} -> Attribute .                       
     op localRing:_  : Set{RingPair} -> Attribute .
-    op localTable:_ : Table -> Attribute .
-    op delaySet:_   : Set{Delay} -> Attribute .
-    op lrq:_        : LocalRequestQueue -> Attribute .
-    op delayList:_  : List{Delay} -> Attribute .
+---    op localTable:_ : Table -> Attribute .
+---    op delaySet:_   : Set{Delay} -> Attribute .
+---    op lrq:_        : LocalRequestQueue -> Attribute .
+---    op delayList:_  : List{Delay} -> Attribute .
 
+*** NEW 
+  op respFromRepl:_ : Responses -> Attribute .
+  op reqConsLv:_ : ReqConsLv -> Attribute .
+  op datastore:_ : Set{KeyValueVersion} -> Attribute .
 
+---(
     op ReadRequestCS  : RequestID Key Float ConsistLevel Address -> Content .
     op ReadResponseCS : RequestID TableData Address Address Float -> Content .
     op ReadRequestSS  : RequestID Key Float ConsistLevel Address Address Float -> Content .
@@ -264,7 +335,22 @@ fmod CASSANDRA-SERVER-CLIENT is
     op WriteResponseCS : RequestID Result Address Address Float -> Content .
     op WriteRequestSS  : RequestID Key Value Float Address Address Float -> Content .
     op WriteResponseSS : RequestID Result Float Address Float -> Content .
+)
 
+    op bootstrap : -> Content .
+    op snapshot : -> Content .
+
+*** NEW
+  op request : Address Operation ConsistLevel -> Content .  --- read
+  op request : Address Operation Version ConsistLevel -> Content .  --- write
+  op readRequest : Address Key -> Content .
+  op readResponse : Address KeyValueVersion -> Content .
+  op writeRequest : Address KeyValueVersion -> Content . 
+  op writeResponse : Address Bool -> Content .
+  op readRepair : KeyValueVersion -> Content .
+
+  op done : Address Bool -> Msg .
+  op done : Address KeyValueVersion -> Msg .
 
     --- This is for Observer
     op SnapshotSO : Address Value -> Content .
@@ -282,31 +368,40 @@ fmod CASSANDRA-SERVER-CLIENT is
     var CL   : ConsistLevel .
     var A    : Address .
 
-    eq pr1(ReadRequestCS(RID,K,T,CL,A))      = RID .
-    eq pr1(WriteRequestCS(RID,K,V,T,CL,A))   = RID .	
-    eq pr2(ReadRequestCS(RID,K,T,CL,A))      = K .
-    eq pr2(WriteRequestCS(RID,K,V,T,CL,A))   = K .
-    eq rrpr3(ReadRequestCS(RID,K,T,CL,A))    = T .
-    eq wrpr4(WriteRequestCS(RID,K,V,T,CL,A)) = T .
-
+---(
+    eq pr1(ReadRequestCS(RID,K,T,CL))      = RID .
+    eq pr1(WriteRequestCS(RID,K,V,T,CL))   = RID .	
+    eq pr2(ReadRequestCS(RID,K,T,CL))      = K .
+    eq pr2(WriteRequestCS(RID,K,V,T,CL))   = K .
+    eq rrpr3(ReadRequestCS(RID,K,T,CL))    = T .
+    eq wrpr4(WriteRequestCS(RID,K,V,T,CL)) = T .
+)
 
     --- This is for Client
     subsort Nat < Key .
 
-    op CSDClient       : -> ActorType .
+    op Client       : -> ActorType .
     op currentServer:_ : Address -> Attribute .
+---(
     op store:_         : List{Value4Test} -> Attribute .
-    op crq:_           : Contents -> Attribute .
-    op cwrq:_          : Contents -> Attribute .
+---    op crq:_           : Contents -> Attribute .
+---    op cwrq:_          : Contents -> Attribute .
     op pk:_            : Set{PendingKey} -> Attribute .
-
+)
 
     op isPending    : Key Set{PendingKey} -> Bool .
     op _in_         : RequestID Set{PendingKey} -> Bool .
     op getKey       : RequestID Set{PendingKey} -> Key .
     op delete       : RequestID Set{PendingKey} -> Set{PendingKey} .
-    op removeWait   : Contents Contents RequestID Set{PendingKey} -> ContentsPair [memo] .
-    op $removeWait  : Contents Contents RequestID Set{PendingKey} Contents -> ContentsPair .
+---    op removeWait   : Contents Contents RequestID Set{PendingKey} -> ContentsPair [memo] .
+---    op $removeWait  : Contents Contents RequestID Set{PendingKey} Contents -> ContentsPair .
+
+*** NEW
+  op requestQueue:_ : ConfigList -> Attribute .
+  op waitingList:_ : ConfigList -> Attribute .
+  op lockedKeys:_ : Set{LockedKey} -> Attribute .
+  op executing:_ : Config -> Attribute .
+  op committed:_ : Config -> Attribute .
 
 
     --- This is for Observer
@@ -331,7 +426,7 @@ fmod CASSANDRA-SERVER-CLIENT is
 
     eq getKey(RID, ((RID ~ K), PKS)) = K .
     eq getKey(RID, PKS) = null [owise] .
-
+---(
     eq removeWait(CS, CS', RID, PKS) = $removeWait(CS, CS', RID, PKS, nil) .
     eq $removeWait(CS, nil, RID, PKS, CS'') = (CS, CS'') .
     eq $removeWait(CS, (C' CS'), RID, PKS, CS'') = 
@@ -339,6 +434,24 @@ fmod CASSANDRA-SERVER-CLIENT is
            then $removeWait(append(C', CS), CS', RID, PKS, CS'') 
            else $removeWait(CS, CS', RID, PKS, append(C', CS'')) 
          fi .  
+)
+
+*** NEW
+  op Txn : -> ActorType .
+  op operations:_ : OperationList -> Attribute .
+  op readSet:_ : Set{KeyVersion} -> Attribute .
+  op writeSet:_ : Set{KeyValue} -> Attribute .
+  op version:_ : Version -> Attribute .
+  op consLv:_ : ConsistLevel -> Attribute .
+
+  op Timer : -> ActorType .
+  op globeTime:_ : Nat -> Attribute .
+
+  op Monitor : -> ActorType .
+  op log:_ : Log -> Attribute .
+  op clock:_ : Nat -> Attribute .
+
+  op <_,_,_,_,_> : VectorTime VectorTime Bool Set{KeyVersion} Set{KeyVersion} -> Record [ctor] .
 endfm
 
 

@@ -1,443 +1,235 @@
-    --- This is a PMaude specification based on 072314
-    --- Similar to 112814 except that we do not have "Digest Read"
-    --- Basically this is an extension with "Issuing time" and "Finishing time"
-    --- Note that we use "val" in maude, but "rval" in quatex.
+load cassandra-aux
 
-    --- No "Digest Read"! 
-    --- "Issuing time" and "Finishing time" added!
-    --- "Read Repair" invalidated
-    --- "TA" commented out
+mod CASSANDRA is
+  inc CASSANDRA-AUX .
 
-load prelim
-
-mod CASSANDRA-RULES is
-    pr CASSANDRA-SERVER-CLIENT .
-    pr SAMPLER .
-
-    op bootstrap : -> Content .
-    op snapshot : -> Content .
-
-    op genReadRequests  : RequestID Key Float Set{Delay} Set{Address} 
-                          ConsistLevel Address Address -> [Config] .
-    op genWriteRequests : RequestID Key Value Float Set{Delay} Set{Address} 
-                          Address Address -> [Config] .
-
-    --- Client Provide Time
-    op cpt : Content Float -> Content . 
-
-    vars RID RID'  : RequestID .
-    vars T T'      : Float .
-    var K          : Key .
-    vars V V'      : Value .
-    var CL         : ConsistLevel .
-    vars A A' S S' : Address .
-    vars CS CS'    : Contents .
-    var AS         : AttributeSet .
-    var PKS        : Set{PendingKey} .
-    vars ADS ADS'  : Set{Address} .
-    var RPS        : Set{RingPair} .
-    vars D D'      : Delay .
-    var DS         : Set{Delay} .
-    var LRQ        : LocalRequestQueue .
-    var LT         : Table .
-    var CF         : Config .
-    var DL         : List{Delay} .
-    var TD         : TableData .
-    var VS         : List{Value4Test} .
-    var TDQ        : TableDataQueue .
-    var R          : Response .
-    var RESULT     : Result .
-    var M          : Map{Address,Value} .
+  var K : Key .  vars V V' : Value .  var CL : ConsistLevel .
+  var RPS : Set{RingPair} .  var LOCKS : Set{LockedKey} .  var OP : Operation .
+  vars O TID RID A A' S S' : Address . vars AS AS' : AttributeSet .
+  vars TXNS TXNS' : Config .  vars TRANSES TRANSES' : ConfigList . 
+  var GT : Nat .  vars VERSION VERSION' : Version .
+  var WS : Set{KeyValue} .  var RS : Set{KeyVersion} . 
+  var RESPONSES : Responses . var RCL : ReqConsLv .
+  var RIDS : Set{Address} . var DS : Set{KeyValueVersion} .
+  var RSET : ResponseSet . vars KVV KVV' : KeyValueVersion .  var FLAG : Bool . 
 
 
-    eq cpt(ReadRequestCS(RID,K,T,CL,A),T')    = ReadRequestCS(RID,K,T',CL,A) .
-    eq cpt(WriteRequestCS(RID,K,V,T,CL,A),T') = WriteRequestCS(RID,K,V,T',CL,A) . 
-
-
-    --- Rules to deal with PendingKey and 
-    --- generate Read/Write Request
-    ---
-   crl < A : CSDClient | currentServer: S, crq: CS, cwrq: CS', 
-                         pk: PKS, AS > 
-       {T, A <- bootstrap}
-     =>  
-       < A : CSDClient | currentServer: S, crq: tail(CS), 
-                         cwrq: append(head(CS), CS'), 
-                         pk: PKS, AS > 
----       [sampleLogNormal(0.0,1.0), A <- bootstrap]
-       [0.0, A <- bootstrap]
-
-     if CS =/= nil /\ 
-        isPending(pr2(head(CS)), PKS) .
-
-
-    --- If key is not pending, requests will be generated in order 
-    --- per 1s/10s/20s 
-   crl < A : CSDClient | currentServer: S, crq: CS, cwrq: CS', 
-                         pk: PKS, AS > 
-       {T, A <- bootstrap}
-     =>   
-       < A : CSDClient | currentServer: S, crq: tail(CS), cwrq: CS', 
-                         pk: insert((pr1(head(CS)) ~ pr2(head(CS))), PKS), AS >
-       [0.0, S <- cpt(head(CS), T)]
-       [0.0, A <- bootstrap]
----       [sampleLogNormal(0.0,1.0), A <- bootstrap]
-    
-     if CS =/= nil /\ 
-        not isPending(pr2(head(CS)), PKS) .
+  rl [dequeue] :
+     < A : Client | requestQueue: (< TID : Txn | operations: OP, AS' > ;; TRANSES),
+                       waitingList: TRANSES',
+                       lockedKeys: LOCKS,
+                       executing: TXNS, AS > 
+   =>
+     if isLocked(OP,LOCKS)
+       then < A : Client | requestQueue: TRANSES,
+                              waitingList: (TRANSES' ;; < TID : Txn | operations: OP, AS' >),
+                              lockedKeys: LOCKS,
+                              executing: TXNS, AS >  
+       else < A : Client | requestQueue: TRANSES,
+                              waitingList: TRANSES',
+                              lockedKeys: (lock(TID,OP),LOCKS),
+                              executing: (< TID : Txn | operations: OP, AS' > TXNS), AS > 
+     fi .
 
 
 
-    rl < A : CSDClient | currentServer: S, crq: nil, cwrq: CS', 
-                         pk: PKS, AS > 
-       {T, A <- bootstrap}
-     => 
-       < A : CSDClient | currentServer: S, crq: nil, cwrq: CS', 
-                         pk: PKS, AS > .
+
+ crl [waiting-dequeue] :
+     < A : Client | waitingList: (TRANSES ;; < TID : Txn | operations: OP, AS' > ;; TRANSES'),
+                       lockedKeys: LOCKS,
+                       executing: TXNS, AS > 
+   =>
+     < A : Client | waitingList: (TRANSES ;; TRANSES'),
+                       lockedKeys: (lock(TID,OP),LOCKS),
+                       executing: (< TID : Txn | operations: OP, AS' > TXNS), AS > 
+     if not isLocked(OP,LOCKS) .
 
 
-    --- Rules to deal with ReadRequest
-    ---
-    rl < S : CSDServer | serverBook: ADS, localRing: RPS, delaySet: DS, 
-                         lrq: LRQ, AS >
-       {T, S <- ReadRequestCS(RID,K,T',CL,A)}
-     => 
-       < S : CSDServer | serverBook: ADS, localRing: RPS, delaySet: DS, 
-                         lrq: insert(RID,(3,CL,nil,K),LRQ), AS > 
-       genReadRequests(RID,K,T',DS,nextNAddresses([K],RPS,3),CL,S,A) .
+  rl [read-from-client-to-coord] :
+     < A : Client | executing: (< TID : Txn | operations: read(K),
+                                              consLv: CL, AS' > TXNS),
+                    currentServer: S, AS >
+   =>
+     < A : Client | executing: (< TID : Txn | operations: read(K),
+                                              consLv: CL, AS' > TXNS),
+                    currentServer: S, AS >
+     (msg request(TID,read(K),CL) from A to S) .
 
 
-    eq genReadRequests(RID,K,T',DS,(A',ADS'),CL,S,A)
-     = 
-       genReadRequests(RID,K,T',DS,ADS',CL,S,A) 
-       [sampleLogNormal(0.0,1.0), A' <- ReadRequestSS(RID,K,T',CL,S,A,0.0)] .
+  rl [write-from-client-to-coord] :
+     < O : Timer | globeTime: GT >
+     < A : Client | executing: (< TID : Txn | operations: write(K,V),
+                                              consLv: CL, 
+                                              writeSet: WS,
+                                              version: VERSION, AS' > TXNS),
+                    currentServer: S, AS >
+   =>
+     < O : Timer | globeTime: (GT + 1) >
+     < A : Client | executing: (< TID : Txn | operations: write(K,V),
+                                              consLv: CL,
+                                              writeSet: (WS,< K,V >),
+                                              version: (GT + 1), AS' > TXNS),
+                    currentServer: S, AS >
+     (msg request(TID,write(K,V),GT + 1,CL) from A to S) .
 
 
-    eq genReadRequests(RID,K,T',DS,empty,CL,S,A) = null .
+  rl [read-from-coord-to-repl] :
+     < S : Server | localRing: RPS,
+                    reqConsLv: RCL,
+                    respFromRepl: RESPONSES, AS >
+     (msg request(TID,read(K),CL) from A to S)
+   => 
+     < S : Server | localRing: RPS,
+                    reqConsLv: (RCL ; [TID,CL]),
+                    respFromRepl: insert(TID,empty,RESPONSES), AS > 
+     genReadRequests(TID,K,nextNAddresses([K],RPS,3),S) . 
+
+  op genReadRequests : Address Key Set{Address} Address -> Config .
+  eq genReadRequests(TID,K,(RID,RIDS),S) = 
+       (msg readRequest(TID,K) from S to RID) 
+       genReadRequests(TID,K,RIDS,S) .
+  eq genReadRequests(TID,K,empty,S) = null .
 
 
-    rl < S : CSDServer | serverBook: ADS, localTable: LT, AS >
-       {T, S <- ReadRequestSS(RID,K,T',CL,S',A,D)}
-     => 
-       < S : CSDServer | serverBook: ADS, localTable: LT, AS >
-       [sampleLogNormal(0.0,1.0), S' <- ReadResponseSS(RID,LT[K],T',CL,A,D)] .
+  rl [write-from-coord-to-repl] :
+     < S : Server | localRing: RPS,
+                    reqConsLv: RCL,
+                    respFromRepl: RESPONSES, AS >
+     (msg request(TID,write(K,V),GT,CL) from A to S) 
+   => 
+     < S : Server | localRing: RPS,
+                    reqConsLv: (RCL ; [TID,CL]),
+                    respFromRepl: insert(TID,empty,RESPONSES), AS > 
+     genWriteRequests(TID,K,V,GT,nextNAddresses([K],RPS,3),S) . 
+
+  op genWriteRequests : Address Key Value Version Set{Address} Address -> Config .
+  eq genWriteRequests(TID,K,V,VERSION,(RID,RIDS),S) = 
+       (msg writeRequest(TID,[K,V,VERSION]) from S to RID) 
+       genWriteRequests(TID,K,V,VERSION,RIDS,S) .
+  eq genWriteRequests(TID,K,V,VERSION,empty,S) = null .
 
 
-    --- Def. I of Quorum and All: No comparison
-    ---(
-   crl < S : CSDServer | serverBook: ADS, delaySet: DS, lrq: LRQ, 
-                         delayList: DL, AS >
-       {T, S <- ReadResponseSS(RID,TD,T',CL,A,D')}
-     => 
-       if p2(LRQ[RID]) == 1 
-         then if p1(LRQ[RID]) == 1
-	        then < S : CSDServer | serverBook: ADS, delaySet: DS, 
-			               lrq: remove(RID,LRQ),
-                                       delayList: append(D',DL), AS > 
-                     [sampleLogNormal(0.0,1.0), A <- ReadResponseCS(RID,latestValue(TDQ),S,A,T')] 
-    ---(
-        genWriteRequests(readRepairID,
-		         p4(LRQ[RID]),
-		         p1(latestValue(TDQ)),
-	  	         p2(latestValue(TDQ)),
-		         DS,
-		         readRepairAds(TDQ,latestValue(TDQ)),
-		         S,S)
-    )
-
-                else < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                       lrq: insert(RID,R,LRQ), 
-                                       delayList: append(D',DL), AS > 
-                     [sampleLogNormal(0.0,1.0), A <- ReadResponseCS(RID,latestValue(TDQ),S,A,T')]
-              fi
-         else if p1(LRQ[RID]) == 1
-	        then < S : CSDServer | serverBook: ADS, delaySet: DS, 
-			               lrq: remove(RID,LRQ),
-                                       delayList: DL, AS > 
-    ---(
-        genWriteRequests(readRepairID,
-		         p4(LRQ[RID]),
-		         p1(latestValue(TDQ)),
-	  	         p2(latestValue(TDQ)),
-		         DS,
-		         readRepairAds(TDQ,latestValue(TDQ)),
-		         S,S)
-    )
-
-		else < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                       lrq: insert(RID,R,LRQ), 
-                                       delayList: DL, AS >
-              fi
-       fi
-     if R   := (p1(LRQ[RID]) - 1,p2(LRQ[RID]) - 1,append(TD,p3(LRQ[RID])),p4(LRQ[RID])) /\
-        TDQ := p3(insert(RID,R,LRQ)[RID]) .
-    )
+  rl [read-from-repl-to-coord] :
+     < RID : Server | datastore: (DS, [K,V,VERSION]), AS >
+     (msg readRequest(TID,K) from S to RID)
+   => 
+     < RID : Server | datastore: (DS, [K,V,VERSION]), AS >
+     (msg readResponse(TID,[K,V,VERSION]) from RID to S) .
 
 
-    --- Def. II of Quorum and All: Comparison
-    ---
-   crl < S : CSDServer | serverBook: ADS, delaySet: DS, lrq: LRQ, delayList: DL, AS >
-       {T, S <- ReadResponseSS(RID,TD,T',1,A,D')}
-     =>  
-       if p2(LRQ[RID]) == 1
-         then < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                lrq: insert(RID,R,LRQ),
-                                delayList: append(D',DL), AS > 
-              [sampleLogNormal(0.0,1.0), A <- ReadResponseCS(RID,TD,S,A,T')]
-	 else if p1(LRQ[RID]) == 1
-	        then < S : CSDServer | serverBook: ADS, delaySet: DS, 
-			               lrq: insert(RID,R,LRQ), 
-                                       delayList: DL, AS > 
-                     ---(
-                     genWriteRequests(readRepairID,
-		                      p4(LRQ[RID]),
-		                      p1(latestValue(TDQ)),
-	  	                      p2(latestValue(TDQ)),
-		                      DS,
-		                      readRepairAds(TDQ,latestValue(TDQ)),
-		                      S,S)
-                     )
-             
-		else < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                       lrq: insert(RID,R,LRQ), 
-                                       delayList: DL, AS >
-		     fi
-       fi
-     if R   := (p1(LRQ[RID]) - 1,p2(LRQ[RID]) - 1,append(TD,p3(LRQ[RID])),p4(LRQ[RID])) /\
-        TDQ := p3(insert(RID,R,LRQ)[RID]) .
+  rl [write-from-repl-to-coord] :
+     < RID : Server | datastore: (DS, [K,V,VERSION]), AS >
+     (msg writeRequest(TID,[K,V',VERSION']) from S to RID)
+   => 
+     if VERSION' >= VERSION
+       then < RID : Server | datastore: (DS, [K,V',VERSION']), AS >
+            (msg writeResponse(TID,true) from RID to S)
+       else < RID : Server | datastore: (DS, [K,V,VERSION]), AS >
+            (msg writeResponse(TID,false) from RID to S)
+     fi .
 
 
-   crl < S : CSDServer | serverBook: ADS, delaySet: DS, lrq: LRQ, 
-                         delayList: DL, AS >
-       {T, S <- ReadResponseSS(RID,TD,T',2,A,D')}
-     =>  
-       if p2(LRQ[RID]) == 2 
-         then < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                lrq: insert(RID,R,LRQ), 
-                                delayList: DL, AS >
-         else if p2(LRQ[RID]) == 1 
-	        then if p1(TD) == p1(head(p3(LRQ[RID]))) 
-		       then < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                              lrq: insert(RID,R,LRQ), 
-                                              delayList: append(D',DL), AS > 
-                            [sampleLogNormal(0.0,1.0), A <- ReadResponseCS(RID,TD,S,A,T')]
-                       else < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                              lrq: insert(RID,R,LRQ),                                 
-                                              delayList: DL, AS > 
-                     fi
-                else if p2(LRQ[RID]) == 0
-		       then if p1(head(p3(LRQ[RID]))) == p1(last(p3(LRQ[RID])))
-			      then < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                                     lrq: insert(RID,R,LRQ), 
-                                                     delayList: DL, AS > 
-                                   ---(
-                                   genWriteRequests(readRepairID,
-		                                    p4(LRQ[RID]),
-		                                    p1(latestValue(TDQ)),
-	  	                                    p2(latestValue(TDQ)),
-		                                    DS,
-		                                    readRepairAds(TDQ,latestValue(TDQ)),
-	                                	    S,S)
-                                   ) 
-		              else if p1(TD) == p1(head(p3(LRQ[RID]))) or 
-                                      p1(TD) == p1(last(p3(LRQ[RID])))
-			             then < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                                            lrq: insert(RID,R,LRQ), 
-                                                            delayList: append(D',DL), AS > 
-                                          [sampleLogNormal(0.0,1.0), A <- ReadResponseCS(RID,TD,S,A,T')] 
-                                          ---(
-                                          genWriteRequests(readRepairID,
-		                                           p4(LRQ[RID]),
-		                                           p1(latestValue(TDQ)),
-	  	                                           p2(latestValue(TDQ)),
-		                                           DS,
-	                                        	   readRepairAds(TDQ,latestValue(TDQ)),
-		                                           S,S)
-                                          ) 
-			             else < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                                            lrq: insert(RID,R,LRQ), 
-                                                            delayList: append(D',DL), AS > 
-                                          [sampleLogNormal(0.0,1.0), A <- ReadResponseCS(RID,(error,0.0,0),S,A,T')] 
-                                          ---(
-                                          genWriteRequests(readRepairID,
-		                                           p4(LRQ[RID]),
-		                                           p1(latestValue(TDQ)),
-	  	                                           p2(latestValue(TDQ)),
-		                                           DS,
-	                                        	   readRepairAds(TDQ,latestValue(TDQ)),
-		                                           S,S)
-                                          )
-			           fi
-		            fi
-		       else < S : CSDServer | serverBook: ADS, delaySet: DS, lrq: LRQ, delayList: DL, AS >
-	             fi
-              fi
-       fi
-     if R   := (p1(LRQ[RID]) - 1,p2(LRQ[RID]) - 1,append(TD,p3(LRQ[RID])),p4(LRQ[RID])) /\
-        TDQ := p3(insert(RID,R,LRQ)[RID]) .
+ rl [read-at-coord] : 
+     < S : Server | respFromRepl: (TID |-> RSET,RESPONSES), AS >
+     (msg readResponse(TID,KVV) from RID to S) 
+   =>
+     < S : Server | respFromRepl: (TID |-> (response(RID,KVV),RSET),RESPONSES), AS > .
 
 
-   crl < S : CSDServer | serverBook: ADS, delaySet: DS, lrq: LRQ, 
-                         delayList: DL, AS >
-       {T, S <- ReadResponseSS(RID,TD,T',3,A,D')}
-     =>  
-       if p2(LRQ[RID]) == 1
-         then if p1(TD) == p1(head(p3(LRQ[RID]))) and 
-                 p1(TD) == p1(last(p3(LRQ[RID])))
-                then < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                       lrq: insert(RID,R,LRQ), 
-                                       delayList: append(D',DL), AS > 
-                     [sampleLogNormal(0.0,1.0), A <- ReadResponseCS(RID,TD,S,A,T')]
-                     ---(
-	             genWriteRequests(readRepairID,
-		                      p4(LRQ[RID]),
-		                      p1(latestValue(TDQ)),
-	  	                      p2(latestValue(TDQ)),
-		                      DS,
-	                              readRepairAds(TDQ,latestValue(TDQ)),
-		                      S,S)
-                     )
-		else < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                       lrq: insert(RID,R,LRQ), 
-                                       delayList: append(D',DL), AS > 
-                     [sampleLogNormal(0.0,1.0), A <- ReadResponseCS(RID,(error,0.0,0),S,A,T')] 
-                     ---(
-                     genWriteRequests(readRepairID,
-		                      p4(LRQ[RID]),
-		                      p1(latestValue(TDQ)),
-	  	                      p2(latestValue(TDQ)),
-		                      DS,
-	                              readRepairAds(TDQ,latestValue(TDQ)),
-		                      S,S)
-                     )
-              fi
-         else < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                lrq: insert(RID,R,LRQ), 
-                                delayList: DL, AS >
-       fi 
-     if R   := (p1(LRQ[RID]) - 1,p2(LRQ[RID]) - 1,append(TD,p3(LRQ[RID])),p4(LRQ[RID])) /\
-        TDQ := p3(insert(RID,R,LRQ)[RID]) .
-    
-    
-
-    rl < A : CSDClient | currentServer: A', crq: CS, cwrq: CS', pk: PKS,
-                         store: VS, AS >
-       {T, A <- ReadResponseCS(RID,TD,A',A,T')}
-     => 
-       < A : CSDClient | currentServer: A', 
-                         crq: p1(removeWait(CS,CS',RID,PKS)),
-                         cwrq: p2(removeWait(CS,CS',RID,PKS)), 
-                         pk: delete(RID,PKS),
-                         store: append((RID @ p1(TD) @ T' @ T),VS), AS > 
-       [0.0, A <- bootstrap] .
-
-    
-    --- Rules to deal with WriteRequest
-    ---
-    rl < S : CSDServer | serverBook: ADS, localRing: RPS, delaySet: DS, 
-                         lrq: LRQ, AS >
-       {T, S <- WriteRequestCS(RID,K,V,T',CL,A)}
-     =>  
-       < S : CSDServer | serverBook: ADS, localRing: RPS, delaySet: DS, 
-                         lrq: insert(RID,(3,CL,nil,K),LRQ), AS > 
-       genWriteRequests(RID,K,V,T',DS,nextNAddresses([K],RPS,3),S,A) .
+ rl [write-at-coord] : 
+     < S : Server | respFromRepl: (TID |-> RSET,RESPONSES), AS >
+     (msg writeResponse(TID,FLAG) from RID to S) 
+   =>
+     < S : Server | respFromRepl: (TID |-> (response(RID,FLAG),RSET),RESPONSES), AS > .
 
 
-    eq genWriteRequests(RID,K,V,T',DS,(A',ADS'),S,A)
-     = 
-       genWriteRequests(RID,K,V,T',DS,ADS',S,A) 
-       [sampleLogNormal(0.0,1.0), A' <- WriteRequestSS(RID,K,V,T',S,A,0.0)] .
+
+ crl [from-coord-to-client-readrepair] : 
+     < S : Server | reqConsLv: (RCL ; [TID,CL]),
+                    respFromRepl: (TID |-> (response(RID,KVV),RSET),RESPONSES), AS >
+   =>
+     < S : Server | reqConsLv: (RCL ; [TID,CL]),
+                    respFromRepl: (TID |-> (response(RID,KVV),RSET),RESPONSES), AS >
+     genReadRepairs((response(RID,KVV),RSET),S)
+     if CL == 3
+       then done(TID,resultForRead((response(RID,KVV),RSET)))
+       else null 
+     fi
+     if | (response(RID,KVV),RSET) | == 3 .   
+
+  op genReadRepairs : ResponseSet Address -> Config .
+  eq genReadRepairs(RSET,S) = 
+       $genReadRepairs(resultForRead(RSET),repairReplicas(resultForRead(RSET),RSET),S) .
+  
+  op $genReadRepairs : KeyValueVersion Set{Address} Address -> Config .
+  eq $genReadRepairs(KVV,(RID,RIDS),S) =
+       (msg readRepair(KVV) from S to RID)
+       $genReadRepairs(KVV,RIDS,S) .
+  eq $genReadRepairs(KVV,empty,S) = null .
 
 
-    eq genWriteRequests(RID,K,V,T',DS,empty,S,A) = null .
+
+  rl [readrepair] :
+     < RID : Server | datastore: (DS, [K,V,VERSION]), AS >
+     (msg readRepair([K,V',VERSION']) from S to RID)
+   => 
+     if VERSION' >= VERSION
+       then < RID : Server | datastore: (DS, [K,V',VERSION']), AS >
+       else < RID : Server | datastore: (DS, [K,V,VERSION]), AS >
+     fi .
 
 
-    rl < S : CSDServer | serverBook: ADS, localTable: LT, AS >
-       {T, S <- WriteRequestSS(RID,K,V,T',S',A,D)}
-     => 
-       if RID == readRepairID 
-         then if T' >= p2(LT[K])
-	        then < S : CSDServer | serverBook: ADS, 
-                                       localTable: raw-insert(K,(V,T',S),LT), AS >
-
-                 --- [0.0, 1 <- SnapshotSO(S,V)]
-
-                else < S : CSDServer | serverBook: ADS, localTable: LT, AS >
-
-                 --- [0.0, 1 <- SnapshotSO(S,p1(LT[K]))]
-              fi
-         else if T' >= p2(LT[K])
-	        then < S : CSDServer | serverBook: ADS, 
-                                       localTable: raw-insert(K,(V,T',S),LT), AS >
-		     [sampleLogNormal(0.0,1.0), S' <- WriteResponseSS(RID,"success",T',A,D)] 
-                     
-                 --- [0.0, 1 <- SnapshotSO(S,V)]
-                      
-		else < S : CSDServer | serverBook: ADS, localTable: LT, AS >
-                     [sampleLogNormal(0.0,1.0), S' <- WriteResponseSS(RID,"failed",T',A,D)] 
-
-                 --- [0.0, 1 <- SnapshotSO(S,p1(LT[K]))]
-              fi
-       fi .
+ crl [from-coord-to-client] : 
+     < S : Server | reqConsLv: (RCL ; [TID,CL]),
+                    respFromRepl: (TID |-> (response(RID,KVV),RSET),RESPONSES), AS >
+   =>
+     < S : Server | reqConsLv: (RCL ; [TID,CL]),
+                    respFromRepl: (TID |-> (response(RID,KVV),RSET),RESPONSES), AS >
+     done(TID,resultForRead((response(RID,KVV),RSET)))
+     if | (response(RID,KVV),RSET) | =/= 3 /\
+        | (response(RID,KVV),RSET) | == CL .  
 
 
-   crl < S : CSDServer | serverBook: ADS, delaySet: DS, lrq: LRQ, 
-                         delayList: DL, AS >
-       {T, S <- WriteResponseSS(RID,RESULT,T',A,D')}
-     => 
-       if p2(LRQ[RID]) == 1 
-         then if p1(LRQ[RID]) == 1
-                then < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                       lrq: remove(RID,LRQ),
-                                       delayList: append(D',DL), AS > 
-                     [sampleLogNormal(0.0,1.0), A <- WriteResponseCS(RID,RESULT,S,A,T')]
-                else < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                       lrq: insert(RID,R,LRQ),
-                                       delayList: append(D',DL), AS > 
-                     [sampleLogNormal(0.0,1.0), A <- WriteResponseCS(RID,RESULT,S,A,T')]
-              fi 
-         else if p1(LRQ[RID]) == 1
-                then < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                       lrq: remove(RID,LRQ),
-                                       delayList: DL, AS > 
-                else < S : CSDServer | serverBook: ADS, delaySet: DS, 
-                                       lrq: insert(RID,R,LRQ), 
-                                       delayList: DL, AS > 
-              fi
-       fi 
-     if R := (p1(LRQ[RID]) - 1,p2(LRQ[RID]) - 1,p3(LRQ[RID]),p4(LRQ[RID])) .
+
+ crl [from-coord-to-client-write] : 
+     < S : Server | reqConsLv: (RCL ; [TID,CL]),
+                    respFromRepl: (TID |-> (response(RID,FLAG),RSET),RESPONSES), AS >
+   =>
+     < S : Server | reqConsLv: (RCL ; [TID,CL]),
+                    respFromRepl: (TID |-> (response(RID,FLAG),RSET),RESPONSES), AS >
+     done(TID,resultForWrite((response(RID,FLAG),RSET)))
+     if CL == | (response(RID,FLAG),RSET) | .   
 
 
-    rl < A : CSDClient | currentServer: A', crq: CS, cwrq: CS', pk: PKS, 
-                         store: VS, AS >
-       {T, A <- WriteResponseCS(RID,RESULT,A',A,T')}
-     =>
-       < A : CSDClient | currentServer: A', 
-                         crq: p1(removeWait(CS,CS',RID,PKS)),
-                         cwrq: p2(removeWait(CS,CS',RID,PKS)), 
-                         pk: delete(RID,PKS),
-                         store: append((RID @ RESULT @ T' @ T),VS), AS >
-       [0.0, A <- bootstrap] .
+
+  rl [rcv-done-read] :
+     < A : Client | executing: (< TID : Txn | readSet: RS,
+                                              writeSet: WS,
+                                              version: VERSION, AS' > TXNS),
+                    committed: TXNS', 
+                    lockedKeys: (lockedKey(TID,K),LOCKS), AS >
+     done(TID,[K,V,VERSION'])
+   =>
+     < A : Client | executing: TXNS,
+                    committed: (TXNS' < TID : Txn | readSet: (RS,< K,VERSION' >),
+                                                    writeSet: WS,
+                                                    version: VERSION, AS' >), 
+                    lockedKeys: LOCKS, AS > .
 
 
-    --- The following is for Observer
-    rl < 1 : Observer | flag: true, snapshot: M >
-       {T, A <- snapshot}
-     =>
-       < 1 : Observer | flag: false, snapshot: M > .
-
-
-    rl < 1 : Observer | flag: false, snapshot: M >
-       {T, A <- SnapshotSO(A',V)}
-     =>
-       < 1 : Observer | flag: false, snapshot: M > .
-
-    
-    rl < 1 : Observer | flag: true, snapshot: (A' |-> V, M) >
-       {T, A <- SnapshotSO(A',V')}
-     =>
-       < 1 : Observer | flag: true, snapshot: (A' |-> V', M) > .
-
+  rl [rcv-done-write] :
+     < A : Client | executing: (< TID : Txn | readSet: RS,
+                                              writeSet: WS,
+                                              version: VERSION, AS' > TXNS),
+                    committed: TXNS',
+                    lockedKeys: (lockedKey(TID,K),LOCKS), AS >
+     done(TID,FLAG)
+   =>
+     < A : Client | executing: TXNS,
+                    committed: (TXNS' < TID : Txn | readSet: RS,
+                                                    writeSet: WS,
+                                                    version: VERSION, AS' >),
+                    lockedKeys: LOCKS, AS > .
 
 endm
 

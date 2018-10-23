@@ -1,9 +1,9 @@
 load cassandra
 
 mod CASSANDRA-ANALYSIS is
-    pr CASSANDRA-RULES .
+    pr CASSANDRA .
     pr APMAUDE .
-    including MODEL-CHECKER .
+    inc MODEL-CHECKER .
 
     subsort Config < State .
 

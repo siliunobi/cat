@@ -1,0 +1,48 @@
+load prelim
+
+mod CASSANDRA-AUX is
+  pr CASSANDRA-SERVER-CLIENT .
+
+  var K : Key .  vars V V' : Value .  var CL : ConsistLevel .
+  var RPS : Set{RingPair} .  var LOCKS : Set{LockedKey} .  var OP : Operation .
+  vars O TID RID A A' S S' : Address . vars AS AS' : AttributeSet .
+  vars TXNS TXNS' : Config .  vars TRANSES TRANSES' : ConfigList . 
+  var GT : Nat .  vars VERSION VERSION' : Version .
+  var WS : Set{KeyValue} .  var RS : Set{KeyVersion} . 
+  var RESPONSES : Responses . var RCL : ReqConsLv .
+  var RIDS : Set{Address} . var DS : Set{KeyValueVersion} .
+  var RSET : ResponseSet . vars KVV KVV' : KeyValueVersion .  var FLAG : Bool . 
+
+  op isLocked : Operation Set{LockedKey} -> Bool .
+  eq isLocked(write(K,V),(LOCKS,lockedKey(TID,K))) = true .
+  eq isLocked(read(K),(LOCKS,lockedKey(TID,K))) = true .
+  eq isLocked(OP,LOCKS) = false [owise] .
+
+  op lock : Address Operation -> LockedKey .
+  eq lock(TID,write(K,V)) = lockedKey(TID,K) .
+  eq lock(TID,read(K)) = lockedKey(TID,K) . 
+
+  op repairReplicas : KeyValueVersion ResponseSet -> Set{Address} .
+  eq repairReplicas(KVV,(response(RID,KVV'),RSET)) = 
+       if KVV == KVV'
+         then repairReplicas(KVV,RSET)
+         else RID, repairReplicas(KVV,RSET)
+       fi .
+  eq repairReplicas(KVV,empty) = empty .
+
+  op resultForRead : ResponseSet -> KeyValueVersion .
+  op $resultForRead : ResponseSet KeyValueVersion -> KeyValueVersion .
+
+  eq resultForRead((response(RID,[K,V,VERSION]),RSET)) = $resultForRead(RSET,[K,V,VERSION]) .
+  eq $resultForRead(empty,KVV) = KVV .
+  eq $resultForRead((response(RID,[K,V,VERSION]),RSET),[K,V',VERSION']) =
+       if VERSION >= VERSION'
+         then $resultForRead(RSET,[K,V,VERSION])
+         else $resultForRead(RSET,[K,V',VERSION'])
+       fi .
+
+  op resultForWrite : ResponseSet -> Bool .
+  eq resultForWrite((response(RID,false),RSET)) = false .
+  eq resultForWrite(RSET) = true [owise] .
+
+endm
