@@ -332,7 +332,7 @@ endm .
       --- this equation formalizes the commit of a readonly transaction
     --- condition : the executing tran is committed (including fast)
   ceq tagLeftRightHand(T,T',B) =
-        '__['__[newMonitorObjRecord(T2),T],
+        '__['__[newMonitorObjRecord2(T2),T],
 	  '__[resultMonitorObjInsert(T2,
 	      getReplicaID(T),'true.Bool,
         getAttr('readSet:_,T1),
@@ -344,7 +344,7 @@ endm .
 	  T1 := getAttr('executing:_,T) .    
 
 ceq tagLeftRightHand(T,T',B) =
-        '__['__[newMonitorObjRecord(T2),T],
+        '__['__[newMonitorObjRecord2(T2),T],
     '__[resultMonitorObjInsert(T2,
         getReplicaID(T),'true.Bool,
         getAttr('readSet:_,T1),

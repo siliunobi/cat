@@ -1,0 +1,235 @@
+mod JESSY-TAGGED is
+  including BOOL .
+  including DELAY .
+  including CLIENT-REPLICA .
+  including MESSAGE .
+  including REPLICA-TABLE .
+  including VERSION-JESSY .
+  including SAMPLER .
+  including VALUES-NAT .
+  including JESSY-AUX .
+  op abortTxn : Address AddressSet Address -> Config .
+  op commitTxn : Address AddressSet Address -> Config .
+  op ld : -> Delay .
+  op nd : -> Delay .
+  op prepareTxn : Actor AddressSet Address -> Config .
+  op rd : -> Delay .
+  eq abortTxn(TID:Address,emptyAddressSet,RID':Address)
+    = null .
+  eq abortTxn(TID:Address,RID:Address ; RIDS:AddressSet,RID':Address)
+    = abortTxn(TID:Address,RIDS:AddressSet,RID':Address)msg abort(TID:Address)from RID':Address
+    to RID:Address .
+  eq commitTxn(TID:Address,emptyAddressSet,RID':Address)
+    = null .
+  eq commitTxn(TID:Address,RID:Address ; RIDS:AddressSet,RID':Address)
+    = commitTxn(TID:Address,RIDS:AddressSet,RID':Address)msg commit(TID:Address)from
+    RID':Address to RID:Address .
+  eq prepareTxn(TXN:Actor,emptyAddressSet,RID':Address)
+    = null .
+  eq prepareTxn(TXN:Actor,RID:Address ; RIDS:AddressSet,RID':Address)
+    = prepareTxn(TXN:Actor,RIDS:AddressSet,RID':Address)msg prepare(TXN:Actor)from RID':Address
+    to RID:Address .
+  rl
+< M:Address : Monitor | clock: GT:Nat,log: LOG:Log >(start to RID:Address)
+< RID:Address : Replica | gotTxns:(
+< TID:Address : Txn | AS:AttributeSet > ;; TXNS:ConfigList),executing: null,AS':AttributeSet >
+    =>
+< M:Address : Monitor | clock:(GT:Nat + 1),log: insert(TID:Address,< RID:Address |-> GT:Nat,
+    empty,false,empty,empty >,LOG:Log)>
+< RID:Address : Replica | gotTxns: TXNS:ConfigList,executing:
+< TID:Address : Txn | AS:AttributeSet >,AS':AttributeSet > execute to RID:Address [label
+    start-txn] .
+  rl
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,
+    FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>(execute to RID:Address)
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations: nil,writeSet: empty,readSet: RS:Set{KeyVersion},version:
+    VERSION:Version,AS:AttributeSet >,committed: C:Config,AS':AttributeSet >
+    =>
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(
+    RID:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{KeyVersion},kver(empty,VERSION:Version)>,
+    LOG:Log)>
+< TID:Address : Txn | operations: nil,writeSet: empty,readSet: RS:Set{KeyVersion},version:
+    VERSION:Version,AS:AttributeSet > [label commit-read-only-txn] .
+  rl
+< RID:Address : Replica | abortSites:(ABORTS:VoteSites ; voteSites(TID:Address,RID':Address ;
+    RIDS:AddressSet)),AS:AttributeSet > msg aborted(TID:Address)from RID':Address to
+    RID:Address
+    =>
+< RID:Address : Replica | abortSites:(ABORTS:VoteSites ; voteSites(TID:Address,
+    RIDS:AddressSet)),AS:AttributeSet > [label receive-aborted] .
+  rl
+< RID:Address : Replica | aborted: C:Config,certifying:(C':Config
+< TID:Address : Txn | AS':AttributeSet >),AS:AttributeSet > msg abort(TID:Address)from
+    RID':Address to RID:Address
+    =>
+< RID:Address : Replica | aborted:(C:Config
+< TID:Address : Txn | AS':AttributeSet >),certifying: C':Config,AS:AttributeSet > msg aborted(
+    TID:Address)from RID:Address to RID':Address [label receive-abort] .
+  rl
+< RID:Address : Replica | commitSites:(CSTS:VoteSites ; voteSites(TID:Address,RID':Address ;
+    RIDS:AddressSet)),AS:AttributeSet > msg committed(TID:Address)from RID':Address to
+    RID:Address
+    =>
+< RID:Address : Replica | commitSites:(CSTS:VoteSites ; voteSites(TID:Address,
+    RIDS:AddressSet)),AS:AttributeSet > [label receive-committed] .
+  rl
+< RID:Address : Replica | committed: C:Config,certifying: C':Config,AS:AttributeSet > msg
+    prepare(
+< TID:Address : Txn | vecWrite: VW:DepVector,AS':AttributeSet >)from RID':Address to
+    RID:Address
+    =>
+< RID:Address : Replica | committed: C:Config,certifying:(C':Config if RID:Address ==
+    RID':Address then null else
+< TID:Address : Txn | vecWrite: VW:DepVector,AS':AttributeSet > fi),AS:AttributeSet > msg
+    prepare-reply(TID:Address,certify(VW:DepVector,C:Config))from RID:Address to RID':Address [
+    label receive-prepare] .
+  rl
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations:(waitRemote(K:Key,X:LocalVar)OPS:OperationList),readSet:
+    RS:Set{KeyVersion},localVars: VARS:LocalVars,vecRead: VR:DepVector,AS:AttributeSet >,
+    AS':AttributeSet > msg reply(TID:Address,K:Key,< V:Value,VERSION:Version >,VEC:Vector)from
+    RID':Address to RID:Address
+    =>
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations: OPS:OperationList,readSet:(< K:Key,VERSION:Version >, RS:Set{
+    KeyVersion}),localVars: insert(X:LocalVar,V:Value,VARS:LocalVars),vecRead: insert(< K:Key,
+    VERSION:Version >,VEC:Vector,VR:DepVector),AS:AttributeSet >,AS':AttributeSet > execute to
+    RID:Address [label receive-remote-reply] .
+  rl
+< RID:Address : Replica | gotTxns: emptyTxnList,AS:AttributeSet > start to RID:Address
+    =>
+< RID:Address : Replica | gotTxns: emptyTxnList,AS:AttributeSet > [label
+    receiving-start-when-no-txn-to-start] .
+  rl
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | committed: C:Config,certifying:(C':Config
+< TID:Address : Txn | writeSet: WS:Set{KeyValue},vecWrite: VW:DepVector,AS':AttributeSet >),
+    datastore: DS:Datastore,depVector: DV:DepVector,AS:AttributeSet > msg commit(
+    TID:Address)from RID':Address to RID:Address
+    =>
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | committed:(C:Config
+< TID:Address : Txn | writeSet: WS:Set{KeyValue},vecWrite: VW:DepVector,AS':AttributeSet >),
+    certifying: C':Config,datastore:(DS:Datastore, update(WS:Set{KeyValue},VW:DepVector,
+    RID:Address,REPLICA-TABLE:ReplicaTable)),depVector: update(VW:DepVector,RID:Address,
+    REPLICA-TABLE:ReplicaTable,DV:DepVector),AS:AttributeSet > msg committed(TID:Address)from
+    RID:Address to RID':Address [label receive-commit] .
+  rl (execute to RID:Address)
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations:((X:LocalVar :=read K:Key)OPS:OperationList),writeSet:(<
+    K:Key,V:Value >, WS:Set{KeyValue}),localVars: VARS:LocalVars,AS:AttributeSet >,
+    AS':AttributeSet >
+    =>
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations: OPS:OperationList,writeSet:(< K:Key,V:Value >, WS:Set{
+    KeyValue}),localVars: insert(X:LocalVar,V:Value,VARS:LocalVars),AS:AttributeSet >,
+    AS':AttributeSet > execute to RID:Address [label execute-read-own-write] .
+  rl (execute to RID:Address)
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations:(write(K:Key,EXPR:Expression)OPS:OperationList),localVars:
+    VARS:LocalVars,writeSet: WS:Set{KeyValue},AS:AttributeSet >,AS':AttributeSet >
+    =>
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations: OPS:OperationList,localVars: VARS:LocalVars,writeSet:(<
+    K:Key,eval(EXPR:Expression,VARS:LocalVars)>, WS:Set{KeyValue}),AS:AttributeSet >,
+    AS':AttributeSet > execute to RID:Address [label execute-write] .
+  crl
+< RID:Address : Replica | datastore: DS:Datastore,depVector: DV:DepVector,AS:AttributeSet > msg
+    request(K:Key,TID:Address,VR:DepVector)from RID':Address to RID:Address
+    =>
+< RID:Address : Replica | datastore: DS:Datastore,depVector: DV:DepVector,AS:AttributeSet > msg
+    reply(TID:Address,K:Key,< V:Value,VERSION:Version >,DV:DepVector[< K:Key,VERSION:Version
+    >])from RID:Address to RID':Address
+    if < V:Value,VERSION:Version > := choose(K:Key,VR:DepVector,DV:DepVector,DS:Datastore) [
+    label receive-remote-request] .
+  crl
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | submitted:(C:Config
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},vecWrite: VW:DepVector,
+    readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >),committed:
+    C':Config,aborted: C'':Config,votes: VOTES:Vote,voteSites: VSTS:VoteSites,commitSites:
+    CSTS:VoteSites,abortSites: ABORTS:VoteSites,datastore: DS:Datastore,depVector:
+    DV:DepVector,AS':AttributeSet > msg prepare-reply(TID:Address,FLAG:Bool)from RID':Address
+    to RID:Address
+    =>
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable > if VSTS':VoteSites[TID:Address]==
+    emptyAddressSet then if allYes(TID:Address,VOTES':Vote)then
+< RID:Address : Replica | submitted: C:Config,committed:(C':Config
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},vecWrite: VW:DepVector,
+    readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >),aborted:
+    C'':Config,votes: VOTES':Vote,voteSites: VSTS':VoteSites,commitSites:(CSTS:VoteSites ;
+    voteSites(TID:Address,RIDS:AddressSet \ RID:Address)),abortSites: ABORTS:VoteSites,
+    datastore:(DS:Datastore, update(WS:Set{KeyValue},VW:DepVector,RID:Address,
+    REPLICA-TABLE:ReplicaTable)),depVector: update(VW:DepVector,RID:Address,
+    REPLICA-TABLE:ReplicaTable,DV:DepVector),AS':AttributeSet > commitTxn(TID:Address,
+    RIDS:AddressSet \ RID:Address,RID:Address)start to RID:Address else
+< RID:Address : Replica | submitted: C:Config,committed: C':Config,aborted:(C'':Config
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},vecWrite: VW:DepVector,
+    readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >),votes: VOTES':Vote,
+    voteSites: VSTS':VoteSites,commitSites: CSTS:VoteSites,abortSites:(ABORTS:VoteSites ;
+    voteSites(TID:Address,RIDS:AddressSet \ RID:Address)),datastore: DS:Datastore,depVector:
+    DV:DepVector,AS':AttributeSet > abortTxn(TID:Address,RIDS:AddressSet \ RID:Address,
+    RID:Address)start to RID:Address fi else
+< RID:Address : Replica | submitted:(C:Config
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},vecWrite: VW:DepVector,
+    readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >),committed:
+    C':Config,aborted: C'':Config,votes: VOTES':Vote,voteSites: VSTS':VoteSites,commitSites:
+    CSTS:VoteSites,abortSites: ABORTS:VoteSites,datastore: DS:Datastore,depVector:
+    DV:DepVector,AS':AttributeSet > fi
+    if VSTS':VoteSites := remove(TID:Address,RID':Address,VSTS:VoteSites)/\ VOTES':Vote :=
+    VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool)/\ RIDS:AddressSet :=
+    allPreferredSites(WS:Set{KeyValue},REPLICA-TABLE:ReplicaTable) [label
+    receive-prepare-reply] .
+  crl (execute to RID:Address)
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},vecRead: VR:DepVector,
+    vecWrite: VW:DepVector,txnSQN: TXNSQN:Nat,version: VERSION:Version,AS:AttributeSet >,
+    submitted: C:Config,voteSites: VSTS:VoteSites,sqn: SQN:Nat,AS':AttributeSet >
+    =>
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | executing: null,submitted:(C:Config
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},vecRead: VR:DepVector,
+    vecWrite: VW':DepVector,txnSQN:(SQN:Nat + 1),version: < RID:Address,SQN:Nat + 1 >,
+    AS:AttributeSet >),voteSites:(VSTS:VoteSites ; voteSites(TID:Address,RIDS:AddressSet)),
+    sqn:(SQN:Nat + 1),AS':AttributeSet > prepareTxn(
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},vecRead: VR:DepVector,
+    vecWrite: VW':DepVector,txnSQN:(SQN:Nat + 1),version: < RID:Address,SQN:Nat + 1 >,
+    AS:AttributeSet >,RIDS:AddressSet,RID:Address)
+    if WS:Set{KeyValue}=/=(empty).Set{KeyValue}= true /\ VW':DepVector := vw(max(VR:DepVector),
+    keys(WS:Set{KeyValue}),RID:Address,SQN:Nat + 1)/\ RIDS:AddressSet := allPreferredSites(
+    WS:Set{KeyValue},REPLICA-TABLE:ReplicaTable)/\ not TID:Address in VSTS:VoteSites = true [
+    label prepare] .
+  crl (execute to RID:Address)
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations:((X:LocalVar :=read K:Key)OPS:OperationList),writeSet: WS:Set{
+    KeyValue},readSet: RS:Set{KeyVersion},localVars: VARS:LocalVars,vecRead: VR:DepVector,
+    AS:AttributeSet >,datastore: DS:Datastore,depVector: DV:DepVector,AS':AttributeSet >
+    =>
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations: OPS:OperationList,writeSet: WS:Set{KeyValue},readSet:(<
+    K:Key,VERSION:Version >, RS:Set{KeyVersion}),localVars: insert(X:LocalVar,V:Value,
+    VARS:LocalVars),vecRead: insert(< K:Key,VERSION:Version >,DV:DepVector[< K:Key,
+    VERSION:Version >],VR:DepVector),AS:AttributeSet >,datastore: DS:Datastore,depVector:
+    DV:DepVector,AS':AttributeSet > execute to RID:Address
+    if not K:Key in WS:Set{KeyValue}= true /\ localReplica(K:Key,RID:Address,
+    REPLICA-TABLE:ReplicaTable)= true /\ < V:Value,VERSION:Version > := choose(K:Key,
+    VR:DepVector,DV:DepVector,DS:Datastore) [label execute-read-local] .
+  crl (execute to RID:Address)
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations:((X:LocalVar :=read K:Key)OPS:OperationList),writeSet: WS:Set{
+    KeyValue},vecRead: VR:DepVector,AS:AttributeSet >,AS':AttributeSet >
+    =>
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations:(waitRemote(K:Key,X:LocalVar)OPS:OperationList),writeSet:
+    WS:Set{KeyValue},vecRead: VR:DepVector,AS:AttributeSet >,AS':AttributeSet > msg request(
+    K:Key,TID:Address,VR:DepVector)from RID:Address to RID':Address
+    if not K:Key in WS:Set{KeyValue}= true /\ not localReplica(K:Key,RID:Address,
+    REPLICA-TABLE:ReplicaTable)= true /\ RID':Address := preferredSite(K:Key,
+    REPLICA-TABLE:ReplicaTable) [label execute-read-remote] .
+endm

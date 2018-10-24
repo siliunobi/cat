@@ -1,0 +1,4 @@
+main file: jessy.maude
+
+
+JESSY case almost worked except there is a nested if_then_else_fi statement in a rule 
