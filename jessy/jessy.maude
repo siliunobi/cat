@@ -242,7 +242,39 @@ mod JESSY is
  
 
 
- crl [receive-prepare-reply] :
+ crl [receive-prepare-reply-1] :
+     < RID : Replica | submitted: (C < TID : Txn | operations: nil,
+                                                   writeSet: WS,
+                                                   vecWrite: VW,
+                                                   readSet: RS,
+                                                   version: VERSION, AS >),
+                       committed: C',
+                       aborted: C'',
+                       votes: VOTES,
+                       voteSites: VSTS,
+                       commitSites: CSTS,
+                       abortSites: ABORTS,
+                       datastore: DS,
+                       depVector: DV, AS' >
+     (msg prepare-reply(TID,FLAG) from RID' to RID)
+   =>
+     < RID : Replica | submitted: (C < TID : Txn | operations: nil,
+                                                   writeSet: WS, 
+                                                   vecWrite: VW, 
+                                                   readSet: RS,
+                                                   version: VERSION,AS >),
+                              committed: C',
+                              aborted: C'',
+                              votes: (VOTES ; vote(TID,RID',FLAG)),
+                              voteSites: remove(TID,RID',VSTS),
+                              commitSites: CSTS,
+                              abortSites: ABORTS,
+                              datastore: DS, 
+                              depVector: DV, AS' >
+     if remove(TID,RID',VSTS)[TID] =/= emptyAddressSet .
+
+
+ crl [receive-prepare-reply-2] :
 
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | submitted: (C < TID : Txn | operations: nil,
@@ -260,60 +292,65 @@ mod JESSY is
                        depVector: DV, AS' >
      (msg prepare-reply(TID,FLAG) from RID' to RID)
    =>
+
      < TABLE : Table | table: REPLICA-TABLE >
-     if VSTS'[TID] == emptyAddressSet --- all votes received
-       then 
-            if allYes(TID,VOTES')  --- all yes votes
-              then 
-                   < RID : Replica | submitted: C,
-                                     committed: (C' < TID : Txn | operations: nil,
-                                                                  writeSet: WS,
-                                                                  vecWrite: VW,
-                                                                  readSet: RS,
-                                                                  version: VERSION, AS >),
-                                     aborted: C'',
-                                     votes: VOTES',
-                                     voteSites: VSTS', 
-                                     commitSites: (CSTS ; voteSites(TID,RIDS \ RID)),
-                                     abortSites: ABORTS,
-                                     datastore: (DS,update(WS,VW,RID,REPLICA-TABLE)),
-                                     depVector: update(VW,RID,REPLICA-TABLE,DV), AS' >
-                   commitTxn(TID,RIDS \ RID,RID) --- commit phase; commit locally first, and then async with remote replicas
-                   (start to RID) 
-              else 
-                   < RID : Replica | submitted: C,
-                                     committed: C',
-                                     aborted: (C'' < TID : Txn | operations: nil,
-                                                                 writeSet: WS,
-                                                                 vecWrite: VW,
-                                                                 readSet: RS,
-                                                                 version: VERSION, AS >),
-                                     votes: VOTES',
-                                     voteSites: VSTS',
-                                     commitSites: CSTS,
-                                     abortSites: (ABORTS ; voteSites(TID,RIDS \ RID)),
-                                     datastore: DS,
-                                     depVector: DV, AS' >
-                   abortTxn(TID,RIDS \ RID,RID)  --- abort locally first, and then async with remote replicas
-                   (start to RID)
-            fi
-       else
-            < RID : Replica | submitted: (C < TID : Txn | operations: nil,
-                                                          writeSet: WS, 
-                                                          vecWrite: VW, 
-                                                          readSet: RS,
-                                                          version: VERSION,AS >),
-                              committed: C',
-                              aborted: C'',
-                              votes: VOTES',
-                              voteSites: VSTS',
-                              commitSites: CSTS,
-                              abortSites: ABORTS,
-                              datastore: DS, 
-                              depVector: DV, AS' >
-     fi 
-     if VSTS' := remove(TID,RID',VSTS) /\
-        VOTES' := VOTES ; vote(TID,RID',FLAG) /\
+     < RID : Replica | submitted: C,
+                       committed: (C' < TID : Txn | operations: nil,
+                                                    writeSet: WS,
+                                                    vecWrite: VW,
+                                                    readSet: RS,
+                                                    version: VERSION, AS >),
+                       aborted: C'',
+                       votes: (VOTES ; vote(TID,RID',FLAG)),
+                       voteSites: remove(TID,RID',VSTS), 
+                       commitSites: (CSTS ; voteSites(TID,RIDS \ RID)),
+                       abortSites: ABORTS,
+                       datastore: (DS,update(WS,VW,RID,REPLICA-TABLE)),
+                       depVector: update(VW,RID,REPLICA-TABLE,DV), AS' >
+     commitTxn(TID,RIDS \ RID,RID) --- commit phase; commit locally first, and then async with remote replicas
+     (start to RID) 
+     if remove(TID,RID',VSTS)[TID] == emptyAddressSet /\
+        allYes(TID,(VOTES ; vote(TID,RID',FLAG))) /\
+        RIDS := allPreferredSites(WS,REPLICA-TABLE) .
+
+
+ crl [receive-prepare-reply-3] :
+
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | submitted: (C < TID : Txn | operations: nil,
+                                                   writeSet: WS,
+                                                   vecWrite: VW,
+                                                   readSet: RS,
+                                                   version: VERSION, AS >),
+                       committed: C',
+                       aborted: C'',
+                       votes: VOTES,
+                       voteSites: VSTS,
+                       commitSites: CSTS,
+                       abortSites: ABORTS,
+                       datastore: DS,
+                       depVector: DV, AS' >
+     (msg prepare-reply(TID,FLAG) from RID' to RID)
+   =>
+
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | submitted: C,
+                       committed: C',
+                       aborted: (C'' < TID : Txn | operations: nil,
+                                                   writeSet: WS,
+                                                   vecWrite: VW,
+                                                   readSet: RS,
+                                                   version: VERSION, AS >),
+                       votes: (VOTES ; vote(TID,RID',FLAG)),
+                       voteSites: remove(TID,RID',VSTS),
+                       commitSites: CSTS,
+                       abortSites: (ABORTS ; voteSites(TID,RIDS \ RID)),
+                       datastore: DS,
+                       depVector: DV, AS' >
+     abortTxn(TID,RIDS \ RID,RID)  --- abort locally first, and then async with remote replicas
+     (start to RID)
+     if remove(TID,RID',VSTS)[TID] == emptyAddressSet /\
+        (not allYes(TID,(VOTES ; vote(TID,RID',FLAG)))) /\
         RIDS := allPreferredSites(WS,REPLICA-TABLE) .
 
 
