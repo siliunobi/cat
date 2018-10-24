@@ -369,8 +369,45 @@ mod WALTER is
       fi .
 
 
-  --- ???
- crl [slow-commit-receive-prepare-reply] :
+ crl [slow-commit-receive-prepare-reply-1] :
+     < RID : Replica | executing: < TID : Txn | operations: nil,
+                                                writeSet: WS,
+                                                startVTS: VTS,
+                                                txnSQN: TXNSQN,
+                                                readSet: RS,
+                                                version: VERSION, AS >,
+                       committed: TXNS',
+                       aborted: TXNS'',
+                       votes: VOTES,
+                       voteSites: VSTS,
+                       sqn: SQN, 
+                       history: DS,
+                       committedVTS: VTS',
+                       locked: LOCKS, 
+                       dsSites: PSTS,
+                       abortSites: ABORTS, AS' >
+     (msg prepare-reply(TID,FLAG) from RID' to RID)
+   =>
+     < RID : Replica | executing: < TID : Txn | operations: nil,
+                                                writeSet: WS,
+                                                startVTS: VTS,
+                                                txnSQN: TXNSQN,
+                                                readSet: RS,
+                                                version: VERSION, AS >,
+                       committed: TXNS',
+                       aborted: TXNS'',
+                       votes: (VOTES ; vote(TID,RID',FLAG)),
+                       voteSites: remove(TID,RID',VSTS),
+                       sqn: SQN, 
+                       history: DS,
+                       committedVTS: VTS',
+                       locked: LOCKS,
+                       dsSites: PSTS,
+                       abortSites: ABORTS, AS' >
+     if remove(TID,RID',VSTS)[TID] =/= emptyAddressSet .
+
+
+ crl [slow-commit-receive-prepare-reply-2] :
      < O@M : Monitor | clock: GT@M, log: (TID |-> 
        < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
      < TABLE : Table | table: REPLICA-TABLE >
@@ -392,22 +429,19 @@ mod WALTER is
                        abortSites: ABORTS, AS' >
      (msg prepare-reply(TID,FLAG) from RID' to RID)
    =>
+     < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+       < VTS1@M,insert(RID,GT@M,VTS2@M),true,RS,kver(WS,< RID,SQN' >) >,LOG@M) > 
      < TABLE : Table | table: REPLICA-TABLE >
-     if VSTS'[TID] == emptyAddressSet --- all votes received
-       then 
-            if allYes(TID,VOTES')  --- all yes votes
-              then < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
-                     < VTS1@M,insert(RID,GT@M,VTS2@M),true,RS,kver(WS,< RID,SQN' >) >,LOG@M) > 
-                   < RID : Replica | executing: noActor,
-                                     committed: (TXNS' ;; < TID : Txn | operations: nil,
-                                                                        writeSet: WS,
-                                                                        startVTS: VTS, 
-                                                                        txnSQN: SQN',
-                                                                        readSet: RS,
-                                                                        version: < RID,SQN' >, AS >),
+     < RID : Replica | executing: noActor,
+                       committed: (TXNS' ;; < TID : Txn | operations: nil,
+                                                          writeSet: WS,
+                                                          startVTS: VTS, 
+                                                          txnSQN: SQN',
+                                                          readSet: RS,
+                                                          version: < RID,SQN' >, AS >),
                                      aborted: TXNS'',
-                                     votes: VOTES',
-                                     voteSites: VSTS', 
+                                     votes: (VOTES ; vote(TID,RID',FLAG)),
+                                     voteSites: remove(TID,RID',VSTS), 
                                      sqn: SQN', 
                                      history: DS',
                                      committedVTS: VTS'',
@@ -416,78 +450,108 @@ mod WALTER is
                                      abortSites: ABORTS, AS' >
                    propagateTxn(TID,SQN',VTS,WS,allServers(REPLICA-TABLE),RID) 
                    (start to RID)
-              else if RIDS =/= emptyAddressSet
-                     then < O@M : Monitor | clock: GT@M, log: (TID |-> 
-                            < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) > 
-                          < RID : Replica | executing: < TID : Txn | operations: nil,
-                                                                     writeSet: WS,
-                                                                     startVTS: VTS,
-                                                                     txnSQN: TXNSQN,
-                                                                     readSet: RS,
-                                                                     version: < RID,SQN' >, AS >,
-                                            committed: TXNS',
-                                            aborted: TXNS'',
-                                            votes: VOTES',
-                                            voteSites: VSTS',
-***NEW; original: SQN
-                                            sqn: SQN',
-                                            history: DS,
-                                            committedVTS: VTS',
-                                            locked: LOCKS,
-                                            dsSites: PSTS,
-                                            abortSites: ABORTS', AS' >
-                          propagateAbort(TID,RIDS,RID)  --- "remote call" abort; abort the txn locally when receiving all acks to remote calls
-                      else < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
-                             < VTS1@M,insert(RID,GT@M,VTS2@M),false,RS,kver(WS,< RID,SQN' >) >,LOG@M) > 
-                           < RID : Replica | executing: noActor,
-                                             committed: TXNS',
-                                             aborted: (TXNS'' ;; < TID : Txn | operations: nil,
-                                                                               writeSet: WS,
-                                                                               startVTS: VTS,
-                                                                               txnSQN: TXNSQN,
-                                                                               readSet: RS,
-                                                                               version: < RID,SQN' >, AS >),
-                                             votes: VOTES',
-                                             voteSites: VSTS',
-***NEW
-                                             sqn: SQN',
-                                             history: DS,
-                                             committedVTS: VTS',
-                                             locked: LOCKS,
-                                             dsSites: PSTS,
-                                             abortSites: ABORTS, AS' >
-                           (start to RID)
-                    fi
-                  
-            fi
-       else < O@M : Monitor | clock: GT@M, log: (TID |-> 
-              < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
-            < RID : Replica | executing: < TID : Txn | operations: nil,
-                                                       writeSet: WS,
-                                                       startVTS: VTS,
-                                                       txnSQN: TXNSQN,
-                                                       readSet: RS,
-                                                       version: VERSION, AS >,
-                              committed: TXNS',
-                              aborted: TXNS'',
-                              votes: VOTES',
-                              voteSites: VSTS',
-                              sqn: SQN, 
-                              history: DS,
-                              committedVTS: VTS',
-                              locked: LOCKS,
-                              dsSites: PSTS,
-                              abortSites: ABORTS, AS' >
-     fi 
-     if VSTS' := remove(TID,RID',VSTS) /\
-        VOTES' := VOTES ; vote(TID,RID',FLAG) /\
+
+     if remove(TID,RID',VSTS)[TID] == emptyAddressSet /\
+        allYes(TID,(VOTES ; vote(TID,RID',FLAG))) /\
         SQN' := SQN + 1 /\
         DS' := update(WS,< RID,SQN' >,DS) /\
----        VTS'[RID] == SQN /\  --- we put this equation here to identify any counterexample supporting "wait until"
         VTS'' := insert(RID,SQN',VTS') /\
-        PSTS' := PSTS ; txnPropagateSites(TID,WS) /\
-        RIDS := yesSites(TID,VOTES') /\
-        ABORTS' := ABORTS ; voteSites(TID,RIDS) .
+        PSTS' := PSTS ; txnPropagateSites(TID,WS) .
+
+
+ crl [slow-commit-receive-prepare-reply-3] :
+
+     < RID : Replica | executing: < TID : Txn | operations: nil,
+                                                writeSet: WS,
+                                                startVTS: VTS,
+                                                txnSQN: TXNSQN,
+                                                readSet: RS,
+                                                version: VERSION, AS >,
+                       committed: TXNS',
+                       aborted: TXNS'',
+                       votes: VOTES,
+                       voteSites: VSTS,
+                       sqn: SQN, 
+                       history: DS,
+                       committedVTS: VTS',
+                       locked: LOCKS, 
+                       dsSites: PSTS,
+                       abortSites: ABORTS, AS' >
+     (msg prepare-reply(TID,FLAG) from RID' to RID)
+   =>
+     < RID : Replica | executing: < TID : Txn | operations: nil,
+                                                writeSet: WS,
+                                                startVTS: VTS,
+                                                txnSQN: TXNSQN,
+                                                readSet: RS,
+                                                version: < RID,SQN' >, AS >,
+                       committed: TXNS',
+                       aborted: TXNS'',
+                       votes: (VOTES ; vote(TID,RID',FLAG)),
+                       voteSites: VSTS',
+***NEW; original: SQN
+                      sqn: SQN',
+                      history: DS,
+                      committedVTS: VTS',
+                      locked: LOCKS,
+                      dsSites: PSTS,
+                      abortSites: ABORTS', AS' >
+     propagateAbort(TID,yesSites(TID,(VOTES ; vote(TID,RID',FLAG))),RID)  
+     --- "remote call" abort; abort the txn locally when receiving all acks to remote calls
+     if remove(TID,RID',VSTS)[TID] == emptyAddressSet /\
+        (not allYes(TID,(VOTES ; vote(TID,RID',FLAG)))) /\
+        yesSites(TID,(VOTES ; vote(TID,RID',FLAG))) =/= emptyAddressSet /\
+        ABORTS' := ABORTS ; voteSites(TID,yesSites(TID,(VOTES ; vote(TID,RID',FLAG)))) /\
+        SQN' := SQN + 1 /\
+        VSTS' := remove(TID,RID',VSTS) .
+
+
+ crl [slow-commit-receive-prepare-reply-4] :
+     < O@M : Monitor | clock: GT@M, log: (TID |-> 
+       < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < RID : Replica | executing: < TID : Txn | operations: nil,
+                                                writeSet: WS,
+                                                startVTS: VTS,
+                                                txnSQN: TXNSQN,
+                                                readSet: RS,
+                                                version: VERSION, AS >,
+                       committed: TXNS',
+                       aborted: TXNS'',
+                       votes: VOTES,
+                       voteSites: VSTS,
+                       sqn: SQN, 
+                       history: DS,
+                       committedVTS: VTS',
+                       locked: LOCKS, 
+                       dsSites: PSTS,
+                       abortSites: ABORTS, AS' >
+     (msg prepare-reply(TID,FLAG) from RID' to RID)
+   =>
+     < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+       < VTS1@M,insert(RID,GT@M,VTS2@M),false,RS,kver(WS,< RID,SQN' >) >,LOG@M) >
+     < RID : Replica | executing: noActor,
+                       committed: TXNS',
+                       aborted: (TXNS'' ;; < TID : Txn | operations: nil,
+                                                         writeSet: WS,
+                                                         startVTS: VTS,
+                                                         txnSQN: TXNSQN,
+                                                         readSet: RS,
+                                                         version: < RID,SQN' >, AS >),
+                       votes: (VOTES ; vote(TID,RID',FLAG)),
+                       voteSites: VSTS',
+***NEW
+                       sqn: SQN',
+                       history: DS,
+                       committedVTS: VTS',
+                       locked: LOCKS,
+                       dsSites: PSTS,
+                       abortSites: ABORTS, AS' >
+     (start to RID)
+     if remove(TID,RID',VSTS)[TID] == emptyAddressSet /\
+        (not allYes(TID,(VOTES ; vote(TID,RID',FLAG)))) /\
+        yesSites(TID,(VOTES ; vote(TID,RID',FLAG))) == emptyAddressSet /\
+        SQN' := SQN + 1 /\
+        VSTS' := remove(TID,RID',VSTS) .
 
 
   --- ??? no need for ack??? The walter paper doesn't talk about it.
