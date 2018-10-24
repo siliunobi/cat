@@ -1,0 +1,379 @@
+*** GDUR, Algorithm 1 and Algorithm 2, except lines 16-18
+*** in Algorithm 2, which, for the moment at least, is
+*** deferred to the corresponding certification
+*** protocol, because (i) other application-specific
+*** actions may have to happen at the same time, 
+*** and (ii) if it is an atomic multicast, some other
+*** conditions must be present for delivery. No
+*** surprise there.
+
+*** If a process reads a value previously written by
+*** the same transaction, we do NOT add that read
+*** to the read set. 
+
+*** Notice that the GDUR paper does not include
+*** information about when the read sets are updated,
+*** only about the write sets. Read sets are just assumed
+*** informally without further discussions ...
+
+load prelim
+load replica-table
+
+
+*** Some parameters in GDUR Algorithms 1 and 2:
+
+(omod SOME-PARAMETERS-2 is
+  including SORTS .
+  including REPLICA-TABLE .
+
+  op $$xcast_from_to_ : MsgCont ReplicaId ReplicaIdSet -> Configuration .
+ 
+  op $$choose : Key DataStore TransId -> DataStore .
+  --- Notice:
+  --- 1. According to the GDUR paper, the $$choose function
+  --- actually returns a SET of possible KeyValueVersion values.
+  --- 2. The transaction is supposed to be a parameter.
+  --- The trans id or something more?
+
+  op $$certifying-objects : Object ReplicaTable -> KeySet .
+
+  msgs $$postAbort $$postCommit : TransId ReplicaId ReplicaId ReadSet WriteSet -> Msg .
+
+  op applyUpdates : DataStore WriteSet -> DataStore .
+  --- GDUR unfortunately does not tell us which is the new
+  --- version of the write to enter into the database.
+  --- This function will therefore depend on the versioning
+  --- mechanism ...
+endom)  
+
+
+
+(omod GDUR is
+  inc CLASSES .
+  inc MESSAGES .
+  pr VALUES-NAT .
+  inc SOME-PARAMETERS-2 .
+
+  vars TXNS QUEUE QUEUE2 : ObjectList .
+  var C : Oid .
+  vars RID RID2 RID3 : ReplicaId .
+  vars RIDS RIDS2 : ReplicaIdSet .
+  var TID : TransId .
+  vars TIDS TIDS2 : TransIdSet .
+  vars TRANSES TRANSES2 : Configuration .
+
+  var V : Value .
+  var VERSION : Version .
+  vars X Y : LocalVar .
+  vars K K1 : Key . 
+  var OPLIST : OperationList .
+  var WS : WriteSet . 
+  var VARS : LocalVars .
+  var RS : ReadSet .
+  vars DS DS2 KVVSET : DataStore .
+  var EXPR : Expression .
+  var REPLICA-TABLE : ReplicaTable .
+  var TSS : TransStatusSet .
+
+  *** Not really part of GDUR description. Just the client that
+  *** sends transactions one by one to the corresponding proxy.
+  
+  rl [sendTxn] :
+     < C : Client | pendingTrans : empty, txns : < TID : Transaction | proxy : RID > :: TXNS >
+   =>
+     < C : Client | pendingTrans : TID, txns : TXNS >
+     (msg executeTrans(< TID : Transaction | >) from C to RID) .
+
+
+  rl [endTxn] :
+     done(TID)
+     < C : Client | pendingTrans : TID >
+   =>  
+     < C : Client | pendingTrans : empty > .
+
+
+  *** Algorithm 1, lines 4-6(7):
+
+  rl [receiveTransaction] :
+     (msg executeTrans(< TID : Transaction | >) from C to RID)
+     < RID : Replica | executing : TRANSES >
+   =>
+     < RID : Replica | executing : TRANSES < TID : Transaction | > > .
+  *** we don't know what 'init' in the DUR paper should be ...
+  --- but notice that some kind of init function could/should
+  --- be applied here
+
+
+  *** Algorithm 1, lines 8-10:
+ 
+  *** Comment:  The pseudo-code in Algorithm 1 of GDUR paper seems
+  *** wrong. Line 10 selects ANY previous writes by Ti on x,
+  *** whereas line 18 just adds a write set entry for each new write.
+  *** Therefore, if we have a transaction
+  ***  .... write(y,3);   .... write(y,7);  .... read(y);
+  *** then according to GDUR paper, the read reads either 3 or 7,
+  *** whereas we think it should be 7.  Therefore, we must either
+  *** have a LIST of writes or a SET of writes, but where a later
+  *** write overwrites a previous write on the same data object.
+  *** At the moment, we do not know which is the right choice, but we
+  *** try with SET, or more correctly a map from keys to values,
+  *** and an overwrite ...
+
+  *** read value previously written by same transaction
+  rl [executeRead1] :     --- read value previously written by same transaction
+     < RID : Replica | executing :
+                        < TID : Transaction | operations : (X :=read K) OPLIST,
+			                      writeSet : ((K |-> V), WS),
+				              localVars : VARS >
+			TRANSES >
+  =>
+     < RID : Replica | executing :
+                        < TID : Transaction | operations : OPLIST,
+	                                      localVars : insert(X, V, VARS) >
+			TRANSES > .
+  --- Notice that, as mentioned in the intro, I choose
+  --- not to add such reads to the readSet ... correct or not?
+
+
+  *** Algorithm 1, line 11:
+  *** read value not written by trans but available in local replica
+
+  crl [executeRead2] : 
+     < RID : Replica | executing :
+                        < TID : Transaction | operations : (X :=read K) OPLIST,
+			                      writeSet : WS, 
+			                      readSet : RS,
+                                              localVars : VARS >
+			TRANSES,
+	               datastore : DS >
+  =>
+     < RID : Replica | executing :
+                        < TID : Transaction | operations : OPLIST,
+				              readSet : (versionRead(K, VERSION) , RS),
+                                              localVars : insert(X, V, VARS) >
+			TRANSES >
+   if (not $hasMapping(WS, K)) and (K in DS)
+      /\ (< K1, V, VERSION > , KVVSET)  := $$choose(K, DS, TID) .
+  --- notice that $$choose should return a SET of key/value/version
+  --- triples. It is also unclear if "TID" is the correct
+  --- parameter to $$choose. I would assume that for more complex
+  --- protocols, both RS, WS, and REPLICA-TABLE would have to be given
+
+
+  *** Algorithm 1, line 13:
+  *** The value you are looking for is NOT in the local datastore
+  *** and has not been written by the same transaction.
+
+  *** On line 13 i DUR paper it seems that one knows all
+  *** replicas storing the desired value.  If so, we assume
+  *** we have this knowledge by including the REPLICA-TABLE
+  *** already here.
+  *** Also notice the "semi-trick" that the operation becomes "waitRemote"
+
+  crl [executeRemoteRead] :  
+     < RID : Replica | executing :
+                          < TID : Transaction | operations : (X :=read K) OPLIST,
+			                        writeSet : WS >
+			  TRANSES,
+	               datastore : DS >
+     REPLICA-TABLE
+  =>
+     < RID : Replica | executing :
+                        < TID : Transaction | operations : waitRemote(K,X) OPLIST > TRANSES >
+     REPLICA-TABLE
+     (msg request(K, TID) from RID to RID2)			
+   if (not $hasMapping(WS,K)) and (not (K in DS))
+      /\ (RID2 , RIDS2) := replicas(K, REPLICA-TABLE) .
+
+
+  *** NOTE: GDUR paper says that if one does not receive a reply in
+  *** some time, it should send a request to some other guy.
+  *** We have NOT yet such error handling, i.e., real-time
+  *** features in our model. Not much fault tolerance ...
+
+  
+  *** Algorithm 1, lines 26-30:
+  *** Remote guy receives request for a value:
+
+  crl [recRequest] :
+      (msg request(K, TID) from RID to RID2)
+      < RID2 : Replica | datastore : DS >
+    =>
+      < RID2 : Replica | >
+      (msg reply(TID, (< K, V, VERSION >)) from RID2 to RID)
+    if (< K1, V, VERSION > , KVVSET) := $$choose(K, DS, TID) .
+  --- looks more complicated than necessary, since $$choose
+  --- is supposed to return a SET ...
+
+
+  *** Algorithm 1, lines 14(-15)
+  *** Receive reply from remote guy with requested data item:
+
+  rl [recReply] :
+     (msg reply(TID, < K, V, VERSION >) from RID2 to RID) 
+     < RID : Replica | executing : < TID : Transaction | readSet : RS,
+                                                         operations : waitRemote(K,X) OPLIST,
+				                         localVars : VARS >
+				   TRANSES >
+   =>
+     < RID : Replica | executing : < TID : Transaction | readSet : (versionRead(K, VERSION) , RS),
+                                                         operations : OPLIST,
+				                         localVars : insert(X, V, VARS) >
+				   TRANSES >  .
+
+
+  *** Algorithm 1, lines 16-18. Executa a write command:
+
+  rl [executeWrite] :
+     < RID : Replica | executing :
+                         < TID : Transaction | operations : write(K, EXPR) OPLIST,
+                                               localVars : VARS,   writeSet : WS >
+		         TRANSES >
+   =>
+     < RID : Replica | executing :
+                         < TID : Transaction | operations : OPLIST,
+                                               writeSet : insert(K, eval(EXPR, VARS), WS) >
+			 TRANSES > .
+
+  --- Again, notice that at the moment, we overwrite previous writes on
+  --- the same item in the same transaction. This is DIFFERENT from
+  --- GDUR paper, Algorithm 1, line 18! Notice also that we don't
+  --- add TIDs or other things to WS.
+
+  *** ************************
+  *** Now, over to Algorithm 2
+  *** ************************
+
+  *** Algorithm 2, lines 7-13 (if branch):
+  
+  crl [certificationNotNeeded] :
+      < RID : Replica | executing : TRANSES < TID : Transaction | operations : nil >,
+  	                committed : TRANSES2 >
+      REPLICA-TABLE		       
+    =>
+      < RID : Replica | executing : TRANSES,
+        	        committed :  TRANSES2 < TID : Transaction | status : commit > >
+      REPLICA-TABLE
+      done(TID)
+   if $$certifying-objects(< TID : Transaction | >, REPLICA-TABLE) == noKey .
+
+  --- Note that certifying-objects probably should take more arguments ...
+  --- Mmmm ... on the other hand, the parameter contains the
+  --- read and write sets, which are crucial for defining cert-objects.
+  --- However, if the entire database is not a paremeter to the function,
+  --- it cannot compute the certifying objects from the RS and the WS,
+  --- unless we assume a table of replicas for each item, which we do!
+
+
+  *** Algorithm 2, lines 7-11 and 13-14 (else branch). Submit trans
+  *** for certification:
+
+  crl [submitForCertification] :  
+      < RID : Replica | executing : TRANSES
+                                    < TID : Transaction | operations : nil,
+				                          readSet : RS,
+							  writeSet : WS >,
+		        submitted : TRANSES2 >
+      REPLICA-TABLE		       
+    =>
+      < RID : Replica | executing : TRANSES,
+ 		        submitted : TRANSES2  < TID : Transaction | > >
+      REPLICA-TABLE		       
+      ($$xcast certify(< TID : Transaction | >) from RID 
+         to replicas($$certifying-objects(< TID : Transaction | >, REPLICA-TABLE), REPLICA-TABLE))
+    if $$certifying-objects(< TID : Transaction | >, REPLICA-TABLE) =/= noKey .
+
+
+  *** In future work, we might be able to further isolate GDUR, and
+  *** also specify Alg 2/16-18; but that might have some price
+  *** in terms of elegance.
+
+  *** Algorithm 2, lines 19-24. The certification process has
+  *** decided that the trans can be committed:
+  
+  rl [finalizeCommit] :
+     < RID : Replica | certificationQueue :
+                          QUEUE ::
+			  < TID : Transaction | proxy : RID3, readSet : RS, writeSet : WS,
+			                        status : commit >
+			  :: QUEUE2,
+		       datastore : DS,
+		       decidedTranses : TSS >
+   =>
+     < RID : Replica | certificationQueue : QUEUE2,
+		       datastore : applyUpdates(DS, WS),
+		       decidedTranses : TSS ; transStatus(TID, commit) >
+     $$postCommit(TID, RID, RID3, RS, WS) .
+  --- Note that the committed trans may be anywhere in the queue, since
+  --- that's what GDUR, Alg 2, lines 19-24 says, but when group
+  --- communication is used, Algorithm 3, then we know that commit
+  --- can only be the status if it is the first trans in the queue
+
+  *** Note that Algorithm 2 defines that we just add the new write set
+  *** to the data store, but as far as I understand, they
+  *** do not tell us WHICH version the new write should have.
+  *** This should probably be a parameter.
+
+  *** The actual definition of the function applyUpdates
+  *** must be given elsewhere.
+
+  *** Actual parameter in P-STORE:    
+  --- eq $$postCommit(TID, RID, RID3, RS, WS) = (msg commit(TID) from RID to RID3) .  --- notify proxy
+
+
+  *** Algorithm 2, lines 25-29; abort has been decided by the
+  *** certification process:
+
+  rl [finalizeAbort] :
+     < RID : Replica | certificationQueue :
+                                QUEUE :: < TID : Transaction | proxy : RID3, readSet : RS,
+				                               writeSet : WS, status : abort >
+		       :: QUEUE2,
+		       decidedTranses : TSS >
+    =>
+     < RID : Replica | certificationQueue : QUEUE :: QUEUE2,
+                       decidedTranses : TSS ; transStatus(TID, abort) >
+     $$postAbort(TID, RID, RID3, RS, WS) .
+
+     *** actual parameter:
+     --- eq $$postAbort(TID, RID, RID3, RS, WS) = (msg abort(TID) from RID to RID3) .    --- notify proxy
+
+
+  *** The following is stractly speaking not part of GDUR, or any other protocol
+  *** for that matter, but takes care of "cleaning up" by
+  *** notifying the proxy of a transaction and let it record the status
+  *** of "its" transactions. The proxy receives commit and abort notifications,
+  *** which according to GDUR can be seen as 'garbage collection':
+
+  --- Proxy gets notification, maybe too many times, and possibly from itself:
+  rl [proxyGetsNotification1] :
+     (msg abort(TID) from RID2 to RID)
+     < RID : Replica | submitted : TRANSES < TID : Transaction | >,
+                       aborted : TRANSES2 >
+    =>
+     < RID : Replica | submitted : TRANSES,
+                       aborted : TRANSES2 < TID : Transaction | > > 
+     done(TID) .			      
+
+  rl [proxyGetsNotification2] :
+     (msg commit(TID) from RID2 to RID)
+     < RID : Replica | submitted : TRANSES < TID : Transaction | >,
+                       committed : TRANSES2 >
+    =>
+     < RID : Replica | submitted : TRANSES,
+                       committed : TRANSES2 < TID : Transaction | > > 
+     done(TID) .
+
+  rl [proxyGetsOldNotification1] :
+     (msg abort(TID) from RID2 to RID)
+     < RID : Replica | aborted : TRANSES < TID : Transaction | >  >
+    =>
+     < RID : Replica | > .
+
+  rl [proxyGetsOldNotification] :
+     (msg commit(TID) from RID2 to RID)
+     < RID : Replica | committed : TRANSES < TID : Transaction | >  >
+    =>
+     < RID : Replica | > .
+
+endom)

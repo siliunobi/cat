@@ -1,0 +1,253 @@
+*** GDUR, Algorithm 3; group communication certification.
+
+*** QUESTION: the parameters vote-snd-obj and vote-recv-obj
+*** are not very well explained.  I wonder whether there
+*** is a typo here, and that vote-snd-obj and vote-recv-obj
+*** should be the same thing ...
+*** Of course, it is hard to udnerstand the function
+*** 'outcome' since vote-snd-obj is not described,
+*** but IF it is the same, then I wonder about
+*** the true case: if the node does not any other
+*** replica's help, because we are talking about a
+*** local transaction, then I am not sure about the 'true'.
+*** The node itself must at least certify the trans???
+*** I therefore ad-lib this part somewhat. Maybe this
+*** outcome thing will have to be refined when we discover
+*** other protocols?
+
+load gdur
+load atomic-multicast
+
+
+mod GDUR-GROUP-COMMIT-PARAMETERS is
+   including GDUR .
+  --------------------------
+  --- Formal Parameters
+  --------------------------
+
+  op $$vote-receiving-objects : Address Set{KeyVersion} Set{KeyValue} ReplicaTable -> KeySet .
+
+  op $$commute : Actor Set{KeyVersion} Set{KeyValue} -> Bool .
+    
+  op $$certify : Set{KeyVersion} Set{KeyValue} DataStore -> Bool .
+
+  op $$vote-snd-objects : Address Set{KeyVersion} Set{KeyValue} -> KeySet .
+  --- not much said about this one in GDUR paper
+  --- is it just a typo??
+
+  msgs $$postAbort $$postCommit : Address Address Set{KeyVersion} Set{KeyValue} -> Msg .
+endm
+
+
+
+mod GDUR-GROUP-COMMIT-ATOMIC-MULTICAST is
+  including GDUR-GROUP-COMMIT-PARAMETERS .
+  including ATOMIC-MULTICAST .
+
+  op waitCommit : -> TransStatus [ctor] .
+  --- NEW status, to reflect that a committable trans should not
+  --- commit until it is first in the queue
+   
+---(
+  class GCTransaction | votesRcvdFrom : ReplicaIdSet, voted : Bool .
+  subclass GCTransaction < Transaction .
+  --- some bookkeeping for group communication voting
+)
+
+  op vote : Address Address TransStatus -> Content [ctor] .
+
+  var TID : Address .
+  vars RID RID2 RID3 : Address .
+  var RIDS : AddressSet .
+  var RS : Set{KeyVersion} .
+  var WS : Set{KeyValue} .
+  vars QUEUE QUEUE2 : ObjectList .
+  var AM-TABLE : AM-Table .
+  var OL : OperationList .
+  var LV : LocalVars .
+  vars NEW-STATUS STATUS STATUS2 : TransStatus .
+  var TSS : TransStatusSet .
+  var DS : DataStore .
+  var LOCAL-CERTIFICATION-OK : Bool .
+  var REPLICA-TABLE : ReplicaTable .
+  vars AS AS' : AttributeSet .
+  vars TABLE AT : Address .
+  var PROXY : Address .
+  var ADDRESSES : AddressSet .
+  var FLAG : Bool .
+
+
+  op allCommute : ObjectList Set{KeyVersion} Set{KeyValue} -> Bool .
+  ceq allCommute(QUEUE :: < TID : Transaction | AS > :: QUEUE2, RS, WS) = false
+      if not $$commute(< TID : Transaction | AS >, RS, WS) .
+  eq allCommute(QUEUE, RS, WS) = true [owise] .    
+
+
+  *** Algorithm 2, lines 16-18.  Receiving certification request.
+  --- 1. When you receive the message, you put it in the queue.
+  --- Somewhat different than P-store standalone.
+
+  --- Notice that the message communication model is
+  --- a parameter. However, since the read is dependent on
+  --- other things in an atomic multicast, we must specialize it to
+  --- the appropriate communication model.
+  --- Although SENDING was using $$xcast, receiving must, at least in the
+  --- case of atomic multicast, have more information ...
+
+  crl [readCertificationRequest] :
+      (msg certify(< TID : Transaction | operations: OL, readSet: RS,
+                                         writeSet: WS, localVars: LV,
+                                         proxy: PROXY, status: STATUS, 
+                                         votesRcvdFrom: ADDRESSES, voted: FLAG, AS' >)
+       from RID2 to RID)
+      < RID : Replica | certificationQueue: QUEUE, AS >
+      < AT : A-Table | am-table: AM-TABLE > 
+    =>
+      < RID : Replica | certificationQueue:
+                                 (QUEUE ::
+				 < TID : Transaction | operations: OL, proxy: RID2,
+				                         readSet: RS, writeSet: WS,
+							 status: undecided, localVars: LV,
+							 votesRcvdFrom: emptyAddressSet, voted: false, AS' >), AS >
+      < AT : A-Table | am-table:  
+        updateAM(certify(< TID : Transaction | operations: OL, readSet: RS,
+          writeSet: WS, localVars: LV, proxy: PROXY, status: STATUS, 
+          votesRcvdFrom: ADDRESSES, voted: FLAG, AS' >), RID, AM-TABLE) >
+     
+    if okToRead(certify(< TID : Transaction | operations: OL, readSet: RS,
+         writeSet: WS, localVars: LV, proxy: PROXY, status: STATUS, 
+         votesRcvdFrom: ADDRESSES, voted: FLAG, AS' >), RID, AM-TABLE) .
+
+
+
+  *** VOTE! Algorithm 3, lines 1-6:
+
+  crl [vote] :   
+      < RID : Replica | datastore: DS,
+                        certificationQueue:
+			  (QUEUE ::
+                          < TID : Transaction | readSet: RS, writeSet: WS,
+			                          status: STATUS, votesRcvdFrom: RIDS,
+						  voted: false, AS' >
+                          :: QUEUE2), AS >
+     < TABLE : Table | table: REPLICA-TABLE >
+    =>
+      < RID : Replica | datastore: DS,
+                        certificationQueue:
+                          (QUEUE :: 
+                          < TID : Transaction | readSet: RS, writeSet: WS, 
+                                      votesRcvdFrom: (RIDS ; RID),
+			                          status: (if LOCAL-CERTIFICATION-OK and
+			                	               STATUS =/= abort
+							    then undecided else abort fi),
+						  voted: true, AS' >
+			  :: QUEUE2), AS >
+      (distribute vote(RID, TID, if LOCAL-CERTIFICATION-OK then commit else abort fi) from RID to
+           (replicas($$vote-receiving-objects(TID, RS, WS, REPLICA-TABLE), REPLICA-TABLE)) \ RID)
+      *** important change: I do NOT add coord(TID), i.e., RID2 to the set of recipients.
+      *** line 6 in Alg 3 clearly says I should ...
+     < TABLE : Table | table: REPLICA-TABLE >
+    if  allCommute(QUEUE, RS, WS)
+        /\ LOCAL-CERTIFICATION-OK := $$certify(RS, WS, DS) .
+
+
+  *** NOTE: what happens if a trans receives a vote before it votes itself?
+  *** Or ... if for some reason someone has sent it an aborted message,
+  *** then maybe lack of votes
+  *** FROM this guy for TID probably does not matter ...
+  *** But what happens if it has received votes and is undecided?
+  *** So that's why we use the 'voted' flag.
+
+  *** actual parameters in advanced p-store:
+  --- eq $$certify(RS, WS, DS)  =  certificationOk(RS, DS) .
+  --- eq $$vote-receiving-objects(TID, RS, WS) = (keys(RS) , keys(WS)) .
+  --- eq $$allCommute(QUEUE, RS, WS) = noReadWriteConflict(QUEUE, RS, WS) .
+
+
+   *** Interestingly, it seems that the votes are received by magic in GDUR.
+   *** We add the appropriate rules, based on the definition of outcome
+   *** in Section 5.1:
+
+  --- receive negative vote:
+  rl [receiveNegative] :
+     (msg vote(RID2, TID, abort) from RID2 to RID)
+     < RID : Replica | certificationQueue:
+                         (QUEUE :: 
+                   < TID : Transaction | votesRcvdFrom: RIDS, status: STATUS, AS' > :: QUEUE2), AS >
+   =>
+     < RID : Replica | certificationQueue:
+                         (QUEUE ::
+			       < TID : Transaction | votesRcvdFrom: RIDS, status: abort, AS' > :: QUEUE2), AS > .
+
+
+  --- receive positive vote in an undecided state:
+  rl [receivePositiveVote] :
+     (msg vote(RID2, TID, commit) from RID2 to RID)
+     < RID : Replica | certificationQueue:
+                            (QUEUE ::
+			    < TID : Transaction | status: undecided, votesRcvdFrom: RIDS, AS' >
+			    :: QUEUE2), AS >
+   =>
+     < RID : Replica | certificationQueue:
+                               (QUEUE ::
+                               < TID : Transaction | status: undecided, 
+                 votesRcvdFrom: (RIDS ; RID2), AS' >
+			       :: QUEUE2), AS > .
+
+
+  --- Can make positive decision:
+  crl [decideToCommit] :
+     < RID : Replica | certificationQueue:
+                            (QUEUE ::
+			    < TID : Transaction | readSet: RS, writeSet: WS,
+			                            status: undecided, votesRcvdFrom: RIDS, AS' >
+			    :: QUEUE2), AS >
+     < TABLE : Table | table: REPLICA-TABLE >
+   =>
+     < RID : Replica | certificationQueue:
+                               (QUEUE ::
+                               < TID : Transaction | readSet: RS, writeSet: WS,
+			                 status: (if QUEUE =/= noTrans then waitCommit else commit fi),
+                             votesRcvdFrom: RIDS, AS' >
+			       :: QUEUE2), AS >
+     < TABLE : Table | table: REPLICA-TABLE >
+   if ($$vote-snd-objects(TID, RS, WS) subset replicatedKeys(RIDS, REPLICA-TABLE)) .
+
+
+   *** actual parameter in p-store:
+   --- eq $$vote-snd-objects(TID, RS, WS, REPLICA-TABLE) = keys(RS) .
+
+  --- receive old vote:
+   crl [receiveOldVote1] :
+      (msg vote(RID2, TID, STATUS) from RID2 to RID)
+      < RID : Replica | certificationQueue:
+                          (QUEUE :: < TID : Transaction | status: STATUS2, AS' > :: QUEUE2), AS >
+    =>
+      < RID : Replica | certificationQueue:
+                          (QUEUE :: < TID : Transaction | status: STATUS2, AS' > :: QUEUE2), AS >
+   if STATUS2 =/= undecided .
+
+
+  rl [receiveOldVote2] :
+     (msg vote(RID2, TID, STATUS) from RID2 to RID)
+     < RID : Replica | rmtCommitted: (TSS ; transStatus(TID, STATUS2)), AS >
+    =>
+     < RID : Replica | rmtCommitted: (TSS ; transStatus(TID, STATUS2)), AS > .
+
+
+  *** 'decide(Ti)', Algorithm 3, lines 7-13.
+  --- this is all; when a waitCommit is first in line, it becomes a commit!!!
+
+  eq < RID : Replica | certificationQueue:
+                           (< TID : Transaction | status: waitCommit, voted: true, AS' > :: QUEUE2), AS >
+   = < RID : Replica | certificationQueue: 
+                           (< TID : Transaction | status: commit, voted: true, AS' > :: QUEUE2), AS > .
+   *** Note: should 'voted' be true here, or does it not matter?
+
+
+
+  *** Actual parameter in P-STORE:    
+  --- eq $$postCommit(TID, RID3, RS, WS) = (msg commit(TID) from RID to RID3) .  --- notify proxy
+
+endm
+

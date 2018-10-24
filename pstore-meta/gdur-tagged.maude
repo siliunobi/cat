@@ -1,0 +1,306 @@
+mod GDUR-TAGGED is
+  including BOOL .
+  protecting VALUES-NAT .
+  including GDUR-GROUP-COMMIT-PARAMETERS .
+  including ATOMIC-MULTICAST .
+  op allCommute : ObjectList Set{KeyVersion}Set{KeyValue}-> Bool .
+  op vote : Address Address TransStatus -> Content
+    [ctor] .
+  op waitCommit : -> TransStatus
+    [ctor] .
+  eq
+< RID:Address : Replica | certificationQueue:(
+< TID:Address : Transaction | status: waitCommit,voted: true,AS':AttributeSet > ::
+    QUEUE2:ObjectList),AS:AttributeSet >
+    =
+< RID:Address : Replica | certificationQueue:(
+< TID:Address : Transaction | status: commit,voted: true,AS':AttributeSet > ::
+    QUEUE2:ObjectList),AS:AttributeSet > .
+  ceq allCommute(QUEUE:ObjectList ::
+< TID:Address : Transaction | AS:AttributeSet > :: QUEUE2:ObjectList,RS:Set{KeyVersion},WS:Set{
+    KeyValue})
+    = false
+    if not $$commute(
+< TID:Address : Transaction | AS:AttributeSet >,RS:Set{KeyVersion},WS:Set{KeyValue})= true .
+  eq allCommute(QUEUE:ObjectList,RS:Set{KeyVersion},WS:Set{KeyValue})
+    = true [owise] .
+  rl
+< C:Address : Client | pendingTrans: emptyAddressSet,txns:(
+< TID:Address : Transaction | proxy: RID:Address,AS':AttributeSet > :: TXNS:ObjectList),
+    AS:AttributeSet >
+    =>
+< C:Address : Client | pendingTrans: TID:Address,txns: TXNS:ObjectList,AS:AttributeSet > msg
+    executeTrans(
+< TID:Address : Transaction | proxy: RID:Address,AS':AttributeSet >)from C:Address to
+    RID:Address [label sendTxn] .
+  
+
+  *** need to fix soon 
+
+  rl
+< RID:Address : Replica | certificationQueue:(QUEUE:ObjectList ::
+< TID:Address : Transaction | proxy: RID3:Address,readSet: RS:Set{KeyVersion},writeSet: WS:Set{
+    KeyValue},status: abort,AS':AttributeSet > :: QUEUE2:ObjectList),rmtCommitted:
+    TSS:TransStatusSet,AS:AttributeSet >
+    =>
+< RID:Address : Replica | certificationQueue:(QUEUE:ObjectList :: QUEUE2:ObjectList),
+    rmtCommitted:(TSS:TransStatusSet ; transStatus(TID:Address,abort)),AS:AttributeSet >
+    $$postAbort(TID:Address,RID:Address,RID3:Address,RS:Set{KeyVersion},WS:Set{KeyValue}) [
+    label finalizeAbort] .
+
+
+    *** need to fix soon 
+  rl
+< RID:Address : Replica | certificationQueue:(QUEUE:ObjectList ::
+< TID:Address : Transaction | proxy: RID3:Address,readSet: RS:Set{KeyVersion},writeSet: WS:Set{
+    KeyValue},status: commit,AS':AttributeSet > :: QUEUE2:ObjectList),datastore: DS:DataStore,
+    rmtCommitted: TSS:TransStatusSet,AS:AttributeSet >
+    =>
+< RID:Address : Replica | certificationQueue: QUEUE2:ObjectList,datastore: applyUpdates(
+    DS:DataStore,WS:Set{KeyValue}),rmtCommitted:(TSS:TransStatusSet ; transStatus(TID:Address,
+    commit)),AS:AttributeSet > $$postCommit(TID:Address,RID:Address,RID3:Address,RS:Set{
+    KeyVersion},kver(DS:DataStore,WS:Set{KeyValue})) [label finalizeCommit] .
+  rl
+< RID:Address : Replica | executing:(
+< TID:Address : Transaction | operations:((X:LocalVar :=read K:Key)OPLIST:OperationList),
+    writeSet:(< K:Key,V:Value >, WS:Set{KeyValue}),localVars: VARS:LocalVars,AS':AttributeSet >
+    TRANSES:Config),AS:AttributeSet >
+    =>
+< RID:Address : Replica | executing:(
+< TID:Address : Transaction | operations: OPLIST:OperationList,writeSet:(< K:Key,V:Value >,
+    WS:Set{KeyValue}),localVars: insert(X:LocalVar,V:Value,VARS:LocalVars),AS':AttributeSet >
+    TRANSES:Config),AS:AttributeSet > [label executeRead1] .
+  rl
+< RID:Address : Replica | executing:(
+< TID:Address : Transaction | operations:(write(K:Key,EXPR:Expression)OPLIST:OperationList),
+    localVars: VARS:LocalVars,writeSet: WS:Set{KeyValue},AS':AttributeSet > TRANSES:Config),
+    AS:AttributeSet >
+    =>
+< RID:Address : Replica | executing:(
+< TID:Address : Transaction | operations: OPLIST:OperationList,localVars: VARS:LocalVars,
+    writeSet:(< K:Key,eval(EXPR:Expression,VARS:LocalVars)>, WS:Set{KeyValue}),AS':AttributeSet
+    > TRANSES:Config),AS:AttributeSet > [label executeWrite] .
+  rl
+< M:Address : Monitor | clock: GT:Nat,log: LOG:Log >(msg executeTrans(
+< TID:Address : Transaction | AS':AttributeSet >)from C:Address to RID:Address)
+< RID:Address : Replica | executing: TRANSES:Config,AS:AttributeSet >
+    =>
+< M:Address : Monitor | clock:(GT:Nat + 1),log: insert(TID:Address,< RID:Address |-> GT:Nat,
+    empty,false,empty,empty >,LOG:Log)>
+< RID:Address : Replica | executing:(TRANSES:Config
+< TID:Address : Transaction | AS':AttributeSet >),AS:AttributeSet > [label receiveTransaction]
+    .
+  rl
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,
+    FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>(msg abort(
+    TID:Address)from RID2:Address to RID:Address)
+< RID:Address : Replica | submitted:(TRANSES:Config
+< TID:Address : Transaction | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},version:
+    KVER:Set{KeyVersion},AS':AttributeSet >),aborted: TRANSES2:Config,AS:AttributeSet >
+    =>
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(
+    RID:Address,GT:Nat,VTS2:VectorTime),false,RS:Set{KeyVersion},kver(WS:Set{KeyValue},
+    KVER:Set{KeyVersion})>, LOG:Log)>
+< RID:Address : Replica | submitted: TRANSES:Config,aborted:(TRANSES2:Config
+< TID:Address : Transaction | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},version:
+    KVER:Set{KeyVersion},AS':AttributeSet >),AS:AttributeSet > done(TID:Address) [label
+    proxyGetsNotification1] .
+  rl
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < RID@M:Address |-> T1:Nat,
+    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>(msg
+    commit(TID:Address,WRITES:Set{KeyVersion})from RID2:Address to RID:Address)
+< RID:Address : Replica | submitted:(TRANSES:Config
+< TID:Address : Transaction | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},version:
+    KVER:Set{KeyVersion},AS':AttributeSet >),committed: TRANSES2:Config,AS:AttributeSet >
+    =>
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(
+    RID:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{KeyVersion},kver(WS:Set{KeyValue},KVER:Set{
+    KeyVersion})>, LOG:Log)> TRANSES:Config
+< TID:Address : Transaction | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},version:
+    KVER:Set{KeyVersion},AS':AttributeSet > [label proxyGetsNotification2] .
+  rl done(TID:Address)
+< C:Address : Client | pendingTrans: TID:Address,AS:AttributeSet >
+    =>
+< C:Address : Client | pendingTrans: emptyAddressSet,AS:AttributeSet > [label endTxn] .
+  rl (msg abort(TID:Address)from RID2:Address to RID:Address)
+< RID:Address : Replica | aborted:(TRANSES:Config
+< TID:Address : Transaction | AS':AttributeSet >),AS:AttributeSet >
+    =>
+< RID:Address : Replica | aborted:(TRANSES:Config
+< TID:Address : Transaction | AS':AttributeSet >),AS:AttributeSet > [label
+    proxyGetsOldNotification1] .
+  rl (msg commit(TID:Address,WRITES:Set{KeyVersion})from RID2:Address to RID:Address)
+< RID:Address : Replica | committed:(TRANSES:Config
+< TID:Address : Transaction | AS':AttributeSet >),AS:AttributeSet >
+    =>
+< RID:Address : Replica | committed:(TRANSES:Config
+< TID:Address : Transaction | AS':AttributeSet >),AS:AttributeSet > [label
+    proxyGetsOldNotification] .
+  rl (msg reply(TID:Address,< K:Key,V:Value,VERSION:Version >)from RID2:Address to RID:Address)
+< RID:Address : Replica | executing:(
+< TID:Address : Transaction | readSet: RS:Set{KeyVersion},operations:(waitRemote(K:Key,
+    X:LocalVar)OPLIST:OperationList),localVars: VARS:LocalVars,AS':AttributeSet >
+    TRANSES:Config),AS:AttributeSet >
+    =>
+< RID:Address : Replica | executing:(
+< TID:Address : Transaction | readSet:(< K:Key,VERSION:Version >, RS:Set{KeyVersion}),
+    operations: OPLIST:OperationList,localVars: insert(X:LocalVar,V:Value,VARS:LocalVars),
+    AS':AttributeSet > TRANSES:Config),AS:AttributeSet > [label recReply] .
+  rl (msg vote(RID2:Address,TID:Address,STATUS:TransStatus)from RID2:Address to RID:Address)
+< RID:Address : Replica | rmtCommitted:(TSS:TransStatusSet ; transStatus(TID:Address,
+    STATUS2:TransStatus)),AS:AttributeSet >
+    =>
+< RID:Address : Replica | rmtCommitted:(TSS:TransStatusSet ; transStatus(TID:Address,
+    STATUS2:TransStatus)),AS:AttributeSet > [label receiveOldVote2] .
+  rl (msg vote(RID2:Address,TID:Address,abort)from RID2:Address to RID:Address)
+< RID:Address : Replica | certificationQueue:(QUEUE:ObjectList ::
+< TID:Address : Transaction | votesRcvdFrom: RIDS:AddressSet,status: STATUS:TransStatus,
+    AS':AttributeSet > :: QUEUE2:ObjectList),AS:AttributeSet >
+    =>
+< RID:Address : Replica | certificationQueue:(QUEUE:ObjectList ::
+< TID:Address : Transaction | votesRcvdFrom: RIDS:AddressSet,status: abort,AS':AttributeSet >
+    :: QUEUE2:ObjectList),AS:AttributeSet > [label receiveNegative] .
+  rl (msg vote(RID2:Address,TID:Address,commit)from RID2:Address to RID:Address)
+< RID:Address : Replica | certificationQueue:(QUEUE:ObjectList ::
+< TID:Address : Transaction | status: undecided,votesRcvdFrom: RIDS:AddressSet,AS':AttributeSet
+    > :: QUEUE2:ObjectList),AS:AttributeSet >
+    =>
+< RID:Address : Replica | certificationQueue:(QUEUE:ObjectList ::
+< TID:Address : Transaction | status: undecided,votesRcvdFrom:(RIDS:AddressSet ; RID2:Address),
+    AS':AttributeSet > :: QUEUE2:ObjectList),AS:AttributeSet > [label receivePositiveVote] .
+  crl
+< RID:Address : Replica | executing:(
+< TID:Address : Transaction | operations:((X:LocalVar :=read K:Key)OPLIST:OperationList),
+    writeSet: WS:Set{KeyValue},readSet: RS:Set{KeyVersion},localVars: VARS:LocalVars,
+    AS':AttributeSet > TRANSES:Config),datastore: DS:DataStore,AS:AttributeSet >
+    =>
+< RID:Address : Replica | executing:(
+< TID:Address : Transaction | operations: OPLIST:OperationList,writeSet: WS:Set{KeyValue},
+    readSet:(< K:Key,VERSION:Version >, RS:Set{KeyVersion}),localVars: insert(X:LocalVar,
+    V:Value,VARS:LocalVars),AS':AttributeSet > TRANSES:Config),datastore: DS:DataStore,
+    AS:AttributeSet >
+    if not K:Key in WS:Set{KeyValue}and K:Key in DS:DataStore = true /\ < K1:Key,V:Value,
+    VERSION:Version >, KVVSET:DataStore := $$choose(K:Key,DS:DataStore,TID:Address) [label
+    executeRead2] .
+  crl
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < RID@M:Address |-> T1:Nat,
+    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
+< RID:Address : Replica | executing:(TRANSES:Config
+< TID:Address : Transaction | operations: nil,status: undecided,readSet: RS:Set{KeyVersion},
+    writeSet: WS:Set{KeyValue},version: KVER:Set{KeyVersion},AS':AttributeSet >),committed:
+    TRANSES2:Config,AS:AttributeSet >
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+    =>
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(
+    RID:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{KeyVersion},kver(WS:Set{KeyValue},KVER:Set{
+    KeyVersion})>, LOG:Log)> TRANSES:Config
+< TID:Address : Transaction | operations: nil,status: undecided,readSet: RS:Set{KeyVersion},
+    writeSet: WS:Set{KeyValue},version: KVER:Set{KeyVersion},AS':AttributeSet >
+    if $$certifying-objects(
+< TID:Address : Transaction | operations: nil,status: undecided,AS':AttributeSet >,
+    REPLICA-TABLE:ReplicaTable)==(empty).KeySet = true [label certificationNotNeeded] .
+  crl
+< RID:Address : Replica | certificationQueue:(QUEUE:ObjectList ::
+< TID:Address : Transaction | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},status:
+    undecided,votesRcvdFrom: RIDS:AddressSet,AS':AttributeSet > :: QUEUE2:ObjectList),
+    AS:AttributeSet >
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+    =>
+< RID:Address : Replica | certificationQueue:(QUEUE:ObjectList ::
+< TID:Address : Transaction | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},status: if
+    QUEUE:ObjectList =/= noTrans then waitCommit else commit fi,votesRcvdFrom: RIDS:AddressSet,
+    AS':AttributeSet > :: QUEUE2:ObjectList),AS:AttributeSet >
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+    if $$vote-snd-objects(TID:Address,RS:Set{KeyVersion},WS:Set{KeyValue})subset
+    replicatedKeys(RIDS:AddressSet,REPLICA-TABLE:ReplicaTable)= true [label decideToCommit] .
+  crl
+< RID:Address : Replica | datastore: DS:DataStore,certificationQueue:(QUEUE:ObjectList ::
+< TID:Address : Transaction | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},status:
+    STATUS:TransStatus,votesRcvdFrom: RIDS:AddressSet,voted: false,AS':AttributeSet > ::
+    QUEUE2:ObjectList),AS:AttributeSet >
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+    =>
+< RID:Address : Replica | datastore: DS:DataStore,certificationQueue:(QUEUE:ObjectList ::
+< TID:Address : Transaction | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},
+    votesRcvdFrom:(RIDS:AddressSet ; RID:Address),status: if LOCAL-CERTIFICATION-OK:Bool and
+    STATUS:TransStatus =/= abort then undecided else abort fi,voted: true,AS':AttributeSet > ::
+    QUEUE2:ObjectList),AS:AttributeSet >(distribute vote(RID:Address,TID:Address,if
+    LOCAL-CERTIFICATION-OK:Bool then commit else abort fi)from RID:Address to(replicas(
+    $$vote-receiving-objects(TID:Address,RS:Set{KeyVersion},WS:Set{KeyValue},
+    REPLICA-TABLE:ReplicaTable),REPLICA-TABLE:ReplicaTable)\ RID:Address))
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+    if allCommute(QUEUE:ObjectList,RS:Set{KeyVersion},WS:Set{KeyValue})= true /\
+    LOCAL-CERTIFICATION-OK:Bool := $$certify(RS:Set{KeyVersion},WS:Set{KeyValue},DS:DataStore)
+    [label vote] .
+  crl
+< RID:Address : Replica | executing:(TRANSES:Config
+< TID:Address : Transaction | operations: nil,readSet: RS:Set{KeyVersion},writeSet: WS:Set{
+    KeyValue},AS':AttributeSet >),submitted: TRANSES2:Config,AS:AttributeSet >
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+    =>
+< RID:Address : Replica | executing: TRANSES:Config,submitted:(TRANSES2:Config
+< TID:Address : Transaction | operations: nil,readSet: RS:Set{KeyVersion},writeSet: WS:Set{
+    KeyValue},AS':AttributeSet >),AS:AttributeSet >
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable > $$xcast certify(
+< TID:Address : Transaction | operations: nil,readSet: RS:Set{KeyVersion},writeSet: WS:Set{
+    KeyValue},AS':AttributeSet >)from RID:Address to replicas($$certifying-objects(
+< TID:Address : Transaction | operations: nil,readSet: RS:Set{KeyVersion},writeSet: WS:Set{
+    KeyValue},AS':AttributeSet >,REPLICA-TABLE:ReplicaTable),REPLICA-TABLE:ReplicaTable)
+    if $$certifying-objects(
+< TID:Address : Transaction | operations: nil,readSet: RS:Set{KeyVersion},writeSet: WS:Set{
+    KeyValue},AS':AttributeSet >,REPLICA-TABLE:ReplicaTable)=/=(empty).KeySet = true [label
+    submitForCertification] .
+  crl
+< RID:Address : Replica | executing:(
+< TID:Address : Transaction | operations:((X:LocalVar :=read K:Key)OPLIST:OperationList),
+    writeSet: WS:Set{KeyValue},AS':AttributeSet > TRANSES:Config),datastore: DS:DataStore,
+    AS:AttributeSet >
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+    =>
+< RID:Address : Replica | executing:(
+< TID:Address : Transaction | operations:(waitRemote(K:Key,X:LocalVar)OPLIST:OperationList),
+    writeSet: WS:Set{KeyValue},AS':AttributeSet > TRANSES:Config),datastore: DS:DataStore,
+    AS:AttributeSet >
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable > msg request(K:Key,
+    TID:Address)from RID:Address to RID2:Address
+    if not K:Key in WS:Set{KeyValue}and not K:Key in DS:DataStore = true /\ RID2:Address ;
+    RIDS2:AddressSet := replicas(K:Key,REPLICA-TABLE:ReplicaTable) [label executeRemoteRead] .
+  crl (msg certify(
+< TID:Address : Transaction | operations: OL:OperationList,readSet: RS:Set{KeyVersion},
+    writeSet: WS:Set{KeyValue},localVars: LV:LocalVars,proxy: PROXY:Address,status:
+    STATUS:TransStatus,votesRcvdFrom: ADDRESSES:AddressSet,voted: FLAG:Bool,AS':AttributeSet
+    >)from RID2:Address to RID:Address)
+< RID:Address : Replica | certificationQueue: QUEUE:ObjectList,AS:AttributeSet >
+< AT:Address : A-Table | am-table: AM-TABLE:AM-Table >
+    =>
+< RID:Address : Replica | certificationQueue:(QUEUE:ObjectList ::
+< TID:Address : Transaction | operations: OL:OperationList,proxy: RID2:Address,readSet: RS:Set{
+    KeyVersion},writeSet: WS:Set{KeyValue},status: undecided,localVars: LV:LocalVars,
+    votesRcvdFrom: emptyAddressSet,voted: false,AS':AttributeSet >),AS:AttributeSet >
+< AT:Address : A-Table | am-table: updateAM(certify(
+< TID:Address : Transaction | operations: OL:OperationList,readSet: RS:Set{KeyVersion},
+    writeSet: WS:Set{KeyValue},localVars: LV:LocalVars,proxy: PROXY:Address,status:
+    STATUS:TransStatus,votesRcvdFrom: ADDRESSES:AddressSet,voted: FLAG:Bool,AS':AttributeSet
+    >),RID:Address,AM-TABLE:AM-Table)>
+    if okToRead(certify(
+< TID:Address : Transaction | operations: OL:OperationList,readSet: RS:Set{KeyVersion},
+    writeSet: WS:Set{KeyValue},localVars: LV:LocalVars,proxy: PROXY:Address,status:
+    STATUS:TransStatus,votesRcvdFrom: ADDRESSES:AddressSet,voted: FLAG:Bool,AS':AttributeSet
+    >),RID:Address,AM-TABLE:AM-Table)= true [label readCertificationRequest] .
+  crl (msg request(K:Key,TID:Address)from RID:Address to RID2:Address)
+< RID2:Address : Replica | datastore: DS:DataStore,AS:AttributeSet >
+    =>
+< RID2:Address : Replica | datastore: DS:DataStore,AS:AttributeSet > msg reply(TID:Address,<
+    K:Key,V:Value,VERSION:Version >)from RID2:Address to RID:Address
+    if < K1:Key,V:Value,VERSION:Version >, KVVSET:DataStore := $$choose(K:Key,DS:DataStore,
+    TID:Address) [label recRequest] .
+  crl (msg vote(RID2:Address,TID:Address,STATUS:TransStatus)from RID2:Address to RID:Address)
+< RID:Address : Replica | certificationQueue:(QUEUE:ObjectList ::
+< TID:Address : Transaction | status: STATUS2:TransStatus,AS':AttributeSet > ::
+    QUEUE2:ObjectList),AS:AttributeSet >
+    =>
+< RID:Address : Replica | certificationQueue:(QUEUE:ObjectList ::
+< TID:Address : Transaction | status: STATUS2:TransStatus,AS':AttributeSet > ::
+    QUEUE2:ObjectList),AS:AttributeSet >
+    if STATUS2:TransStatus =/= undecided = true [label receiveOldVote1] .
+endm

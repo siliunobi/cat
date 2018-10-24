@@ -1,0 +1,155 @@
+
+
+mod ATOMIC-MULTICAST is
+  including MESSAGES .
+
+  sorts MsgContList MsgContSet .
+***NEW
+  subsorts Content < MsgContList MsgContSet .
+
+  op emptyMsgContSet : -> MsgContSet [ctor] .
+  op nilMsgContList : -> MsgContList [ctor] .
+  op _::_ : MsgContList MsgContList -> MsgContList [ctor assoc id: nilMsgContList] .
+  op __ : MsgContSet MsgContSet -> MsgContSet [ctor assoc comm id: emptyMsgContSet] .
+
+
+  sorts AM-Entry AM-Entries .
+  subsort AM-Entry < AM-Entries .
+***NEW
+  op am-entry : Address MsgContList MsgContSet -> AM-Entry [ctor] .
+  op emptyAME : -> AM-Entries [ctor] .
+  op __ : AM-Entries AM-Entries -> AM-Entries [ctor assoc comm id: emptyAME] .
+
+
+---  sort AM-Table .   subsort AM-Table < Configuration .
+***NEW
+  sort AM-Table .
+  op A-Table : -> ActorType .
+  op am-table:_ : AM-Table -> Attribute .
+
+
+  op `[_`] : AM-Entries -> AM-Table [ctor] .  
+
+
+---  op atomic-multicast_from_to_ : MsgCont Oid ReplicaIdSet -> Configuration .
+***NEW
+  op atomic-multicast_from_to_ : Content Address AddressSet -> Config .
+
+---(
+  vars MC MC1 MC2 : MsgCont .
+  vars MCL MCL1 MCL2 MCL3 MCL4 : MsgContList .
+  vars O O1 O2 : ReplicaId .
+  vars OS OS1 OS2 : ReplicaIdSet .
+  var AM-ENTRIES : AM-Entries .
+  vars MCS MCS1 MCS2 : MsgContSet .
+  var CONF : Configuration .
+  var AM-TABLE : AM-Table .
+)
+
+***NEW
+  vars MC MC1 MC2 : Content .
+  vars MCL MCL1 MCL2 MCL3 MCL4 : MsgContList .
+  vars O O1 O2 A : Address .
+  vars OS OS1 OS2 : AddressSet .
+  var AM-ENTRIES : AM-Entries .
+  vars MCS MCS1 MCS2 : MsgContSet .
+  var CONF : Config .
+
+***NEW
+  --- crucial equation:
+  eq (atomic-multicast MC from O to OS) < A : A-Table | am-table: [ AM-ENTRIES ] > =
+     (distribute MC from O to OS) < A : A-Table | am-table: [ insert(MC, OS, AM-ENTRIES) ] > .
+
+
+  op distribute_from_to_ : Content Address AddressSet -> Config .
+  eq distribute MC from O to (O1 ; OS) = (msg MC from O to O1) (distribute MC from O to OS) .
+  eq distribute MC from O to emptyAddressSet = null .
+
+  op insert : Content AddressSet AM-Entries -> AM-Entries .
+  eq insert(MC, (O ; OS), am-entry(O, MCL, MCS) AM-ENTRIES) =
+     am-entry(O, MCL, MCS MC) insert(MC, OS, AM-ENTRIES) .
+  eq insert(MC, emptyAddressSet, AM-ENTRIES) = AM-ENTRIES .
+  eq insert(MC, (O ; OS), AM-ENTRIES) =
+     am-entry(O, nilMsgContList, MC) insert(MC, OS, AM-ENTRIES) [owise] .
+
+
+  op updateAM : Content Address AM-Table -> AM-Table .
+  eq updateAM(MC, O, [ am-entry(O, MCL, MC MCS) AM-ENTRIES ]) =
+       [ am-entry(O, MCL :: MC, MCS) AM-ENTRIES ] .
+
+  --- Key function. Especially, we must avoid deadlocks ...
+  op okToRead : Content Address AM-Table -> Bool .
+  --- first one is trivial ... but can it occur at all?
+  eq okToRead(MC, O,
+       [ am-entry(O, MCL, MCS MC MC2)
+                       am-entry(O2, MCL2 :: MC2 :: MCL3 :: MC :: MCL4, MCS2)
+		       AM-ENTRIES ]) = false .
+  --- likewise, can this one occur?
+  eq okToRead(MC, O,
+       [ am-entry(O, MCL, MCS MC MC2)
+                       am-entry(O2, MCL2 :: MC2 :: MCL4, MCS2 MC)
+		       AM-ENTRIES ]) = false .
+  eq okToRead(MC, O, [ AM-ENTRIES ]) = true [owise] .
+
+endm
+  
+
+***(   USAGE:
+--- 1. The initial state must contain an element   [ emptyAME ]
+---
+--- 2. Declare a variable 'var AM-TABLE : AM-Table .'
+---
+--- 3. Performing an atomic multicast:  just send
+--- a message (atomic-multicast mc from rid to setOfRids)
+--- in the standard way
+--- 
+--- 4. Receiving a message must have the following form:
+---  crl     (msg mc from rid to rid2)   AM-TABLE
+---          < rid : Replica | ... >
+---         =>
+---          < rid : Replica | ...  read mc ... >
+---          updateAM(mc, rid, AM-TABLE)  if okToRead(mc, rid, AM-TABLE) .
+---
+
+--- For an example of the usage, see the following simple and running program:
+--- ---- Application protocol ...
+
+  class Node | msgsToSend : Configuration,
+               msgsRcvd : MsgContList .
+
+  --- send:
+  rl [atomic-multicast] :
+     < O : Node | msgsToSend : CONF (atomic-multicast MC from O to OS) >
+   =>
+     < O : Node | msgsToSend : CONF >
+     (atomic-multicast MC from O to OS) .
+
+  crl [receiveAtomicMulticast] :
+     (msg MC from O2 to O)   AM-TABLE
+     < O : Node | msgsRcvd : MCL >
+   =>
+     < O : Node | msgsRcvd : MCL :: MC >
+     updateAM(MC, O, AM-TABLE)  if okToRead(MC, O, AM-TABLE) .
+
+  ops m1 m2 m3 m4 m5 m6 : -> MsgCont [ctor] .
+  ops o1 o2 o3 o4 o5 o6 : -> ReplicaId [ctor] .
+
+  op init : -> Configuration .
+  eq init = [ emptyAME ]
+            < o1 : Node | msgsToSend :
+	                    (atomic-multicast m1 from o1 to (o2 , o4 , o6))
+	                    (atomic-multicast m3 from o1 to (o3 , o2 , o6)),
+			  msgsRcvd : nilMsgContList >
+            < o2 : Node | msgsToSend :
+	                    (atomic-multicast m2 from o2 to (o1 , o3 , o4))
+	                    (atomic-multicast m4 from o2 to (o1 , o6)),
+			  msgsRcvd : nilMsgContList >
+            < o3 : Node | msgsToSend :
+	                    (atomic-multicast m5 from o3 to (o1 , o2))
+	                    (atomic-multicast m6 from o3 to (o4)),
+			  msgsRcvd : nilMsgContList >
+            < o4 : Node | msgsToSend : none, msgsRcvd : nilMsgContList >
+            < o6 : Node | msgsToSend : none, msgsRcvd : nilMsgContList > .
+            			  
+
+)***   end user description

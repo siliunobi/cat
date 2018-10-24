@@ -1,0 +1,614 @@
+load gdur-aux
+
+(mod GDUR is
+  pr VALUES-NAT .
+  including GDUR-GROUP-COMMIT-PARAMETERS .
+  including ATOMIC-MULTICAST .
+
+
+  vars TXNS QUEUE QUEUE2 : ObjectList .
+  var C : Address .
+  vars RID RID2 RID3 : Address .
+  vars RIDS RIDS2 : AddressSet .
+  var TID : Address .
+  vars TIDS TIDS2 : AddressSet .
+  vars TRANSES TRANSES2 : Config .
+  var V : Value .
+  var VERSION : Version .
+  vars X Y : LocalVar .
+  vars K K1 : Key . 
+  var OPLIST : OperationList .
+  var WS : Set{KeyValue} . 
+  var VARS : LocalVars .
+  vars RS WRITES KVER : Set{KeyVersion} .
+  vars DS DS2 KVVSET : DataStore .
+  var EXPR : Expression .
+  var REPLICA-TABLE : ReplicaTable .
+  var TSS : TransStatusSet .
+  var TABLE : Address .
+  vars AS AS' : AttributeSet .
+  var AM-TABLE : AM-Table .
+  var OL : OperationList .
+  var LV : LocalVars .
+  vars NEW-STATUS STATUS STATUS2 : TransStatus .
+  var LOCAL-CERTIFICATION-OK : Bool .
+  var AT : Address .
+  var PROXY : Address .
+  var ADDRESSES : AddressSet .
+  var FLAG : Bool .
+
+
+  var O@M : Address .  var GT@M : Nat . var LOG@M : Log .
+  vars VTS1@M VTS2@M : VectorTime . var FLAG@M : Bool . 
+  vars READS@M WRITES@M : Set{KeyVersion} .
+
+
+*** GDUR, Algorithm 1 and Algorithm 2, except lines 16-18
+*** in Algorithm 2, which, for the moment at least, is
+*** deferred to the corresponding certification
+*** protocol, because (i) other application-specific
+*** actions may have to happen at the same time, 
+*** and (ii) if it is an atomic multicast, some other
+*** conditions must be present for delivery. No
+*** surprise there.
+
+*** If a process reads a value previously written by
+*** the same transaction, we do NOT add that read
+*** to the read set. 
+
+*** Notice that the GDUR paper does not include
+*** information about when the read sets are updated,
+*** only about the write sets. Read sets are just assumed
+*** informally without further discussions ...
+
+  *** Not really part of GDUR description. Just the client that
+  *** sends transactions one by one to the corresponding proxy.
+  
+  rl [sendTxn] :
+
+     < C : Client | pendingTrans: emptyAddressSet, 
+                    txns: (< TID : Transaction | proxy: RID, AS' > :: TXNS), AS >
+   =>
+     < C : Client | pendingTrans: TID, txns: TXNS, AS >
+     (msg executeTrans(< TID : Transaction | proxy: RID, AS' >) from C to RID) .
+
+
+  rl [endTxn] :
+     done(TID)
+     < C : Client | pendingTrans: TID, AS >
+   =>  
+     < C : Client | pendingTrans: emptyAddressSet, AS > .
+
+
+  *** Algorithm 1, lines 4-6(7):
+
+  rl [receiveTransaction] :
+
+     (msg executeTrans(< TID : Transaction | AS' >) from C to RID)
+     < RID : Replica | executing: TRANSES, AS >
+   =>
+
+     < RID : Replica | executing: (TRANSES < TID : Transaction | AS' >), AS > .
+  *** we don't know what 'init' in the DUR paper should be ...
+  --- but notice that some kind of init function could/should
+  --- be applied here
+
+
+
+  *** Algorithm 1, lines 8-10:
+ 
+  *** Comment:  The pseudo-code in Algorithm 1 of GDUR paper seems
+  *** wrong. Line 10 selects ANY previous writes by Ti on x,
+  *** whereas line 18 just adds a write set entry for each new write.
+  *** Therefore, if we have a transaction
+  ***  .... write(y,3);   .... write(y,7);  .... read(y);
+  *** then according to GDUR paper, the read reads either 3 or 7,
+  *** whereas we think it should be 7.  Therefore, we must either
+  *** have a LIST of writes or a SET of writes, but where a later
+  *** write overwrites a previous write on the same data object.
+  *** At the moment, we do not know which is the right choice, but we
+  *** try with SET, or more correctly a map from keys to values,
+  *** and an overwrite ...
+
+  *** read value previously written by same transaction
+  rl [executeRead1] :     --- read value previously written by same transaction
+
+     < RID : Replica | executing:
+                        (< TID : Transaction | operations: ((X :=read K) OPLIST),
+			                                   writeSet: (< K,V >, WS),
+				                               localVars: VARS, AS' >
+			TRANSES), AS >
+  =>
+     < RID : Replica | executing:
+                        (< TID : Transaction | operations: OPLIST,
+                                               writeSet: (< K,V >, WS),
+	                                           localVars: insert(X, V, VARS), AS' >
+			TRANSES), AS > .
+  --- Notice that, as mentioned in the intro, I choose
+  --- not to add such reads to the readSet ... correct or not?
+
+
+
+  *** Algorithm 1, line 11:
+  *** read value not written by trans but available in local replica
+
+  crl [executeRead2] : 
+
+     < RID : Replica | executing:
+                        (< TID : Transaction | operations: ((X :=read K) OPLIST),
+			                                   writeSet: WS, 
+			                                   readSet: RS,
+                                               localVars: VARS, AS' >
+			TRANSES),
+	                   datastore: DS, AS >
+  =>
+     < RID : Replica | executing:
+                        (< TID : Transaction | operations: OPLIST,
+                                               writeSet: WS, 
+				                               readSet: (< K, VERSION >, RS),
+                                               localVars: insert(X, V, VARS), AS' >
+			TRANSES), 
+                       datastore: DS, AS >
+
+   if (not (K in WS)) and (K in DS)
+      /\ (< K1, V, VERSION > , KVVSET)  := $$choose(K, DS, TID) .
+  --- notice that $$choose should return a SET of key/value/version
+  --- triples. It is also unclear if "TID" is the correct
+  --- parameter to $$choose. I would assume that for more complex
+  --- protocols, both RS, WS, and REPLICA-TABLE would have to be given
+
+
+  *** Algorithm 1, line 13:
+  *** The value you are looking for is NOT in the local datastore
+  *** and has not been written by the same transaction.
+
+  *** On line 13 i DUR paper it seems that one knows all
+  *** replicas storing the desired value.  If so, we assume
+  *** we have this knowledge by including the REPLICA-TABLE
+  *** already here.
+  *** Also notice the "semi-trick" that the operation becomes "waitRemote"
+
+  crl [executeRemoteRead] : 
+
+     < RID : Replica | executing:
+                          (< TID : Transaction | operations: ((X :=read K) OPLIST),
+			                                     writeSet: WS, AS' > TRANSES), 
+	                   datastore: DS, AS >
+     < TABLE : Table | table: REPLICA-TABLE >
+  =>
+     < RID : Replica | executing:
+                        (< TID : Transaction | operations: (waitRemote(K,X) OPLIST),
+                                               writeSet: WS, AS' > TRANSES),
+                       datastore: DS, AS >
+     < TABLE : Table | table: REPLICA-TABLE >
+     (msg request(K, TID) from RID to RID2)			
+   if (not (K in WS)) and (not (K in DS))
+      /\ (RID2 ; RIDS2) := replicas(K, REPLICA-TABLE) .
+
+
+  *** NOTE: GDUR paper says that if one does not receive a reply in
+  *** some time, it should send a request to some other guy.
+  *** We have NOT yet such error handling, i.e., real-time
+  *** features in our model. Not much fault tolerance ...
+
+  
+  *** Algorithm 1, lines 26-30:
+  *** Remote guy receives request for a value:
+
+  crl [recRequest] :
+      (msg request(K, TID) from RID to RID2)
+      < RID2 : Replica | datastore: DS, AS >
+    =>
+      < RID2 : Replica | datastore: DS, AS >
+      (msg reply(TID, (< K, V, VERSION >)) from RID2 to RID)
+    if (< K1, V, VERSION > , KVVSET) := $$choose(K, DS, TID) .
+  --- looks more complicated than necessary, since $$choose
+  --- is supposed to return a SET ...
+
+
+  *** Algorithm 1, lines 14(-15)
+  *** Receive reply from remote guy with requested data item:
+
+  rl [recReply] :
+     (msg reply(TID, < K, V, VERSION >) from RID2 to RID) 
+     < RID : Replica | executing: (< TID : Transaction | readSet: RS,
+                                                         operations: (waitRemote(K,X) OPLIST),
+				                                         localVars: VARS, AS' >
+				   TRANSES), AS >
+   =>
+     < RID : Replica | executing: (< TID : Transaction | readSet: (< K, VERSION >, RS),
+                                                         operations: OPLIST,
+				                                         localVars: insert(X, V, VARS), AS' >
+				   TRANSES), AS > .
+
+
+  *** Algorithm 1, lines 16-18. Executa a write command:
+
+
+  rl [executeWrite] :
+
+     < RID : Replica | executing:
+                         (< TID : Transaction | operations: (write(K, EXPR) OPLIST),
+                                                localVars: VARS,   
+                                                writeSet: WS, AS' >
+		         TRANSES), AS >
+   =>
+     < RID : Replica | executing:
+                         (< TID : Transaction | operations: OPLIST,
+                                                localVars: VARS, 
+                                                writeSet: (< K,eval(EXPR, VARS) >, WS), AS' >
+			 TRANSES), AS > .
+
+  --- Again, notice that at the moment, we overwrite previous writes on
+  --- the same item in the same transaction. This is DIFFERENT from
+  --- GDUR paper, Algorithm 1, line 18! Notice also that we don't
+  --- add TIDs or other things to WS.
+
+  *** ************************
+  *** Now, over to Algorithm 2
+  *** ************************
+
+  *** Algorithm 2, lines 7-13 (if branch):
+
+  crl [certificationNotNeeded] :
+
+      < RID : Replica | executing: (TRANSES < TID : Transaction | operations: nil,
+                                                                  status: undecided,
+                          readSet: RS, writeSet: WS, version: KVER, AS' >),
+  	                    committed: TRANSES2, AS >
+      < TABLE : Table | table: REPLICA-TABLE >	       
+    =>
+
+      < RID : Replica | executing: TRANSES,
+        	            committed: (TRANSES2 < TID : Transaction | operations: nil, 
+                                                                   status: commit, 
+                          readSet: RS, writeSet: WS, version: KVER, AS' >), AS >
+      < TABLE : Table | table: REPLICA-TABLE >
+      done(TID) 
+   if $$certifying-objects(< TID : Transaction | operations: nil,
+                                                 status: undecided, AS' >, REPLICA-TABLE) == empty .
+
+  --- Note that certifying-objects probably should take more arguments ...
+  --- Mmmm ... on the other hand, the parameter contains the
+  --- read and write sets, which are crucial for defining cert-objects.
+  --- However, if the entire database is not a paremeter to the function,
+  --- it cannot compute the certifying objects from the RS and the WS,
+  --- unless we assume a table of replicas for each item, which we do!
+
+
+  *** Algorithm 2, lines 7-11 and 13-14 (else branch). Submit trans
+  *** for certification:
+
+  crl [submitForCertification] :  
+
+      < RID : Replica | executing: (TRANSES
+                          < TID : Transaction | operations: nil,
+				                                readSet: RS,
+							                    writeSet: WS, AS' >),
+		                submitted: TRANSES2, AS >
+      < TABLE : Table | table: REPLICA-TABLE >       
+    =>
+      < RID : Replica | executing: TRANSES,
+ 		                submitted: (TRANSES2 < TID : Transaction | operations: nil,
+				                                                   readSet: RS,
+							                                       writeSet: WS, AS' >), AS >
+      < TABLE : Table | table: REPLICA-TABLE >	       
+      ($$xcast certify(< TID : Transaction | operations: nil,
+				                             readSet: RS,
+							                 writeSet: WS, AS' >) 
+         from RID to replicas($$certifying-objects(< TID : Transaction | operations: nil,
+           readSet: RS, writeSet: WS, AS' >, REPLICA-TABLE), REPLICA-TABLE))
+    if $$certifying-objects(< TID : Transaction | operations: nil,
+	     readSet: RS, writeSet: WS, AS' >, REPLICA-TABLE) =/= empty .
+
+
+  *** In future work, we might be able to further isolate GDUR, and
+  *** also specify Alg 2/16-18; but that might have some price
+  *** in terms of elegance.
+
+  *** Algorithm 2, lines 19-24. The certification process has
+  *** decided that the trans can be committed:
+  
+  rl [finalizeCommit] :
+
+     < RID : Replica | certificationQueue:
+                         (QUEUE ::
+			  < TID : Transaction | proxy: RID3, readSet: RS, writeSet: WS,
+			                        status: commit, AS' >
+			  :: QUEUE2),
+		       datastore: DS,
+		       rmtCommitted: TSS, AS >
+   =>
+
+     < RID : Replica | certificationQueue: QUEUE2,
+		       datastore: applyUpdates(DS, WS),
+		       rmtCommitted: (TSS ; transStatus(TID, commit)), AS >
+*** NEW
+     $$postCommit(TID, RID, RID3, RS, kver(DS,WS)) .
+  --- Note that the committed trans may be anywhere in the queue, since
+  --- that's what GDUR, Alg 2, lines 19-24 says, but when group
+  --- communication is used, Algorithm 3, then we know that commit
+  --- can only be the status if it is the first trans in the queue
+
+  *** Note that Algorithm 2 defines that we just add the new write set
+  *** to the data store, but as far as I understand, they
+  *** do not tell us WHICH version the new write should have.
+  *** This should probably be a parameter.
+
+  *** The actual definition of the function applyUpdates
+  *** must be given elsewhere.
+
+  *** Actual parameter in P-STORE:    
+  --- eq $$postCommit(TID, RID, RID3, RS, WS) = (msg commit(TID) from RID to RID3) .  --- notify proxy
+*** NEW
+  --- eq $$postCommit(TID, RID, RID3, RS, WRITES) = (msg commit(TID,WRITES) from RID to RID3) .  --- notify proxy 
+
+
+  *** Algorithm 2, lines 25-29; abort has been decided by the
+  *** certification process:
+
+  rl [finalizeAbort] :
+
+     < RID : Replica | certificationQueue:
+                         (QUEUE :: < TID : Transaction | proxy: RID3, readSet: RS,
+				                               writeSet: WS, status: abort, AS' >
+		       :: QUEUE2),
+		       rmtCommitted: TSS, AS >
+    =>
+
+     < RID : Replica | certificationQueue: (QUEUE :: QUEUE2),
+                       rmtCommitted: (TSS ; transStatus(TID, abort)), AS >
+     $$postAbort(TID, RID, RID3, RS, WS) .
+
+     *** actual parameter:
+     --- eq $$postAbort(TID, RID, RID3, RS, WS) = (msg abort(TID) from RID to RID3) .    --- notify proxy
+
+
+  *** The following is stractly speaking not part of GDUR, or any other protocol
+  *** for that matter, but takes care of "cleaning up" by
+  *** notifying the proxy of a transaction and let it record the status
+  *** of "its" transactions. The proxy receives commit and abort notifications,
+  *** which according to GDUR can be seen as 'garbage collection':
+
+  --- Proxy gets notification, maybe too many times, and possibly from itself:
+  rl [proxyGetsNotification1] :
+
+     (msg abort(TID) from RID2 to RID)
+     < RID : Replica | submitted: (TRANSES < TID : Transaction |
+                         readSet: RS, writeSet: WS, version: KVER, AS' >),
+                       aborted: TRANSES2, AS >
+    =>
+
+     < RID : Replica | submitted: TRANSES,
+                       aborted: (TRANSES2 < TID : Transaction |
+                         readSet: RS, writeSet: WS, version: KVER, AS' >), AS > 
+     done(TID) .			      
+
+
+  rl [proxyGetsNotification2] :
+
+*** NEW
+     (msg commit(TID,WRITES) from RID2 to RID)
+     < RID : Replica | submitted: (TRANSES < TID : Transaction |
+                         readSet: RS, writeSet: WS, version: KVER, AS' >),
+                       committed: TRANSES2, AS >
+    =>
+
+     < RID : Replica | submitted: TRANSES,
+                       committed: (TRANSES2 < TID : Transaction |
+                         readSet: RS, writeSet: WS, version: WRITES, AS' >), AS > 
+     done(TID) .
+
+
+  rl [proxyGetsOldNotification1] :
+     (msg abort(TID) from RID2 to RID)
+     < RID : Replica | aborted: (TRANSES < TID : Transaction | AS' >), AS  >
+    =>
+     < RID : Replica | aborted: (TRANSES < TID : Transaction | AS' >), AS  > .
+
+  rl [proxyGetsOldNotification] :
+*** NEW
+     (msg commit(TID,WRITES) from RID2 to RID)
+     < RID : Replica | committed: (TRANSES < TID : Transaction | AS' >), AS >
+    =>
+     < RID : Replica | committed: (TRANSES < TID : Transaction | AS' >), AS > .
+
+
+*** GDUR, Algorithm 3; group communication certification.
+*** QUESTION: the parameters vote-snd-obj and vote-recv-obj
+*** are not very well explained.  I wonder whether there
+*** is a typo here, and that vote-snd-obj and vote-recv-obj
+*** should be the same thing ...
+*** Of course, it is hard to udnerstand the function
+*** 'outcome' since vote-snd-obj is not described,
+*** but IF it is the same, then I wonder about
+*** the true case: if the node does not any other
+*** replica's help, because we are talking about a
+*** local transaction, then I am not sure about the 'true'.
+*** The node itself must at least certify the trans???
+*** I therefore ad-lib this part somewhat. Maybe this
+*** outcome thing will have to be refined when we discover
+*** other protocols?
+
+  op waitCommit : -> TransStatus [ctor] .
+  --- NEW status, to reflect that a committable trans should not
+  --- commit until it is first in the queue
+   
+---(
+  class GCTransaction | votesRcvdFrom : ReplicaIdSet, voted : Bool .
+  subclass GCTransaction < Transaction .
+  --- some bookkeeping for group communication voting
+)
+
+  op vote : Address Address TransStatus -> Content [ctor] .
+
+
+
+  op allCommute : ObjectList Set{KeyVersion} Set{KeyValue} -> Bool .
+  ceq allCommute(QUEUE :: < TID : Transaction | AS > :: QUEUE2, RS, WS) = false
+      if not $$commute(< TID : Transaction | AS >, RS, WS) .
+  eq allCommute(QUEUE, RS, WS) = true [owise] .    
+
+
+  *** Algorithm 2, lines 16-18.  Receiving certification request.
+  --- 1. When you receive the message, you put it in the queue.
+  --- Somewhat different than P-store standalone.
+
+  --- Notice that the message communication model is
+  --- a parameter. However, since the read is dependent on
+  --- other things in an atomic multicast, we must specialize it to
+  --- the appropriate communication model.
+  --- Although SENDING was using $$xcast, receiving must, at least in the
+  --- case of atomic multicast, have more information ...
+
+  crl [readCertificationRequest] :
+      (msg certify(< TID : Transaction | operations: OL, readSet: RS,
+                                         writeSet: WS, localVars: LV,
+                                         proxy: PROXY, status: STATUS, 
+                                         votesRcvdFrom: ADDRESSES, voted: FLAG, AS' >)
+       from RID2 to RID)
+      < RID : Replica | certificationQueue: QUEUE, AS >
+      < AT : A-Table | am-table: AM-TABLE > 
+    =>
+      < RID : Replica | certificationQueue:
+                                 (QUEUE ::
+				 < TID : Transaction | operations: OL, proxy: RID2,
+				                         readSet: RS, writeSet: WS,
+							 status: undecided, localVars: LV,
+							 votesRcvdFrom: emptyAddressSet, voted: false, AS' >), AS >
+      < AT : A-Table | am-table:  
+        updateAM(certify(< TID : Transaction | operations: OL, readSet: RS,
+          writeSet: WS, localVars: LV, proxy: PROXY, status: STATUS, 
+          votesRcvdFrom: ADDRESSES, voted: FLAG, AS' >), RID, AM-TABLE) >
+     
+    if okToRead(certify(< TID : Transaction | operations: OL, readSet: RS,
+         writeSet: WS, localVars: LV, proxy: PROXY, status: STATUS, 
+         votesRcvdFrom: ADDRESSES, voted: FLAG, AS' >), RID, AM-TABLE) .
+
+
+
+  *** VOTE! Algorithm 3, lines 1-6:
+
+  crl [vote] :   
+      < RID : Replica | datastore: DS,
+                        certificationQueue:
+			  (QUEUE ::
+                          < TID : Transaction | readSet: RS, writeSet: WS,
+			                          status: STATUS, votesRcvdFrom: RIDS,
+						  voted: false, AS' >
+                          :: QUEUE2), AS >
+     < TABLE : Table | table: REPLICA-TABLE >
+    =>
+      < RID : Replica | datastore: DS,
+                        certificationQueue:
+                          (QUEUE :: 
+                          < TID : Transaction | readSet: RS, writeSet: WS, 
+                                      votesRcvdFrom: (RIDS ; RID),
+			                          status: (if LOCAL-CERTIFICATION-OK and
+			                	               STATUS =/= abort
+							    then undecided else abort fi),
+						  voted: true, AS' >
+			  :: QUEUE2), AS >
+      (distribute vote(RID, TID, if LOCAL-CERTIFICATION-OK then commit else abort fi) from RID to
+           (replicas($$vote-receiving-objects(TID, RS, WS, REPLICA-TABLE), REPLICA-TABLE)) \ RID)
+      *** important change: I do NOT add coord(TID), i.e., RID2 to the set of recipients.
+      *** line 6 in Alg 3 clearly says I should ...
+     < TABLE : Table | table: REPLICA-TABLE >
+    if  allCommute(QUEUE, RS, WS)
+        /\ LOCAL-CERTIFICATION-OK := $$certify(RS, WS, DS) .
+
+
+  *** NOTE: what happens if a trans receives a vote before it votes itself?
+  *** Or ... if for some reason someone has sent it an aborted message,
+  *** then maybe lack of votes
+  *** FROM this guy for TID probably does not matter ...
+  *** But what happens if it has received votes and is undecided?
+  *** So that's why we use the 'voted' flag.
+
+  *** actual parameters in advanced p-store:
+  --- eq $$certify(RS, WS, DS)  =  certificationOk(RS, DS) .
+  --- eq $$vote-receiving-objects(TID, RS, WS) = (keys(RS) , keys(WS)) .
+  --- eq $$allCommute(QUEUE, RS, WS) = noReadWriteConflict(QUEUE, RS, WS) .
+
+
+   *** Interestingly, it seems that the votes are received by magic in GDUR.
+   *** We add the appropriate rules, based on the definition of outcome
+   *** in Section 5.1:
+
+  --- receive negative vote:
+  rl [receiveNegative] :
+     (msg vote(RID2, TID, abort) from RID2 to RID)
+     < RID : Replica | certificationQueue:
+                         (QUEUE :: 
+                   < TID : Transaction | votesRcvdFrom: RIDS, status: STATUS, AS' > :: QUEUE2), AS >
+   =>
+     < RID : Replica | certificationQueue:
+                         (QUEUE ::
+			       < TID : Transaction | votesRcvdFrom: RIDS, status: abort, AS' > :: QUEUE2), AS > .
+
+
+  --- receive positive vote in an undecided state:
+  rl [receivePositiveVote] :
+     (msg vote(RID2, TID, commit) from RID2 to RID)
+     < RID : Replica | certificationQueue:
+                            (QUEUE ::
+			    < TID : Transaction | status: undecided, votesRcvdFrom: RIDS, AS' >
+			    :: QUEUE2), AS >
+   =>
+     < RID : Replica | certificationQueue:
+                               (QUEUE ::
+                               < TID : Transaction | status: undecided, 
+                 votesRcvdFrom: (RIDS ; RID2), AS' >
+			       :: QUEUE2), AS > .
+
+
+  --- Can make positive decision:
+  crl [decideToCommit] :
+     < RID : Replica | certificationQueue:
+                            (QUEUE ::
+			    < TID : Transaction | readSet: RS, writeSet: WS,
+			                            status: undecided, votesRcvdFrom: RIDS, AS' >
+			    :: QUEUE2), AS >
+     < TABLE : Table | table: REPLICA-TABLE >
+   =>
+     < RID : Replica | certificationQueue:
+                               (QUEUE ::
+                               < TID : Transaction | readSet: RS, writeSet: WS,
+			                 status: (if QUEUE =/= noTrans then waitCommit else commit fi),
+                             votesRcvdFrom: RIDS, AS' >
+			       :: QUEUE2), AS >
+     < TABLE : Table | table: REPLICA-TABLE >
+   if ($$vote-snd-objects(TID, RS, WS) subset replicatedKeys(RIDS, REPLICA-TABLE)) .
+
+
+   *** actual parameter in p-store:
+   --- eq $$vote-snd-objects(TID, RS, WS, REPLICA-TABLE) = keys(RS) .
+
+  --- receive old vote:
+   crl [receiveOldVote1] :
+      (msg vote(RID2, TID, STATUS) from RID2 to RID)
+      < RID : Replica | certificationQueue:
+                          (QUEUE :: < TID : Transaction | status: STATUS2, AS' > :: QUEUE2), AS >
+    =>
+      < RID : Replica | certificationQueue:
+                          (QUEUE :: < TID : Transaction | status: STATUS2, AS' > :: QUEUE2), AS >
+   if STATUS2 =/= undecided .
+
+
+  rl [receiveOldVote2] :
+     (msg vote(RID2, TID, STATUS) from RID2 to RID)
+     < RID : Replica | rmtCommitted: (TSS ; transStatus(TID, STATUS2)), AS >
+    =>
+     < RID : Replica | rmtCommitted: (TSS ; transStatus(TID, STATUS2)), AS > .
+
+
+  *** 'decide(Ti)', Algorithm 3, lines 7-13.
+  --- this is all; when a waitCommit is first in line, it becomes a commit!!!
+
+  eq < RID : Replica | certificationQueue:
+                           (< TID : Transaction | status: waitCommit, voted: true, AS' > :: QUEUE2), AS >
+   = < RID : Replica | certificationQueue: 
+                           (< TID : Transaction | status: commit, voted: true, AS' > :: QUEUE2), AS > .
+   *** Note: should 'voted' be true here, or does it not matter?
+
+endm)

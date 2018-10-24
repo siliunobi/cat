@@ -1,0 +1,185 @@
+load gdur-pstore
+
+mod TEST-GDUR-PSTORE is
+  including PSTORE-GDUR .
+  including VALUES-NAT .
+
+  ops r1 r2 r3 r4 : -> Address [ctor] .
+  ops t1 t2 t3 t4 t5 : -> Address [ctor] .
+  ops c1 c2 c3 : -> Address [ctor] .
+  ops x y z w : -> Key [ctor] .
+  ops xl yl zl : -> LocalVar [ctor] .
+  ops amt rplt m : -> Address [ctor] .
+
+  --- initial states:
+  ops init1 init2 init3 : -> Config .
+
+  eq init1
+   = < amt : A-Table | am-table: [emptyAME] >
+     < rplt : Table | table: [replicatingSites(x, r1)] >
+     < m : Monitor | clock: 0, log: empty >  
+
+     < c1 : Client | txns:
+                      < t1 : Transaction | operations: ((xl :=read x) (write(x, xl plus 1))),
+		                           proxy: r1,
+					   status: undecided, 
+					   readSet: empty,
+					   writeSet: empty,
+					   localVars: (xl |-> [0]),
+                       votesRcvdFrom: emptyAddressSet, 
+                       voted: false, 
+                       version: empty >,
+		      pendingTrans: emptyAddressSet		   
+     >
+     < r1 : Replica | datastore: (< x, [2], 1 >),
+                      committed: null,
+		      aborted: null,
+		      executing: null,
+		      submitted: null,
+		      certificationQueue: noTrans,
+		      rmtCommitted: noTS > .
+
+
+  eq init2
+   = < amt : A-Table | am-table: [emptyAME] >
+     < rplt : Table | table: [replicatingSites(x, (r1 ; r2)) ;; replicatingSites(y, (r2 ; r3)) ;;
+      replicatingSites(z, r3)] >
+     < m : Monitor | clock: 0, log: empty > 
+   
+     < c1 : Client | txns:
+                      < t1 : Transaction | operations: ((xl :=read x) write(x, xl plus 1)
+		                                         (yl :=read y) write(y, yl plus 1)),
+		                           proxy: r1,
+					   status: undecided,    
+					   readSet: empty,
+					   writeSet: empty,
+					   localVars: (xl |-> [0] , yl |-> [0]),
+                       votesRcvdFrom: emptyAddressSet, 
+                       voted: false,
+                       version: empty >,
+		      pendingTrans: emptyAddressSet			   
+     >
+     < c2 : Client | txns:
+                      < t2 : Transaction | operations: ((xl :=read x) (yl :=read y)
+		                                         write(y, yl plus 1) write(x, xl plus 1)),
+		                           proxy: r2,
+					   status: undecided,    
+					   readSet: empty,
+					   writeSet: empty,
+					   localVars: (xl |-> [0], yl |-> [0]),
+                       votesRcvdFrom: emptyAddressSet, 
+                       voted: false,
+                       version: empty >,
+		      pendingTrans: emptyAddressSet			   
+     >
+     < c3 : Client | txns:
+                      < t3 : Transaction | operations: ((xl :=read x) (yl :=read y) (zl :=read z)
+		                                         write(y, yl plus 1) write(x, xl plus 1)
+							 write(z, (xl plus yl) plus zl)),
+		                           proxy: r3,
+					   status: undecided,    
+					   readSet: empty,
+					   writeSet: empty,
+					   localVars: (xl |-> [0] , yl |-> [0] , zl |-> [0]),
+                       votesRcvdFrom: emptyAddressSet, 
+                       voted: false,
+                       version: empty >,
+		      pendingTrans: emptyAddressSet			   
+     >
+     < r1 : Replica | datastore: (< x, [2], 1 >),
+                      committed: null,
+		      aborted: null,
+		      executing: null,
+		      submitted: null,
+		      certificationQueue: noTrans,
+		      rmtCommitted: noTS >
+     < r2 : Replica | datastore: ((< x, [2], 1 >) , (< y, [2], 1 >)),
+                      committed: null,
+		      aborted: null,
+		      executing: null,
+		      submitted: null,
+		      certificationQueue: noTrans,
+		      rmtCommitted: noTS >
+     < r3 : Replica | datastore: ((< y, [2], 1 >) , (< z, [2], 1 >)),
+                      committed: null,
+		      aborted: null,
+		      executing: null,
+		      submitted: null,
+		      certificationQueue: noTrans,
+		      rmtCommitted: noTS > .
+--- a rew init2 commits t1 and t2 and aborts t3
+
+  eq init3
+   = < amt : A-Table | am-table: [emptyAME] >
+     < rplt : Table | table: [replicatingSites(x, (r2 ; r3)) ;; replicatingSites(y, (r2 ; r3)) ;;
+      replicatingSites(z, r1)] >
+     < m : Monitor | clock: 0, log: empty > 
+    
+     < c1 : Client | txns:
+                      < t1 : Transaction | operations: ((xl :=read x)
+		                                         (yl :=read y)),
+		                           proxy: r1,
+					   status: undecided,   
+					   readSet: empty,
+					   writeSet: empty,
+					   localVars: (xl |-> [0] , yl |-> [0]),
+                       votesRcvdFrom: emptyAddressSet, 
+                       voted: false,
+                       version: empty >,
+		      pendingTrans: emptyAddressSet			   
+     >
+     < c2 : Client | txns:
+                      < t2 : Transaction | operations: (write(y, 5) write(x, 8)),
+		                           proxy: r2,
+					   status: undecided,   
+					   readSet: empty,
+					   writeSet: empty,
+					   localVars: (xl |-> [0], yl |-> [0]),
+                       votesRcvdFrom: emptyAddressSet, 
+                       voted: false,
+                       version: empty >,
+		      pendingTrans: emptyAddressSet			   
+     >
+     < r1 : Replica | datastore: (< z, [2], 1 >),
+                      committed: null,
+		      aborted: null,
+		      executing: null,
+		      submitted: null,
+		      certificationQueue: noTrans,
+		      rmtCommitted: noTS >
+     < r2 : Replica | datastore: ((< x, [2], 1 >) , (< y, [2], 1 >)),
+                      committed: null,
+		      aborted: null,
+		      executing: null,
+		      submitted: null,
+		      certificationQueue: noTrans,
+		      rmtCommitted: noTS >
+     < r3 : Replica | datastore: ((< x, [2], 1 >) , (< y, [2], 1 >)),
+                      committed: null,
+		      aborted: null,
+		      executing: null,
+		      submitted: null,
+		      certificationQueue: noTrans,
+		      rmtCommitted: noTS > .
+
+endm
+
+--- Analysis:
+
+---rew init1 .
+---search init1 =>! C:Config .
+
+---rew init2 .
+---search init2 =>! C:Config .
+
+---rew init3 .
+search init3 =>! C:Config .
+
+
+---(search init1 =>! C:[Configuration] .)
+--- returns the one desired solution
+
+---(search init3 =>! C:[Configuration] .)
+--- returns the five desired solutions
+
+q

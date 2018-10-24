@@ -1,1 +1,15 @@
 main file: gdur.maude
+
+
+
+There are some issues with dealing with this spec. 
+
+1. The submitted attribute is first used here 
+2. rmtCommitted is also first used 
+
+How to check the status of execution based on this two attributes?
+
+
+
+So far, other rules except rmtCommitted have been workable. 
+

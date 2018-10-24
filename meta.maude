@@ -194,6 +194,9 @@ endm .
     eq getTIDfromList(('<_:_|_>[V,'Txn.ActorType,TL],TL')) = V, getTIDfromList(TL') .
     eq getTIDfromList(('<_:_|`>[V,'Txn.ActorType],TL')) = V, getTIDfromList(TL') .
 
+        eq getTIDfromList(('<_:_|_>[V,'Transaction.ActorType,TL],TL')) = V, getTIDfromList(TL') .
+    eq getTIDfromList(('<_:_|`>[V,'Transaction.ActorType],TL')) = V, getTIDfromList(TL') .
+
     eq getTIDfromList((Q[TL],TL')) = getTIDfromList((TL,TL')) [owise] . 
     eq getTIDfromList((V,TL)) = getTIDfromList(TL) .
     eq getTIDfromList((C,TL)) = getTIDfromList(TL) .
@@ -338,7 +341,21 @@ endm .
       if not hasBranch(T') /\ 
         T2 := isCommitted(T,T') /\
         T2 =/= 'nil.Address /\ 
-	  T1 := getAttr('executing:_,T) .       
+	  T1 := getAttr('executing:_,T) .    
+
+ceq tagLeftRightHand(T,T',B) =
+        '__['__[newMonitorObjRecord(T2),T],
+    '__[resultMonitorObjInsert(T2,
+        getReplicaID(T),'true.Bool,
+        getAttr('readSet:_,T1),
+        getAttr('writeSet:_,T1),
+        getAttr('version:_,T1)),T1]]
+      if not hasBranch(T') /\ 
+        T2 := isCommitted(T,T') /\
+        T2 =/= 'nil.Address /\ 
+    T1 := getAttr('submitted:_,T) .    
+
+
 
    *** to fix if_then_else_fi case  (committed case)
   ceq tagLeftRightHand(T,T',B) =
@@ -387,6 +404,20 @@ endm .
           T2 := isAborted(T,T') /\
           T2 =/= 'nil.Address /\ 
           T1 := getAttr('executing:_,T)  .      
+
+
+     ceq tagLeftRightHand(T,T',B) =
+        '__['__[newMonitorObjRecord2(T2),T], 
+        '__[resultMonitorObjInsert(T2,
+        getReplicaID(T),'false.Bool,
+        getAttr('readSet:_,T1),
+        getAttr('writeSet:_,T1),
+        getAttr('version:_,T1)),T']]
+      if not hasBranch(T') /\ 
+          T2 := isAborted(T,T') /\
+          T2 =/= 'nil.Address /\ 
+          T1 := getAttr('submitted:_,T)  .  
+
 
     --- condition : the executing tran is aborted
      ceq tagLeftRightHand(T,T',B) =
