@@ -1,0 +1,9 @@
+main file: walter.maude
+
+
+how to run this example 
+
+load ../meta.maude
+load walter.maude
+(tag WALTER .)
+(show module WALTER-TAGGED .)

@@ -1,0 +1,319 @@
+load sampler
+load apmaude
+load model-checker
+
+fmod SOME-PARAMETERS is
+  sort Version .  --- could be different things
+endfm
+--- In RAMP version is a 4-tuple (key,value,timestamp,metadata)
+--- In Walter version is a pair (site,seq#)
+
+fmod TXN-SORTS is  
+  including ACTOR-MODEL .
+  including SOME-PARAMETERS .
+
+  sorts Key Value Operation LocalVar Expression ConfigList AddressList AddressSet
+        KeyVersion KeyValueVersion ValueVersion Lock Vote ReplicaTable Record KeyValue .
+  subsort Config < ConfigList .
+  subsort LocalVar < Expression .
+  subsort Nat < Expression .
+  subsort Address < AddressList .
+  subsort Address < AddressSet .
+
+---  op versionRead : Key Version -> KeyVersion [ctor] .
+  op <_`,_> : Value Version -> ValueVersion [ctor] .
+  op dftValueVersion : -> ValueVersion [ctor] .
+
+  op lock : Address Key -> Lock .  --- Address locks Key
+  
+  op noVote : -> Vote [ctor] .
+  op vote : Address Address Bool -> Vote [ctor] .  --- TID,RID,yes/no
+  op _;_ : Vote Vote -> Vote [ctor assoc comm id: noVote] .  
+
+*** NEW
+  op <_,_> : Key Version   -> KeyVersion [ctor] .
+  op <_,_> : Key Value -> KeyValue [ctor] .
+
+endfm
+view Operation from TRIV to TXN-SORTS is sort Elt to Operation . endv
+view Version from TRIV to TXN-SORTS is sort Elt to Version . endv
+view Key from TRIV to TXN-SORTS is sort Elt to Key . endv
+view LocalVar from TRIV to TXN-SORTS is sort Elt to LocalVar . endv
+view Value from TRIV to TXN-SORTS is sort Elt to Value . endv
+view KeyVersion from TRIV to TXN-SORTS is sort Elt to KeyVersion . endv
+view KeyValueVersion from TRIV to TXN-SORTS is sort Elt to KeyValueVersion . endv
+view ValueVersion from TRIV to TXN-SORTS is sort Elt to ValueVersion . endv
+view Lock from TRIV to TXN-SORTS is sort Elt to Lock . endv
+view Vote from TRIV to TXN-SORTS is sort Elt to Vote . endv
+view Record from TRIV to TXN-SORTS is sort Elt to Record . endv
+view KeyValue from TRIV to TXN-SORTS is sort Elt to KeyValue . endv
+
+fmod TXN-AUX1 is
+  pr LIST{Operation} * (sort List{Operation} to OperationList) .
+  pr MAP{LocalVar,Value} * (sort Map{LocalVar,Value} to LocalVars) .
+---  pr MAP{Key,Value} * (sort Map{Key,Value} to WriteSet, op undefined to undefinedWriteSet) .
+---  pr SET{Address} * (sort Set{Address} to AddressSet) . 
+---  pr LIST{Address} * (sort List{Address} to AddressList) .
+  pr LIST{ValueVersion} * (sort List{ValueVersion} to ValueVersionList) .
+  pr SET{Key} * (sort Set{Key} to KeySet) .
+  pr SET{Lock} * (sort Set{Lock} to Locks) .
+  pr LIST{Key} * (sort List{Key} to KeyList) .
+*** NEW
+  pr SET{KeyValue} .
+
+  op write : Key Expression -> Operation [ctor] .
+  op _:=read_ : LocalVar Key -> Operation [ctor] .
+  op waitRemote : Key LocalVar -> Operation [ctor] .  --- "internal" state:
+
+  op _plus_ : Expression Expression -> Expression [ctor] .
+  op eval : Expression LocalVars -> Value .
+
+  op emptyTxnList : -> ConfigList [ctor] .
+  op _;;_ : ConfigList ConfigList -> ConfigList [ctor assoc id: emptyTxnList] .
+
+  op emptyAddrList : -> AddressList [ctor] .
+  op _;;_ : AddressList AddressList -> AddressList [ctor assoc id: emptyAddrList] .
+
+  op emptyAddressSet : -> AddressSet [ctor] .
+  op _;_ : AddressSet AddressSet -> AddressSet [ctor assoc comm id: emptyAddressSet] .
+
+  op |_| : AddressSet -> Nat .
+  eq | AS | = $card(AS,0) .
+  
+  op $card : AddressSet Nat -> Nat .
+  eq $card(emptyAddressSet,N) = N .
+  eq $card((A ; AS),N) = $card(AS,N + 1) .
+
+  op _in_ : Address AddressSet -> Bool .
+  eq A in (A ; AS) = true .
+  eq A in AS = false [owise] .
+
+  eq A ; A = A .  ---!!! Important as SET-like axiom
+
+  op _\_ : AddressSet Address -> AddressSet .
+  eq (A ; AS) \ A = AS .
+  eq AS \ A = AS [owise] .
+
+
+  var N : Nat .
+  var A : Address .
+  var AS : AddressSet .  
+
+  op delete : Address AddressSet -> AddressSet .
+  op delete1 : Address AddressSet -> AddressSet .
+  eq delete(A, A ; AS) = delete(A, AS) .
+  eq delete(A, AS) = AS [owise] .
+  eq delete1(A, A ; AS) = AS .
+  eq delete1(A, AS) = AS [owise] .
+
+  var K : Key .
+  var V : Value .
+  var WS : Set{KeyValue} .
+
+  op keys : Set{KeyValue} -> KeySet .
+  eq keys(empty) = empty .
+  eq keys((< K,V >,WS)) = K, keys(WS) .
+endfm
+view AddressSet from TRIV to TXN-AUX1 is sort Elt to AddressSet . endv
+view ValueVersionList from TRIV to TXN-AUX1 is sort Elt to ValueVersionList . endv
+view AddressList from TRIV to TXN-AUX1 is sort Elt to AddressList . endv
+
+fmod VECTOR-TIMESTAMP is
+  pr MAP{Address,Nat} * (sort Map{Address,Nat} to VectorTimestamp,
+                         op undefined to 0) .  ---??? need to define "undefined"
+endfm
+
+***NEW: used for LOG; different from the above vector-timestamp
+***that is used for Walter itself 
+fmod VECTOR-TIME is
+  pr MAP{Address,Float} * (sort Map{Address,Float} to VectorTime) .
+endfm
+
+
+fmod TXN-AUX2 is
+  including TXN-AUX1 .
+  including VECTOR-TIMESTAMP .
+
+  sort VoteSites .  
+  op noVS : -> VoteSites [ctor] .
+  op voteSites : Address AddressSet -> VoteSites [ctor] .  --- TID, Set{RID}
+  op _;_ : VoteSites VoteSites -> VoteSites [ctor assoc comm id: noVS] .
+
+  sort PropagateSites .
+  op noPS : -> PropagateSites [ctor] .
+  op propagateSites : Address Key AddressSet -> PropagateSites [ctor] .  --- TID, K, Set{RID}
+  op _;_ : PropagateSites PropagateSites -> PropagateSites [ctor assoc comm id: noPS] .
+
+  sort PropagatedTxns .
+  op noPT : -> PropagatedTxns [ctor] .
+  op propagatedTxns : Address Nat VectorTimestamp -> PropagatedTxns [ctor] .
+  op _;_ : PropagatedTxns PropagatedTxns -> PropagatedTxns [ctor assoc comm id: noPT] .
+  op nonPropagatedTxns : Address Nat VectorTimestamp Set{KeyValue} Address -> PropagatedTxns [ctor] .
+
+  sort DurableTxns .
+  op noDT : -> DurableTxns .
+  op durableTxns : Address -> DurableTxns [ctor] .
+  op nonDurableTxns : Address Address -> DurableTxns [ctor] .  --- TID, RID
+  op _;_ : DurableTxns DurableTxns -> DurableTxns [ctor assoc comm id: noDT] .
+endfm
+
+fmod VALUES-NAT is --- define the sort Value
+  including TXN-AUX1 .
+
+  op `[_`] : Nat -> Value [ctor] .     --- to avoid problems with preregularity
+  var X : LocalVar .  var VARS : LocalVars .  var N : Nat . vars EXPR1 EXPR2 : Expression .
+  op evalAux : Expression LocalVars -> Nat .
+  eq eval(EXPR1, VARS) = [evalAux(EXPR1, VARS)] .
+  eq evalAux(X, ((X |-> [N]), VARS)) = N .
+  eq evalAux(N, VARS) = N .
+  eq evalAux(EXPR1 plus EXPR2, VARS) = evalAux(EXPR1, VARS) + evalAux(EXPR2, VARS) .
+endfm
+
+fmod VERSION-WALTER is
+  including SOME-PARAMETERS + ADDRESS .
+  
+  --- site#, sequence#
+---  op version : Address Nat -> Version .
+
+*** NEW
+  op <_,_> : Address Nat -> Version .
+  op eptVersion : -> Version .
+endfm
+
+fmod READSET-WALTER is
+---  pr SET{KeyVersion} * (sort Set{KeyVersion} to ReadSet) .
+  pr SET{KeyVersion} .
+endfm
+
+fmod DATASTORE-WALTER is
+---  pr SET{KeyValueVersion} * (sort Set{KeyValueVersion} to Datastore) .
+  pr MAP{Key,ValueVersionList} * (sort Map{Key,ValueVersionList} to Datastore) .  --- History in Walter
+endfm
+
+fmod MESSAGE is
+  including TXN-AUX1 .
+  including VECTOR-TIMESTAMP .
+  
+---(
+  op executeTxn : Actor Address -> Content .
+  op done : Address -> Content .
+  op request : Key Address VectorTimestamp Address -> Content .
+  op reply : Address Key ValueVersion Address -> Content .
+  op propagate : Address Nat VectorTimestamp WriteSet Address -> Content .
+  op propagate-ack : Address Address -> Content .
+  op prepare : Address KeySet VectorTimestamp Address -> Content .
+  op prepare-reply : Address Bool Address -> Content . --- TID, yes/no, RID
+  op prepare-yes : Address Address -> Content .  --- TID, RID
+  op prepare-no : Address Address -> Content .
+  op abort : Address Address -> Content . --- TID, RID
+  op ds-durable : Address Address -> Content .  --- TID, RID
+  op visible : Address Address -> Content .
+  op aborted : Address Address -> Content .
+)
+
+  --- aux msgs
+  op start : -> Content .
+  op execute : -> Content .
+  op readyForPropagateAck : Address -> Content .
+  op readyForVisible : Address -> Content .
+
+***NEW
+  op executeTxn : Actor -> Content .
+  op done : -> Content .
+  op request : Key Address VectorTimestamp -> Content .
+  op reply : Address Key ValueVersion -> Content .
+  op propagate : Address Nat VectorTimestamp Set{KeyValue} -> Content .
+  op propagate-ack : Address -> Content .
+  op prepare : Address KeySet VectorTimestamp -> Content .
+  op prepare-reply : Address Bool -> Content . --- TID, yes/no
+  op prepare-yes : Address -> Content .  --- TID
+  op prepare-no : Address -> Content .
+  op abort : Address -> Content . --- TID
+  op ds-durable : Address -> Content .  --- TID
+  op visible : Address -> Content .
+  op aborted : Address -> Content .
+
+***
+***NEW
+  op durable : Address -> Content .
+  op propagate : Address -> Content .
+endfm
+
+fmod CLIENT-REPLICA is
+  including TXN-SORTS .
+  including TXN-AUX2 .
+  including READSET-WALTER .
+  including DATASTORE-WALTER .
+  including VECTOR-TIMESTAMP .
+  including VECTOR-TIME .
+*** NEW
+  pr MAP{Address,Record} * (sort Map{Address,Record} to Log) .
+
+
+---  op Client : -> ActorType .
+---  op txns:_ : ConfigList -> Attribute .
+---  op pendingTxn:_ : AddressSet -> Attribute .
+
+  op Replica : -> ActorType .
+  op history:_ : Datastore -> Attribute .  --- history is what Walter calls datastore
+  op sqn:_ : Nat -> Attribute .
+  op executing:_ : Actor -> Attribute .
+---  op submitted:_ : ConfigList -> Attribute .  ---??? no need as of now
+  op committed:_ : ConfigList -> Attribute .
+  op aborted:_ : ConfigList -> Attribute .
+  op committedVTS:_ : VectorTimestamp -> Attribute .
+  op gotVTS:_ : VectorTimestamp -> Attribute .
+  op locked:_ : Locks -> Attribute .
+  op gotTxns:_ : ConfigList -> Attribute .  --- ??? for abstracting client away
+  op dsSites:_ : PropagateSites -> Attribute .  --- set of sites each txn needs to collect propagate-ack msgs from 
+                                                --- to mark the txn as disaster-safe durable
+  op vsbSites:_ : VoteSites -> Attribute .  --- set of sites each txn needs to collect visible msgs from
+                                            --- to mark the txn as globally visible
+  op dsTxns:_ : AddressSet -> Attribute .  --- txns marked as disaster-safe durable
+  op gvTxns:_ : AddressSet -> Attribute .  --- txns marked as globally visible
+  op recPropTxns:_ : PropagatedTxns -> Attribute .  --- received propagate msg with some txn
+  op recDurableTxns:_ : DurableTxns -> Attribute .  --- received ds-durable msg with some txn
+  op votes:_ : Vote -> Attribute .
+  op voteSites:_ : VoteSites -> Attribute .
+  op abortSites:_ : VoteSites -> Attribute .
+***NEW
+  op rmtCommitted:_ : AddressSet -> Attribute .
+
+
+  op Txn : -> ActorType .
+  op operations:_ : OperationList -> Attribute .
+---  op destination:_ : Address -> Attribute .  --- since we have "gotTxns"
+***NEW
+  op readSet:_ : Set{KeyVersion} -> Attribute .
+  op writeSet:_ : Set{KeyValue} -> Attribute .
+  op localVars:_ : LocalVars -> Attribute .
+  op startVTS:_ : VectorTimestamp -> Attribute .
+  op txnSQN:_ : Nat -> Attribute .
+*** NEW
+  op version:_ : Version -> Attribute .
+
+
+  op Table : -> ActorType .
+  op table:_ : ReplicaTable -> Attribute .
+
+  op Monitor : -> ActorType .
+  op log:_ : Log -> Attribute .
+
+*** New
+---  op clock:_ : Nat -> Attribute .
+
+---(
+  op noRecord : -> Record [ctor] .
+  --- TID, issueTime, finishTime, committed?
+  ---??? finishTime in Walter is the time when a txn becomes globally visible
+  ---??? as of now, we do not need "values read" and "values written" 
+  ---??? since both are for consistency check 
+  op record : Address Float Float Bool -> Record [ctor] .
+  op _;_ : Record Record -> Record [ctor assoc id: noRecord] . 
+)
+
+
+*** NEW 
+  op <_,_,_,_,_> : VectorTime VectorTime Bool Set{KeyVersion} Set{KeyVersion} -> Record [ctor] .
+endfm
+
