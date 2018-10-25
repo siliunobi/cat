@@ -2,7 +2,8 @@ load rola-tagged
 ---load rola
 
 mod INITIAL-STATES is
-  including ROLA .
+*** NEW
+  including ROLA-TAGGED .
   including APMAUDE .
 
   ops k1l  k2l  k3l  k4l  k5l  k6l  k7l  k8l  k9l  k10l
