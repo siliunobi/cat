@@ -1,4 +1,4 @@
-load initial-states
+load initial-states-mc
 
 mod ROLA-ANALYSIS is
   including INITIAL-STATES .
@@ -109,8 +109,8 @@ mod ROLA-ANALYSIS is
 endm
 
 ---set clear rules off .
----rewrite initConfig .
-search initConfig =>! C:Config .
+rewrite initConfig .
+---search initConfig =>! C:Config .
 ---rewrite totalRunTime?(initConfig) .
 
 

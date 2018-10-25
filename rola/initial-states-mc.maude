@@ -1,4 +1,5 @@
-load rola-mc
+load rola-tagged
+---load rola
 
 mod INITIAL-STATES is
   including ROLA .
