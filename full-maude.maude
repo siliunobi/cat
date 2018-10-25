@@ -1,4 +1,4 @@
-----                                         To be run on Maude 2.7 (alpha 106)
+----                                      To be run on Maude 2.7.1 (alpha 110b)
 ----                                                    author: Francisco Duran
 ----                           printSyntaxError functionality by Peter Olveczky
 ----                                       narrowing search by Santiago Escobar
@@ -10,7 +10,7 @@ set show advisories off .
 fmod BANNER is 
   pr STRING .
   op banner : -> String .
-  eq banner = "Full Maude 2.7 March 10th 2015" .
+  eq banner = "Full Maude 2.7.1 June 30th 2016" .
 endfm
 
 ***(
@@ -42,6 +42,18 @@ endfm
 
 ---- Main changes and bugs fixed:
 ----
+---- - May 19th, 2016
+----   - Adapted to the new syntax for variants in Alpha109
+---- - Feb 4th, 2016
+----   - The MOD-EXPRS module is renamed to FM-MOD-EXPRS, and a MOD-EXPRS is later 
+----     introduced. Now, new module expressions can be used anywhere by redefining 
+----     this new MOD-EXPRS module. Although FM could be extended to handle new 
+----     module expressions, these were not supported inside "in" sections of 
+----     commands.  
+---- - Oct 19th, 2015
+----   - bug in the search command on OO modules (reported by Pete Olveczky)
+---- - Oct 12th, 2015
+----   - iter supported by built-in unification, checks adjusted accordingly
 ---- - Feb 18th, 2015
 ----   - An operator <_[,_]*> was added to the modules for narrowing. It has been 
 ----     renamed as @<@_[,_]*@>@ to avoid clashes with user-defined operators. 
@@ -2734,14 +2746,14 @@ fmod VARIANT is
   eq X:Variant | X:Variant = X:Variant .
 
   op getTerms : VariantTripleSet -> TermSet .
-  eq getTerms({T:Term,S:Substitution,NextVar:Nat} 
+  eq getTerms({T:Term,S:Substitution,NextVar:Nat,Parent:Parent,B:Bool} 
               | R:VariantTripleSet)
    = T:Term | getTerms(R:VariantTripleSet) .
   eq getTerms((empty).VariantTripleSet)
    = emptyTermSet .
 
   op getSubstitutions : VariantTripleSet -> SubstitutionSet .
-  eq getSubstitutions({T:Term,S:Substitution,NextVar:Nat} 
+  eq getSubstitutions({T:Term,S:Substitution,NextVar:Nat,Parent:Parent,B:Bool} 
               | R:VariantTripleSet)
    = S:Substitution | getSubstitutions(R:VariantTripleSet) .
   eq getSubstitutions((empty).VariantTripleSet)
@@ -3334,7 +3346,7 @@ fmod VARIANT-HANDLING is
    = empty .
   eq toVariantTripleSet({T,S,S',NextVar} | VTS)
 ---    = {T,S ; S',NextVar} | toVariantTripleSet(VTS) .
-   = {T,S,NextVar} | toVariantTripleSet(VTS) .
+   = {T,S,NextVar,none,false} | toVariantTripleSet(VTS) . ---- ",none,false" added without much understanding
 
 endfm
 
@@ -3895,13 +3907,13 @@ fmod META-E-UNIFICATION is
      fi .
 
   op getVariants***$ : Module Term Nat VariantFourSet Nat Variant TermList -> VariantFourSet .
-  eq getVariants***$(M,T,NextVar,VTS,N,{T2:Term,S:Substitution,NV2:Nat},TL)
-   = getVariants***$$(M,T,NextVar,VTS,N,{T2:Term,S:Substitution,NV2:Nat},
+  eq getVariants***$(M,T,NextVar,VTS,N,{T2:Term,S:Substitution,NV2:Nat, P:Parent, B:Bool},TL)
+   = getVariants***$$(M,T,NextVar,VTS,N,{T2:Term,S:Substitution,NV2:Nat, P:Parent, B:Bool},
            split({S:Substitution,NV2:Nat},NextVar),TL) .
 
   op getVariants***$$ : Module Term Nat VariantFourSet Nat Variant UnificationTriple TermList -> VariantFourSet .
   eq getVariants***$$(M,T,NextVar,VTS,N,
-         {T2:Term,S:Substitution,NV2:Nat},
+         {T2:Term,S:Substitution,NV2:Nat, P:Parent, B:Bool},
          {S1:Substitution,S2:Substitution,NV2:Nat},TL)
    = getVariants***(M,T,NextVar,
              VTS | {T2:Term,S1:Substitution,S2:Substitution,NV2:Nat},
@@ -5858,7 +5870,7 @@ endfm
 *******************************************************************************
 -------------------------------------------------------------------------------
 
-fmod MOD-EXPRS is
+fmod FM-MOD-EXPRS is
   including OPERATOR-ATTRIBUTES .
   including EXTENDED-SORTS .
 
@@ -5900,7 +5912,7 @@ endfm
 -------------------------------------------------------------------------------
 
 fmod SIGNATURES is
-  inc MOD-EXPRS .
+  inc FM-MOD-EXPRS .
 
   sorts @SortDecl@ @SubsortRel@ @SubsortDecl@ @OpDecl@ .
 
@@ -6076,7 +6088,7 @@ endfm
 -------------------------------------------------------------------------------
 
 fmod COMMANDS is
-  including MOD-EXPRS .
+  including FM-MOD-EXPRS .
 
   sorts @Command@ .
 
@@ -17960,9 +17972,7 @@ fmod COMMAND-PROCESSING is
   op getContext : MatchPair ~> Context .
   eq getContext({S:[Substitution], C:[Context]}) = C:[Context] .
 
-
-
-  vars T T' T'' T''' : Term .
+  vars T T' T'' T''' OT : Term .
   var  TL : TermList .
   vars DB DB' DB'' : Database .
   var  DB? : [Database] .
@@ -18917,7 +18927,7 @@ fmod COMMAND-PROCESSING is
   op removeIds : Module IdsToRemove ~> Module .  ---- moved from VARIANTS
   
   ceq procNarrowSearch2(M, T, T', CD, QI, D, D')
-    = if RTS:[ResultTripleSet] :: ResultTripleSet
+    = if Mx:[Module] :: Module and RTS:[ResultTripleSet] :: ResultTripleSet 
       then ('search 
             if D == unbounded and D' == unbounded
             then nil
@@ -18943,32 +18953,36 @@ fmod COMMAND-PROCESSING is
             ('\n '\n 'No 'more 'solutions. '\n))
       else if RTS:[ResultTripleSet] == empty
            then ('search 
-           if D == unbounded and D' == unbounded
-            then nil
-            else '\s '`[ 
-                 if D == unbounded 
-                 then nil 
-                 else qid(string(D, 10)) 
-                 fi
-                 if D' == unbounded
-                 then nil
-                 else '`, qid(string(D', 10))  
-                 fi
-                 '`] '\s
-            fi 
-            'in eMetaPrettyPrint(getName(M)) ':
-                 eMetaPrettyPrint(M, T) 
-                 '\s qid("~>" + string(QI)) '\s 
-                 eMetaPrettyPrint(M, T'') '. '\n '\n
-                 'No 'solution. '\n) 
-           else '\r 'Error: '\o 'Incorrect 'use 'of 'the 'search 'command. '\n 
+                if D == unbounded and D' == unbounded
+                then nil
+                else '\s '`[ 
+                     if D == unbounded 
+                     then nil 
+                     else qid(string(D, 10)) 
+                     fi
+                     if D' == unbounded
+                     then nil
+                     else '`, qid(string(D', 10))  
+                     fi
+                     '`] '\s
+                fi 
+                'in eMetaPrettyPrint(getName(M)) ':
+                   eMetaPrettyPrint(M, T) 
+                   '\s qid("~>" + string(QI)) '\s 
+                   eMetaPrettyPrint(M, T'') '. '\n '\n
+                   'No 'solution. '\n) 
+           else if getMsg(Mx:[Module]) :: QidList
+	        then getMsg(Mx:[Module])
+		else '\r 'Error: '\o 'Incorrect 'use 'of 'the 'search 'command. '\n
+		fi
            fi
       fi 
     if T'' := prepSearchPattern(T')
+       /\ Mx:[Module] := removeIds(axCohComplete(M), non-handled)
        /\ RTS:[ResultTripleSet]
           := upDown(M,
               metaNarrowSearchGen(
-                 removeIds(axCohComplete(M), non-handled),
+                 Mx:[Module],
                  T,
                  T'', 
                  none, 
@@ -19033,22 +19047,21 @@ fmod COMMAND-PROCESSING is
 
   eq prepSearchPattern(T) = term(prepSearchPattern(T, 0)) .
 
-  eq prepSearchPattern('<_:_|_>[O, Ct, T], I)
-    = < '<_:_|_>[O, qid("V#" + string(I, 10) + ":" + string(getName(Ct))),
+  eq prepSearchPattern('<_:_|_>[OT, Ct, T], I)
+    = < '<_:_|_>[OT, qid("V#" + string(I, 10) + ":" + string(getName(Ct))),
            '_`,_[term(prepSearchPattern(T, s s I)), 
                  qid("V#" + string(s I, 10) + ":AttributeSet")]] ;
         index(prepSearchPattern(T, s s I)) > .
-  eq prepSearchPattern('<_:_|`>[O, Ct], I)
-    = < '<_:_|_>[O, qid("V#" + string(I, 10) + ":" + string(getName(Ct))),
+  eq prepSearchPattern('<_:_|`>[OT, Ct], I)
+    = < '<_:_|_>[OT, qid("V#" + string(I, 10) + ":" + string(getName(Ct))),
            qid("V#" + string(s I, 10) + ".AttributeSet")] ;
         s I > .
   eq prepSearchPattern(F[TL], I)
-    = < F[term(prepSearchPattern(TL, I))] ;
-        index(prepSearchPattern(TL, I)) >
+    = < F[term(prepSearchPattern(TL, I))] ; index(prepSearchPattern(TL, I)) >
     [owise] .
 
   eq prepSearchPattern(F, I) = < F ; I > .
-  eq prepSearchPattern(Ct, I) = < Ct ; I > .
+  ----eq prepSearchPattern(Ct, I) = < Ct ; I > .
 
   ceq prepSearchPattern((T, TL), I)
     = < (term(prepSearchPattern(T, I)), 
@@ -19791,8 +19804,8 @@ fmod MODULE-VARIANTS is
   ---- it constructs the corresponding variant equations
   
   eq removeIds(M, Which) ---- Which may be either all or non-handled 
-    = if nonValidAttrs(getOps(M), owise idem iter)
-      then unitError('The 'module 'uses 'non-supported 'attributes '`(owise`, 'idem`, 'or 'iter '`). '\n)
+    = if nonValidAttrs(getOps(M), owise idem) ----  iter
+      then unitError('The 'module 'uses 'non-supported 'attributes '`(owise 'or 'idem`). '\n)
       else if singleVbleInLHSs(getRls(M))
            then unitError('The 'module 'contains 'rules 'with 'single 'variables 'in 'their 'left-hand 'sides. '\n)
            else if singleVbleInLHSs(getEqs(M))
@@ -19828,32 +19841,28 @@ fmod MODULE-VARIANTS is
   eq getVariants#(M, M', T, narrowing) = makeVariantSet(getVariants(M, T, 1, irreducible ACUUnify minimal-unifiers)) .
   
   op makeVariantSet : VariantFourSet -> VariantTripleSet .
-  eq makeVariantSet({T, Subst, Subst', N} | VFS) = {T, Subst, N} | makeVariantSet(VFS) .
+  eq makeVariantSet({T, Subst, Subst', N} | VFS) = {T, Subst, N, none, false} | makeVariantSet(VFS) .
   eq makeVariantSet(empty) = empty .
   
----- PD: pre alpha96
-----  eq getVariants#(M, M', T, built-in) = getVariants#(M, T, 0) .
-----
-----  op getVariants# : Module Term Nat -> VariantTripleSet .  
-----  eq getVariants#(M, T, N) 
-----    = if metaGenerateVariant(M, T, 0, N) == noVariant
-----      then empty
-----      else metaGenerateVariant(M, T, 0, N), getVariants#(M, T, s N)
-----      fi .
-  
-  eq getRlVariants(M, ({'@<@_@>@[T], Subst, N} | VtS), T', nil, AtS)
-    = (rl getTerm(metaNormalize(M, T)) => getTerm(metaNormalize(M, _<<_(T', Subst))) [AtS] .)
+  eq getRlVariants(M, ({'@<@_@>@[T], Subst, N, P:Parent, B:Bool} | VtS), T', nil, AtS)
+    = (rl getTerm(metaNormalize(M, T)) 
+         => getTerm(metaNormalize(M, _<<_(T', Subst))) [AtS] .)
       getRlVariants(M, VtS, T', nil, AtS) .
-  eq getRlVariants(M, ({F[T, TL], Subst,N} | VtS), T', Cond, AtS)
-    = (crl getTerm(metaNormalize(M, T)) => getTerm(metaNormalize(M, _<<_(T', Subst))) if makeCond(TL, Cond, Subst) [AtS] .)
+  eq getRlVariants(M, ({F[T, TL], Subst, N, P:Parent, B:Bool} | VtS), T', Cond, AtS)
+    = (crl getTerm(metaNormalize(M, T)) 
+         => getTerm(metaNormalize(M, _<<_(T', Subst))) 
+         if makeCond(TL, Cond, Subst) [AtS] .)
       getRlVariants(M, VtS, T', Cond, AtS) .
   eq getRlVariants(M, empty, T', Cond, AtS) = none .
 
-  eq getEqVariants(M, ({'@<@_@>@[T], Subst, N} | VtS), T', nil, AtS)
-    = (eq getTerm(metaNormalize(M, T)) = getTerm(metaNormalize(M, _<<_(T', Subst))) [AtS] .)
+  eq getEqVariants(M, ({'@<@_@>@[T], Subst, N, P:Parent, B:Bool} | VtS), T', nil, AtS)
+    = (eq getTerm(metaNormalize(M, T)) 
+         = getTerm(metaNormalize(M, _<<_(T', Subst))) [AtS] .)
       getEqVariants(M, VtS, T', nil, AtS) .
-  eq getEqVariants(M, ({F[T, TL], Subst, N} | VtS), T', Cond, AtS)
-    = (ceq getTerm(metaNormalize(M, T)) = getTerm(metaNormalize(M, _<<_(T', Subst))) if makeCond(TL, Cond, Subst) [AtS] .)
+  eq getEqVariants(M, ({F[T, TL], Subst, N, P:Parent, B:Bool} | VtS), T', Cond, AtS)
+    = (ceq getTerm(metaNormalize(M, T)) 
+         = getTerm(metaNormalize(M, _<<_(T', Subst))) 
+         if makeCond(TL, Cond, Subst) [AtS] .)
       getEqVariants(M, VtS, T', Cond, AtS) .
   eq getEqVariants(M, empty, T', Cond, AtS) = none .
 
@@ -20023,8 +20032,8 @@ fmod MODULE-VARIANTS is
     = getVariants(M', T, getSubst(getSubstitutions(M', vars(T), getOps(M'), 0))) .
 
   eq getVariants(M, T, Subst | SubstS)
-    = {getTerm(metaNormalize(M, T << Subst)), Subst, 0} | getVariants(M, T, SubstS) .
-  eq getVariants(M, T, empty) = {T, none, 0} .
+    = {getTerm(metaNormalize(M, T << Subst)), Subst, 0, none, false} | getVariants(M, T, SubstS) .
+  eq getVariants(M, T, empty) = {T, none, 0, none, false} .
   
   eq getSubstitutions(M, V ; VS, ODS, N)
     = < combineSubsts(
@@ -20109,8 +20118,8 @@ fmod MODULE-VARIANTS is
 
   eq removeLonelyAssocs(M) 
     = if $anyLonelyAssoc(getOps(M))
-      then if nonValidAttrs(getOps(M), owise idem iter)
-           then unitError('The 'module 'uses 'non-supported 'attributes '`(owise`, 'idem`, 'or 'iter '`). '`))
+      then if nonValidAttrs(getOps(M), owise idem) ---- iter
+           then unitError('The 'module 'uses 'non-supported 'attributes '`(owise 'or 'idem`). '`))
            else if singleVbleInLHSs(getRls(M))
                 then unitError('The 'module 'contains 'rules 'with 'single 'variables 'in 'their 'left-hand 'sides. '`))
                 else if singleVbleInLHSs(getEqs(M))
@@ -20924,6 +20933,10 @@ endfm
 *** communication between the loop---the input/output of the system---and the
 *** database.  Depending on the kind of input that the database receives, its 
 *** state will be changed, or some output will be generated.
+
+fmod MOD-EXPRS is
+  pr FM-MOD-EXPRS .
+endfm
 
 mod FULL-MAUDE is
   pr META-FULL-MAUDE-SIGN .

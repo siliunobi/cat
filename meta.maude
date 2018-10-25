@@ -1,4 +1,4 @@
-load full-maude27
+load full-maude
 
 fmod TAG-COMMANDS is
     including COMMANDS .
