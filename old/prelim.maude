@@ -1,0 +1,188 @@
+---load full-maude26
+
+(fmod SOME-PARAMETERS is
+  sort Version .  --- In Walter version is a pair (site,seq#)
+endfm)
+
+(omod TXN-SORTS is  
+  inc SOME-PARAMETERS .
+
+  sorts Key Value Operation LocalVar Expression ObjectList
+        KeyVersion KeyValueVersion ValueVersion Lock ReplicaTable Record .
+  subsort Object < ObjectList .
+  subsort LocalVar < Expression .
+  subsort Nat < Expression .
+  subsort Nat < Oid .
+
+  op versionRead : Key Version -> KeyVersion [ctor] .
+  op <_`,_> : Value Version -> ValueVersion [ctor] .
+  op dftValueVersion : -> ValueVersion [ctor] .
+
+  op lock : Oid Key -> Lock .  --- Txn locks Key
+endom)
+
+(view Operation from TRIV to TXN-SORTS is sort Elt to Operation . endv)
+(view Version from TRIV to TXN-SORTS is sort Elt to Version . endv)
+(view Key from TRIV to TXN-SORTS is sort Elt to Key . endv)
+(view LocalVar from TRIV to TXN-SORTS is sort Elt to LocalVar . endv)
+(view Value from TRIV to TXN-SORTS is sort Elt to Value . endv)
+(view KeyVersion from TRIV to TXN-SORTS is sort Elt to KeyVersion . endv)
+(view KeyValueVersion from TRIV to TXN-SORTS is sort Elt to KeyValueVersion . endv)
+(view ValueVersion from TRIV to TXN-SORTS is sort Elt to ValueVersion . endv)
+(view Lock from TRIV to TXN-SORTS is sort Elt to Lock . endv)
+(view Vote from TRIV to TXN-SORTS is sort Elt to Vote . endv)
+(view Oid from TRIV to TXN-SORTS is sort Elt to Oid . endv)
+(view Record from TRIV to TXN-SORTS is sort Elt to Record . endv)
+
+(omod TXN-AUX1 is
+  pr SET{Oid} * (sort Set{Oid} to OidSet) .
+  pr LIST{Oid} * (sort List{Oid} to OidList) .
+  pr LIST{Operation} * (sort List{Operation} to OperationList) .
+  pr MAP{LocalVar,Value} * (sort Map{LocalVar,Value} to LocalVars) .
+  pr MAP{Key,Value} * (sort Map{Key,Value} to WriteSet) .
+  pr LIST{ValueVersion} * (sort List{ValueVersion} to ValueVersionList) .
+  pr SET{Key} * (sort Set{Key} to KeySet) .
+  pr SET{Lock} * (sort Set{Lock} to Locks) .
+  pr LIST{Key} * (sort List{Key} to KeyList) .
+  pr SET{KeyVersion} * (sort Set{KeyVersion} to ReadSet) .
+
+
+  op write : Key Expression -> Operation [ctor] .
+  op _:=read_ : LocalVar Key -> Operation [ctor] .
+  op waitRemote : Key LocalVar -> Operation [ctor] .  --- "internal" state:
+
+  op _plus_ : Expression Expression -> Expression [ctor] .
+  op eval : Expression LocalVars -> Value .
+
+  op emptyTxnList : -> ObjectList [ctor] .
+  op _;;_ : ObjectList ObjectList -> ObjectList [ctor assoc id: emptyTxnList] .
+
+  var K : Key .
+  var V : Value .
+  var WS : WriteSet .
+
+  op keys : WriteSet -> KeySet .
+  eq keys(empty) = empty .
+  eq keys((K |-> V,WS)) = K, keys(WS) .
+endom)
+(view ValueVersionList from TRIV to TXN-AUX1 is sort Elt to ValueVersionList . endv)
+
+(omod VECTOR-TIMESTAMP is
+  pr MAP{Oid,Nat} * (sort Map{Oid,Nat} to VectorTimestamp,
+                     op undefined to 0) .
+endom)
+
+
+(omod TXN-AUX2 is
+  including TXN-AUX1 .
+  including VECTOR-TIMESTAMP .
+  pr MAP{Oid,Record} * (sort Map{Oid,Record} to Log) .  --- Txn |-> Record
+
+  sort Vote .
+  op noVote : -> Vote [ctor] .
+  op vote : Oid Oid Bool -> Vote [ctor] .  --- TID,RID,yes/no
+  op _;_ : Vote Vote -> Vote [ctor assoc comm id: noVote] .  
+
+  sort VoteSites .  
+  op noVS : -> VoteSites [ctor] .
+  op voteSites : Oid OidSet -> VoteSites [ctor] .  --- TID, Set{RID}
+  op _;_ : VoteSites VoteSites -> VoteSites [ctor assoc comm id: noVS] .
+
+  sort PropagateSites .
+  op noPS : -> PropagateSites [ctor] .
+  op propagateSites : Oid Key OidSet -> PropagateSites [ctor] .  --- TID, K, Set{RID}
+  op _;_ : PropagateSites PropagateSites -> PropagateSites [ctor assoc comm id: noPS] .
+
+  sort PropagatedTxns .
+  op noPT : -> PropagatedTxns [ctor] .
+  op propagatedTxns : Oid Nat VectorTimestamp -> PropagatedTxns [ctor] .
+  op _;_ : PropagatedTxns PropagatedTxns -> PropagatedTxns [ctor assoc comm id: noPT] .
+  op nonPropagatedTxns : Oid Nat VectorTimestamp WriteSet Oid -> PropagatedTxns [ctor] .
+
+  sort DurableTxns .
+  op noDT : -> DurableTxns .
+  op durableTxns : Oid -> DurableTxns [ctor] .
+  op nonDurableTxns : Oid Oid -> DurableTxns [ctor] .  --- TID, RID
+  op _;_ : DurableTxns DurableTxns -> DurableTxns [ctor assoc comm id: noDT] .
+
+  --- site, start time, finish time, committed?, key-versions read, key-versions written
+  op record : Oid Nat VectorTimestamp Bool ReadSet ReadSet -> Record .
+
+  ---op record : Oid Nat VectorTimestamp Bool ReadSet WriteSet -> Record .
+endom)
+
+(omod VALUES-NAT is --- define the sort Value
+  including TXN-AUX1 .
+
+  op `[_`] : Nat -> Value [ctor] .     --- to avoid problems with preregularity
+  var X : LocalVar .  var VARS : LocalVars .  var N : Nat . vars EXPR1 EXPR2 : Expression .
+  op evalAux : Expression LocalVars -> Nat .
+  eq eval(EXPR1, VARS) = [evalAux(EXPR1, VARS)] .
+  eq evalAux(X, ((X |-> [N]), VARS)) = N .
+  eq evalAux(N, VARS) = N .
+  eq evalAux(EXPR1 plus EXPR2, VARS) = evalAux(EXPR1, VARS) + evalAux(EXPR2, VARS) .
+endom)
+
+(omod VERSION-WALTER is
+  including SOME-PARAMETERS .
+  
+  --- site#, sequence#
+  op version : Oid Nat -> Version .
+endom)
+
+
+(omod DATASTORE-WALTER is
+  pr MAP{Key,ValueVersionList} * (sort Map{Key,ValueVersionList} to Datastore) .  --- History in Walter
+endom)
+
+(omod MESSAGE is
+  including TXN-AUX1 .
+  including VECTOR-TIMESTAMP .
+
+  sort MsgCont .
+
+  --- generic msg wrapper:
+  msg msg_from_to_ : MsgCont Oid Oid -> Msg .
+  
+  op request : Key Oid VectorTimestamp -> MsgCont .
+  op reply : Oid Key ValueVersion -> MsgCont .
+  op propagate : Oid Nat VectorTimestamp WriteSet -> MsgCont .
+  op propagate-ack : Oid -> MsgCont .
+  op prepare : Oid KeySet VectorTimestamp -> MsgCont .
+  op prepare-reply : Oid Bool -> MsgCont . --- TID, yes/no, RID
+  op prepare-yes : Oid -> MsgCont .  --- TID, RID
+  op prepare-no : Oid -> MsgCont .
+  op abort : Oid -> MsgCont . --- TID, RID
+  op ds-durable : Oid -> MsgCont .  --- TID, RID
+  op visible : Oid -> MsgCont .
+  op aborted : Oid -> MsgCont .
+
+  --- aux msgs
+  op start : -> MsgCont .
+  op execute : -> MsgCont .
+  op readyForPropagateAck : Oid -> MsgCont .
+  op readyForVisible : Oid -> MsgCont .
+endom)
+
+(omod CLIENT-REPLICA is
+  including TXN-SORTS .
+  including TXN-AUX2 .
+  including DATASTORE-WALTER .
+  including VECTOR-TIMESTAMP .
+
+  class Replica | history : Datastore, sqn : Nat, executing : ObjectList,
+                  committed : ObjectList, aborted : ObjectList,
+                  committedVTS : VectorTimestamp, gotVTS : VectorTimestamp,
+                  locked : Locks, gotTxns : ObjectList, dsSites : PropagateSites,
+                  vsbSites : VoteSites, dsTxns : OidSet, gvTxns : OidSet,
+                  recPropTxns : PropagatedTxns, recDurableTxns : DurableTxns,
+                  votes : Vote, voteSites : VoteSites, abortSites : VoteSites .
+
+  class Txn | operations : OperationList, readSet : ReadSet, writeSet : WriteSet,
+              localVars : LocalVars, startVTS : VectorTimestamp, txnSQN : Nat .
+
+  class Table | table : ReplicaTable .
+
+  class Monitor | clock : Nat, log : Log .
+endom)
+
