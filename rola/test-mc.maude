@@ -1,4 +1,5 @@
 load initial-states-mc
+load model-checker
 
 mod ROLA-ANALYSIS is
   including INITIAL-STATES .
@@ -44,68 +45,6 @@ mod ROLA-ANALYSIS is
                        1stGetSites: no1st,
                        2ndGetSites: no2nd, commitSites: noVS, tsSqn: empty > .
   
-
----(
-  --- Metrics
-  vars T T' T1 T2 NUMBER : Float .
-  var C : Config .
-  vars M TID : Address .
-  vars RECORD RECORD' : Record . 
-  vars READS WRITES : VersionSet .
-  var FLAG : Bool .
-
-  --- Throughput
-  op totalRunTime : Record -> Float .
-  op trt : Record Float -> Float .
-  eq totalRunTime(RECORD) = trt(RECORD,0.0) .
-  eq trt((record(TID,T1,T2,READS,WRITES,FLAG) ; RECORD),T) = 
-       if T2 > T
-         then trt(RECORD,T2)
-         else trt(RECORD,T)
-       fi .
-  eq trt(noRecord,T) = T .
-         
-  op throughput : Config -> Float .
-  eq throughput(< M : Monitor | log: RECORD > C) = committedNumber(RECORD) / totalRunTime(RECORD) .
-
-  op committedNumber : Record -> Float .
-  op $committedNumber : Record Float -> Float .
-  eq committedNumber(RECORD) = $committedNumber(RECORD,0.0) .
-  eq $committedNumber((record(TID,T1,T2,READS,WRITES,true) ; RECORD),NUMBER) = 
-       $committedNumber(RECORD,NUMBER + 1.0) .
-  eq $committedNumber((record(TID,T1,T2,READS,WRITES,false) ; RECORD),NUMBER) = 
-       $committedNumber(RECORD,NUMBER) .
-  eq $committedNumber(noRecord,NUMBER) = NUMBER .
-
-  --- Commit Rate
-  op commitRate : Config -> Float .
-  eq commitRate(< M : Monitor | log: RECORD > C) = committedNumber(RECORD) / totalNumber(RECORD) .
-
-  op totalNumber : Record -> Float .
-  op $totalNumber : Record Float -> Float .
-  eq totalNumber(RECORD) = $totalNumber(RECORD,0.0) .
-  eq $totalNumber((record(TID,T1,T2,READS,WRITES,FLAG) ; RECORD),NUMBER) = 
-       $totalNumber(RECORD,NUMBER + 1.0) .
-  eq $totalNumber(noRecord,NUMBER) = NUMBER .  
-
-  --- Avg Latency
-  op avgLatency : Config -> Float .
-  eq avgLatency(< M : Monitor | log: RECORD > C) = totalLatency(RECORD) / committedNumber(RECORD) .
-  
-  op totalLatency : Record -> Float .
-  op $totalLatency : Record Float -> Float .
-  eq totalLatency(RECORD) = $totalLatency(RECORD,0.0) .
-  eq $totalLatency((record(TID,T1,T2,READS,WRITES,true) ; RECORD),NUMBER) =
-       $totalLatency(RECORD,NUMBER + T2 - T1) .
-  eq $totalLatency((record(TID,T1,T2,READS,WRITES,false) ; RECORD),NUMBER) = 
-       $totalLatency(RECORD,NUMBER) .
-  eq $totalLatency(noRecord,NUMBER) = NUMBER .
-
-  --- PVESTA interfaces
-  eq val(0,C) = throughput(C) .
-  eq val(1,C) = avgLatency(C) .
-  eq val(2,C) = commitRate(C) .
-)
 endm
 
 ---set clear rules off .
