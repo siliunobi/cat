@@ -5,7 +5,6 @@ mod ROLA-TAGGED is
   including CLIENT-REPLICA .
   including MESSAGE .
   including REPLICA-TABLE .
-  including SAMPLER .
   including VERSION-ROLA .
   including VALUES-NAT .
   including SCHEDULER .
