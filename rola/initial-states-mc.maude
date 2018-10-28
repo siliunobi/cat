@@ -128,12 +128,6 @@ mod INIT-PARAMETERS is
   ops nbOfRoTxns      nbOfWoTxns      nbOfRwTxns
       nbOfOpsPerRoTxn nbOfOpsPerWoTxn nbOfOpsPerRwTxn
       nbOfServs       nbOfKeys        nbOfRepls : -> Nat .
-
-  eq nbOfRoTxns = 1 .  eq nbOfOpsPerRoTxn = 2 .
-  eq nbOfWoTxns = 1 .  eq nbOfOpsPerWoTxn = 2 .
-  eq nbOfRwTxns = 1 .  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
-  eq nbOfServs  = 2 .  eq nbOfKeys = 2 .  eq nbOfRepls = 1 .
-
 endm
 
 mod INITIAL-STATES is

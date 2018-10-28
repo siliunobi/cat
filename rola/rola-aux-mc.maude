@@ -320,4 +320,16 @@ mod ROLA-AUX is
   eq K in (OPS (X :=read K) OPS') = true .
   eq K in (OPS write(K,EXPR) OPS') = true .
   eq K in OPS = false [owise] .
+
+  --- version order
+  op _<_ : Version Version -> Bool .
+  eq < RID,SQN > < < RID',SQN' > =
+       if SQN < SQN'
+         then true
+         else if SQN == SQN' and RID < RID'
+                then true
+                else false
+              fi
+       fi .
+
 endm
