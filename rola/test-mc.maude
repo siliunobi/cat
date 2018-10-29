@@ -1,25 +1,27 @@
-load initial-states-mc
+load consistency
 load model-checker
 
 mod ROLA-ANALYSIS is
-  including INITIAL-STATES .
-  including APMAUDE .
-  including MODEL-CHECKER .
+  inc INITIAL-STATES .
+  inc CONSISTENCY .
+  inc MODEL-CHECKER .
 
-  subsort Config < State .
+  --- Init parameters 
+  eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
+  eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
+  eq nbOfRwTxns = 3 .  eq nbOfOpsPerRwTxn = 4 .  --- must be even number
+  eq nbOfServs  = 2 .  eq nbOfKeys = 2 .  eq nbOfRepls = 1 .
 
-  eq LIMIT = 10000000.0 .
 
   op initConfig : -> Config .
-  ---eq initConfig = run(initState,LIMIT) .
+  eq initConfig = init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,
+      nbOfOpsPerRoTxn,nbOfOpsPerWoTxn,nbOfOpsPerRwTxn, 
+      nbOfServs,nbOfKeys,nbOfRepls) . 
 
+  ---(
   ops x y z : -> Key .
   ops tb r1 r2 r3 t1 t2 t3 t4 : -> Address .
   ops xl yl zl : -> LocalVar .
-  
-  --- init(RTX,WTX,RWTX,REPLS,KEYS,ROPS,WOPS,RWOPS,KAD) 
-  ---eq initState = init(1,0,1,2,2,2,2,4,zipf) .
-
 
   eq initConfig = < tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
      (start to 1) (start to 2)
@@ -44,12 +46,33 @@ mod ROLA-ANALYSIS is
                       voteSites: noVS, 
                        1stGetSites: no1st,
                        2ndGetSites: no2nd, commitSites: noVS, tsSqn: empty > .
-  
+  )
+
+
 endm
 
----set clear rules off .
----rewrite initConfig .
-search initConfig =>! C:Config .
----rewrite totalRunTime?(initConfig) .
+---rew initConfig .
+---search initConfig =>! C:Config .
 
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not rc(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not ra(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not cs(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not ua(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not si(LOG:Log) .
+
+search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  such that not psi(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not nmsi(LOG:Log) .
+q
 
