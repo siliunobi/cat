@@ -108,8 +108,8 @@ mod CONSISTENCY is
  ceq notCausality((
       TID1 |-> < VT1,(RID2 |-> T1,RID |-> T3,VT2),true,RS,WS >, 
       TID2 |-> < RID2 |-> T2,(RID |-> T4,VT4),true,RS',WS' >, 
-        LOG)) = false if T1 < T2 /\ T3 > T4 .
-  eq notCausality(LOG) = true [owise] .
+        LOG)) = true if T1 < T2 /\ T3 > T4 .
+  eq notCausality(LOG) = false [owise] .
 
  op psi : Log -> Bool .
  eq psi(LOG) = not notSiteSnapshotRead(LOG) and 
