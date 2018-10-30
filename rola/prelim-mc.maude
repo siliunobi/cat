@@ -77,6 +77,8 @@ fmod TXN-AUX1 is
   var A : Address .
   var AS : AddressSet .  
 
+  eq A ; A = A .
+
   op delete : Address AddressSet -> AddressSet .
   op delete1 : Address AddressSet -> AddressSet .
   eq delete(A, A ; AS) = delete(A, AS) .

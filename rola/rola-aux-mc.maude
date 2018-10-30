@@ -15,7 +15,7 @@ mod ROLA-AUX is
 
 
   vars RID TID RID' TABLE M : Address .
-  var RIDS : AddressSet .
+  vars RIDS TIDS : AddressSet .
   vars AS AS' : AttributeSet .
   vars TXNS TXNS' : ConfigList .
   vars K K' : Key .
@@ -332,4 +332,7 @@ mod ROLA-AUX is
               fi
        fi .
 
+  op _in_ : Address AddressSet -> Bool .
+  eq TID in (TID ; TIDS) = true .
+  eq TID in TIDS = false [owise] .
 endm
