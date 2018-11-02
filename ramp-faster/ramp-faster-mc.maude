@@ -152,42 +152,6 @@ mod RAMP-F is
      (msg committed(TID) from RID to RID') .  
 
 
----(
- crl [receive-prepare-reply] :
-     < TABLE : Table | table: REPLICA-TABLE >
-     < RID : Replica | executing: < TID : Txn | operations: OPS, AS >,
-                       voteSites: VSTS,
-                       sqn: SQN,
-                       commitSites: CMTS, AS' >
-     (msg prepare-reply(TID,FLAG) from RID' to RID)  --- FLAG is always true in RAMP
-   =>
-     < TABLE : Table | table: REPLICA-TABLE >
-     if VSTS'[TID] == empty  --- all votes received
-       then < RID : Replica | executing: < TID : Txn | operations: OPS, AS >,
-                              voteSites: VSTS',
-                              sqn: SQN,
-                              commitSites: (CMTS ; voteSites(TID,RIDS)), AS' >
-            genCommits(TID,SQN,RIDS,RID)
-       else < RID : Replica | executing: < TID : Txn | operations: OPS, AS >,
-                              voteSites: VSTS',
-                              sqn: SQN,
-                              commitSites: CMTS, AS' >
-     fi 
-   if VSTS' := remove(TID,RID',VSTS) /\
-      RIDS := prepareSites(OPS,RID,REPLICA-TABLE) .  --- as of now, commitSites == prepareSites
-
-
-  rl [receive-commit] :
-     < RID : Replica | datastore: VS,
-                       latestCommit: LC, AS' >  --- "latestCommit" initialized as K |-> ts(0,0) ???
-                                                --- not necessarily, because "maxts" deals with when K is not in latestCommit
-     (msg commit(TID,ts(RID',SQN)) from RID' to RID)
-   =>
-     < RID : Replica | datastore: VS,
-                       latestCommit: cmt(LC,VS,ts(RID',SQN)), AS' >
-     (msg committed(TID) from RID to RID') .
-)
-
  crl [receive-committed] :
      < O@M : Monitor | clock: GT@M, log: (TID |-> 
        < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >

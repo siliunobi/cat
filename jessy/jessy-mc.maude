@@ -411,6 +411,3 @@ mod JESSY is
      < RID : Replica | abortSites: (ABORTS ; voteSites(TID,RIDS)), AS > .
 
 endm 
-
-
-
