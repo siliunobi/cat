@@ -151,7 +151,7 @@ mod CONSISTENCY is
          true,RS,(< X,VX >,WS) >, 
       TID2 |-> < RID' |-> T2,(RID' |-> T2',VT'),
          true,RS',(< X,VX' >,WS') >, LOG)) = true
-     if T1 > T2 /\ T1' < T2' /\ noCommittedBetween(X,T1',T2',LOG) .
+     if T1' > T2 /\ T1' < T2' /\ noCommittedBetween(X,T1',T2',LOG) .
   eq notRtWriteDep(LOG) = false [owise] . 
 
   --- Anti-dependency violates real-time order
@@ -163,7 +163,7 @@ mod CONSISTENCY is
          true,RS2,(< X,VX' >,WS2) >,
       TID3 |-> < RID3 |-> T3, (RID3 |-> T3',VT3), 
          true,RS3,(< X,VX >,WS3) >,LOG)) = true 
-     if T3' < T2' /\ T1 > T2 /\ noCommittedBetween(X,T3',T2',LOG) .
+     if T3' < T2' /\ T1' > T2 /\ noCommittedBetween(X,T3',T2',LOG) .
   eq notRtAntiDep(LOG) = false [owise] . 
 
   op sser : Log -> Bool .
