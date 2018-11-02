@@ -1,9 +1,24 @@
-load gdur-pstore-mc
+load consistency
 
 mod TEST-GDUR-PSTORE is
-  including PSTORE-GDUR .
-  including VALUES-NAT .
+  inc INITIAL-STATES .
+  inc CONSISTENCY .
 
+  --- Init parameters 
+  eq nbOfRoTxns = 1 .  eq nbOfOpsPerRoTxn = 2 .
+  eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
+  eq nbOfRwTxns = 0 .  eq nbOfOpsPerRwTxn = 0 .  --- must be even number
+  eq nbOfCls = 2 . 
+  eq nbOfServs  = 2 .  
+  eq nbOfKeys = 2 .  
+  eq nbOfRepls = 2 .
+
+  op initConfig : -> Config .
+  eq initConfig = init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,
+      nbOfOpsPerRoTxn,nbOfOpsPerWoTxn,nbOfOpsPerRwTxn, 
+      nbOfCls,nbOfServs,nbOfKeys,nbOfRepls) . 
+
+---(
   ops r1 r2 r3 r4 : -> Address [ctor] .
   ops t1 t2 t3 t4 t5 : -> Address [ctor] .
   ops c1 c2 c3 : -> Address [ctor] .
@@ -161,25 +176,31 @@ mod TEST-GDUR-PSTORE is
 		      submitted: null,
 		      certificationQueue: noTrans,
 		      rmtCommitted: noTS > .
-
+)
 endm
 
---- Analysis:
+rew initConfig .
+---search initConfig =>! C:Config .
 
----rew init1 .
----search init1 =>! C:Config .
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not rc(LOG:Log) .
 
----rew init2 .
----search init2 =>! C:Config .
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not ra(LOG:Log) .
 
----rew init3 .
-search init3 =>! C:Config .
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not cs(LOG:Log) .
 
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not ua(LOG:Log) .
 
----(search init1 =>! C:[Configuration] .)
---- returns the one desired solution
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not si(LOG:Log) .
 
----(search init3 =>! C:[Configuration] .)
---- returns the five desired solutions
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not psi(LOG:Log) .
 
-q
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not nmsi(LOG:Log) .
+
+---q

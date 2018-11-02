@@ -3,208 +3,49 @@
 		     /||||||||||||||||||\
 	   Maude 2.7.1 built: Jun 27 2016 16:35:16
 	    Copyright 1997-2016 SRI International
-		   Sun Oct 21 11:04:11 2018
+		   Wed Oct 31 17:07:55 2018
 ==========================================
-search in TEST-GDUR-PSTORE : init3 =>! C:Config .
-
-Solution 1 (state 5136)
-states: 5162  rewrites: 253823 in 388ms cpu (390ms real) (654182
-    rewrites/second)
-C:Config --> 
-< r1 : Replica | datastore: < z,[2],1 >,committed: null,aborted: 
-< t1 : Transaction | operations: nil,proxy: r1,readSet: (< x,1 >, < y,1 >),
-    writeSet: empty,status: undecided,localVars: (xl |-> [2], yl |-> [2]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >,executing:
-    null,submitted: null,rmtCommitted: noTS,certificationQueue: noTrans > 
-< r2 : Replica | datastore: (< x,[8],2 >, < y,[5],2 >),committed: 
-< t2 : Transaction | operations: nil,proxy: r2,readSet: empty,writeSet: (< x,[
-    8] >, < y,[5] >),status: undecided,localVars: (xl |-> [0], yl |-> [0]),
-    version: (< x,2 >, < y,2 >),votesRcvdFrom: emptyAddressSet,voted: false >,
-    aborted: null,executing: null,submitted: null,rmtCommitted: (transStatus(
-    t1, abort) ; transStatus(t2, commit)),certificationQueue: noTrans > 
-< r3 : Replica | datastore: (< x,[8],2 >, < y,[5],2 >),committed: null,aborted:
-    null,executing: null,submitted: null,rmtCommitted: (transStatus(t1, abort)
-    ; transStatus(t2, commit)),certificationQueue: noTrans > 
-< c1 : Client | txns: noTrans,pendingTrans: emptyAddressSet > 
-< c2 : Client | txns: noTrans,pendingTrans: emptyAddressSet > 
-< amt : A-Table | am-table: [am-entry(r2, certify(
-< t2 : Transaction | operations: nil,proxy: r2,readSet: empty,writeSet: (< x,[
-    8] >, < y,[5] >),status: undecided,localVars: (xl |-> [0], yl |-> [0]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >) :: certify(
-< t1 : Transaction | operations: nil,proxy: r1,readSet: (< x,1 >, < y,1 >),
-    writeSet: empty,status: undecided,localVars: (xl |-> [2], yl |-> [2]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >),
-    emptyMsgContSet) am-entry(r3, certify(
-< t2 : Transaction | operations: nil,proxy: r2,readSet: empty,writeSet: (< x,[
-    8] >, < y,[5] >),status: undecided,localVars: (xl |-> [0], yl |-> [0]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >) :: certify(
-< t1 : Transaction | operations: nil,proxy: r1,readSet: (< x,1 >, < y,1 >),
-    writeSet: empty,status: undecided,localVars: (xl |-> [2], yl |-> [2]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >),
-    emptyMsgContSet)] > 
-< rplt : Table | table: [replicatingSites(x, r2 ; r3) ;; replicatingSites(y, r2
-    ; r3) ;; replicatingSites(z, r1)] > 
-< m : Monitor | log: empty,clock: 0 >
-
-Solution 2 (state 5137)
-states: 5162  rewrites: 253823 in 388ms cpu (390ms real) (654182
-    rewrites/second)
-C:Config --> 
-< r1 : Replica | datastore: < z,[2],1 >,committed: null,aborted: 
-< t1 : Transaction | operations: nil,proxy: r1,readSet: (< x,1 >, < y,2 >),
-    writeSet: empty,status: undecided,localVars: (xl |-> [2], yl |-> [5]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >,executing:
-    null,submitted: null,rmtCommitted: noTS,certificationQueue: noTrans > 
-< r2 : Replica | datastore: (< x,[8],2 >, < y,[5],2 >),committed: 
-< t2 : Transaction | operations: nil,proxy: r2,readSet: empty,writeSet: (< x,[
-    8] >, < y,[5] >),status: undecided,localVars: (xl |-> [0], yl |-> [0]),
-    version: (< x,2 >, < y,2 >),votesRcvdFrom: emptyAddressSet,voted: false >,
-    aborted: null,executing: null,submitted: null,rmtCommitted: (transStatus(
-    t1, abort) ; transStatus(t2, commit)),certificationQueue: noTrans > 
-< r3 : Replica | datastore: (< x,[8],2 >, < y,[5],2 >),committed: null,aborted:
-    null,executing: null,submitted: null,rmtCommitted: (transStatus(t1, abort)
-    ; transStatus(t2, commit)),certificationQueue: noTrans > 
-< c1 : Client | txns: noTrans,pendingTrans: emptyAddressSet > 
-< c2 : Client | txns: noTrans,pendingTrans: emptyAddressSet > 
-< amt : A-Table | am-table: [am-entry(r2, certify(
-< t2 : Transaction | operations: nil,proxy: r2,readSet: empty,writeSet: (< x,[
-    8] >, < y,[5] >),status: undecided,localVars: (xl |-> [0], yl |-> [0]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >) :: certify(
-< t1 : Transaction | operations: nil,proxy: r1,readSet: (< x,1 >, < y,2 >),
-    writeSet: empty,status: undecided,localVars: (xl |-> [2], yl |-> [5]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >),
-    emptyMsgContSet) am-entry(r3, certify(
-< t2 : Transaction | operations: nil,proxy: r2,readSet: empty,writeSet: (< x,[
-    8] >, < y,[5] >),status: undecided,localVars: (xl |-> [0], yl |-> [0]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >) :: certify(
-< t1 : Transaction | operations: nil,proxy: r1,readSet: (< x,1 >, < y,2 >),
-    writeSet: empty,status: undecided,localVars: (xl |-> [2], yl |-> [5]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >),
-    emptyMsgContSet)] > 
-< rplt : Table | table: [replicatingSites(x, r2 ; r3) ;; replicatingSites(y, r2
-    ; r3) ;; replicatingSites(z, r1)] > 
-< m : Monitor | log: empty,clock: 0 >
-
-Solution 3 (state 5153)
-states: 5168  rewrites: 253945 in 388ms cpu (390ms real) (654497
-    rewrites/second)
-C:Config --> 
-< r1 : Replica | datastore: < z,[2],1 >,committed: null,aborted: 
-< t1 : Transaction | operations: nil,proxy: r1,readSet: (< x,2 >, < y,1 >),
-    writeSet: empty,status: undecided,localVars: (xl |-> [8], yl |-> [2]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >,executing:
-    null,submitted: null,rmtCommitted: noTS,certificationQueue: noTrans > 
-< r2 : Replica | datastore: (< x,[8],2 >, < y,[5],2 >),committed: 
-< t2 : Transaction | operations: nil,proxy: r2,readSet: empty,writeSet: (< x,[
-    8] >, < y,[5] >),status: undecided,localVars: (xl |-> [0], yl |-> [0]),
-    version: (< x,2 >, < y,2 >),votesRcvdFrom: emptyAddressSet,voted: false >,
-    aborted: null,executing: null,submitted: null,rmtCommitted: (transStatus(
-    t1, abort) ; transStatus(t2, commit)),certificationQueue: noTrans > 
-< r3 : Replica | datastore: (< x,[8],2 >, < y,[5],2 >),committed: null,aborted:
-    null,executing: null,submitted: null,rmtCommitted: (transStatus(t1, abort)
-    ; transStatus(t2, commit)),certificationQueue: noTrans > 
-< c1 : Client | txns: noTrans,pendingTrans: emptyAddressSet > 
-< c2 : Client | txns: noTrans,pendingTrans: emptyAddressSet > 
-< amt : A-Table | am-table: [am-entry(r2, certify(
-< t2 : Transaction | operations: nil,proxy: r2,readSet: empty,writeSet: (< x,[
-    8] >, < y,[5] >),status: undecided,localVars: (xl |-> [0], yl |-> [0]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >) :: certify(
-< t1 : Transaction | operations: nil,proxy: r1,readSet: (< x,2 >, < y,1 >),
-    writeSet: empty,status: undecided,localVars: (xl |-> [8], yl |-> [2]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >),
-    emptyMsgContSet) am-entry(r3, certify(
-< t2 : Transaction | operations: nil,proxy: r2,readSet: empty,writeSet: (< x,[
-    8] >, < y,[5] >),status: undecided,localVars: (xl |-> [0], yl |-> [0]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >) :: certify(
-< t1 : Transaction | operations: nil,proxy: r1,readSet: (< x,2 >, < y,1 >),
-    writeSet: empty,status: undecided,localVars: (xl |-> [8], yl |-> [2]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >),
-    emptyMsgContSet)] > 
-< rplt : Table | table: [replicatingSites(x, r2 ; r3) ;; replicatingSites(y, r2
-    ; r3) ;; replicatingSites(z, r1)] > 
-< m : Monitor | log: empty,clock: 0 >
-
-Solution 4 (state 5168)
-states: 5170  rewrites: 254025 in 388ms cpu (391ms real) (654703
-    rewrites/second)
-C:Config --> 
-< r1 : Replica | datastore: < z,[2],1 >,committed: 
-< t1 : Transaction | operations: nil,proxy: r1,readSet: (< x,1 >, < y,1 >),
-    writeSet: empty,status: undecided,localVars: (xl |-> [2], yl |-> [2]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >,aborted: null,
-    executing: null,submitted: null,rmtCommitted: noTS,certificationQueue:
-    noTrans > 
-< r2 : Replica | datastore: (< x,[8],2 >, < y,[5],2 >),committed: 
-< t2 : Transaction | operations: nil,proxy: r2,readSet: empty,writeSet: (< x,[
-    8] >, < y,[5] >),status: undecided,localVars: (xl |-> [0], yl |-> [0]),
-    version: (< x,2 >, < y,2 >),votesRcvdFrom: emptyAddressSet,voted: false >,
-    aborted: null,executing: null,submitted: null,rmtCommitted: (transStatus(
-    t1, commit) ; transStatus(t2, commit)),certificationQueue: noTrans > 
-< r3 : Replica | datastore: (< x,[8],2 >, < y,[5],2 >),committed: null,aborted:
-    null,executing: null,submitted: null,rmtCommitted: (transStatus(t1, commit)
-    ; transStatus(t2, commit)),certificationQueue: noTrans > 
-< c1 : Client | txns: noTrans,pendingTrans: emptyAddressSet > 
-< c2 : Client | txns: noTrans,pendingTrans: emptyAddressSet > 
-< amt : A-Table | am-table: [am-entry(r2, certify(
-< t1 : Transaction | operations: nil,proxy: r1,readSet: (< x,1 >, < y,1 >),
-    writeSet: empty,status: undecided,localVars: (xl |-> [2], yl |-> [2]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >) :: certify(
-< t2 : Transaction | operations: nil,proxy: r2,readSet: empty,writeSet: (< x,[
-    8] >, < y,[5] >),status: undecided,localVars: (xl |-> [0], yl |-> [0]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >),
-    emptyMsgContSet) am-entry(r3, certify(
-< t1 : Transaction | operations: nil,proxy: r1,readSet: (< x,1 >, < y,1 >),
-    writeSet: empty,status: undecided,localVars: (xl |-> [2], yl |-> [2]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >) :: certify(
-< t2 : Transaction | operations: nil,proxy: r2,readSet: empty,writeSet: (< x,[
-    8] >, < y,[5] >),status: undecided,localVars: (xl |-> [0], yl |-> [0]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >),
-    emptyMsgContSet)] > 
-< rplt : Table | table: [replicatingSites(x, r2 ; r3) ;; replicatingSites(y, r2
-    ; r3) ;; replicatingSites(z, r1)] > 
-< m : Monitor | log: empty,clock: 0 >
-
-Solution 5 (state 5169)
-states: 5170  rewrites: 254025 in 388ms cpu (391ms real) (654703
-    rewrites/second)
-C:Config --> 
-< r1 : Replica | datastore: < z,[2],1 >,committed: 
-< t1 : Transaction | operations: nil,proxy: r1,readSet: (< x,2 >, < y,2 >),
-    writeSet: empty,status: undecided,localVars: (xl |-> [8], yl |-> [5]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >,aborted: null,
-    executing: null,submitted: null,rmtCommitted: noTS,certificationQueue:
-    noTrans > 
-< r2 : Replica | datastore: (< x,[8],2 >, < y,[5],2 >),committed: 
-< t2 : Transaction | operations: nil,proxy: r2,readSet: empty,writeSet: (< x,[
-    8] >, < y,[5] >),status: undecided,localVars: (xl |-> [0], yl |-> [0]),
-    version: (< x,2 >, < y,2 >),votesRcvdFrom: emptyAddressSet,voted: false >,
-    aborted: null,executing: null,submitted: null,rmtCommitted: (transStatus(
-    t1, commit) ; transStatus(t2, commit)),certificationQueue: noTrans > 
-< r3 : Replica | datastore: (< x,[8],2 >, < y,[5],2 >),committed: null,aborted:
-    null,executing: null,submitted: null,rmtCommitted: (transStatus(t1, commit)
-    ; transStatus(t2, commit)),certificationQueue: noTrans > 
-< c1 : Client | txns: noTrans,pendingTrans: emptyAddressSet > 
-< c2 : Client | txns: noTrans,pendingTrans: emptyAddressSet > 
-< amt : A-Table | am-table: [am-entry(r2, certify(
-< t2 : Transaction | operations: nil,proxy: r2,readSet: empty,writeSet: (< x,[
-    8] >, < y,[5] >),status: undecided,localVars: (xl |-> [0], yl |-> [0]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >) :: certify(
-< t1 : Transaction | operations: nil,proxy: r1,readSet: (< x,2 >, < y,2 >),
-    writeSet: empty,status: undecided,localVars: (xl |-> [8], yl |-> [5]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >),
-    emptyMsgContSet) am-entry(r3, certify(
-< t2 : Transaction | operations: nil,proxy: r2,readSet: empty,writeSet: (< x,[
-    8] >, < y,[5] >),status: undecided,localVars: (xl |-> [0], yl |-> [0]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >) :: certify(
-< t1 : Transaction | operations: nil,proxy: r1,readSet: (< x,2 >, < y,2 >),
-    writeSet: empty,status: undecided,localVars: (xl |-> [8], yl |-> [5]),
-    version: empty,votesRcvdFrom: emptyAddressSet,voted: false >),
-    emptyMsgContSet)] > 
-< rplt : Table | table: [replicatingSites(x, r2 ; r3) ;; replicatingSites(y, r2
-    ; r3) ;; replicatingSites(z, r1)] > 
-< m : Monitor | log: empty,clock: 0 >
-
-No more solutions.
-states: 5170  rewrites: 254025 in 392ms cpu (391ms real) (648022
-    rewrites/second)
+rewrite in TEST-GDUR-PSTORE : initConfig .
+rewrites: 1522 in 4ms cpu (2ms real) (380500 rewrites/second)
+result ActorConfig: 
+< 0 . 1 : Table | table: [replicatingSites(k1, 2 . 1 ; 2 . 2) ;;
+    replicatingSites(k2, 2 . 1 ; 2 . 2)] > 
+< 0 . 2 : Monitor | log: (1 . 1 . 1 |-> < 2 . 1 |-> 0,2 . 1 |-> 3, 2 . 2 |-> 4,
+    true,< k1,1 >, < k2,1 >,< k1,2 >, < k2,2 > >, 1 . 2 . 1 |-> < 2 . 1 |-> 1,2
+    . 1 |-> 6, 2 . 2 |-> 7,true,< k1,2 >, < k2,2 >,< k1,3 >, < k2,3 > >),clock:
+    8 > 
+< 0 . 3 : A-Table | am-table: [am-entry(2 . 1, certify(
+< 1 . 1 . 1 : Transaction | operations: nil,proxy: 2 . 1,readSet: (< k1,1 >, <
+    k2,1 >),writeSet: (< k1,[4] >, < k2,[2] >),status: undecided,localVars: (
+    k1l |-> [0], k2l |-> [0]),version: empty,votesRcvdFrom: emptyAddressSet,
+    voted: false >) :: certify(
+< 1 . 2 . 1 : Transaction | operations: nil,proxy: 2 . 1,readSet: (< k1,2 >, <
+    k2,2 >),writeSet: (< k1,[4] >, < k2,[2] >),status: undecided,localVars: (
+    k1l |-> [4], k2l |-> [2]),version: empty,votesRcvdFrom: emptyAddressSet,
+    voted: false >), emptyMsgContSet) am-entry(2 . 2, certify(
+< 1 . 1 . 1 : Transaction | operations: nil,proxy: 2 . 1,readSet: (< k1,1 >, <
+    k2,1 >),writeSet: (< k1,[4] >, < k2,[2] >),status: undecided,localVars: (
+    k1l |-> [0], k2l |-> [0]),version: empty,votesRcvdFrom: emptyAddressSet,
+    voted: false >) :: certify(
+< 1 . 2 . 1 : Transaction | operations: nil,proxy: 2 . 1,readSet: (< k1,2 >, <
+    k2,2 >),writeSet: (< k1,[4] >, < k2,[2] >),status: undecided,localVars: (
+    k1l |-> [4], k2l |-> [2]),version: empty,votesRcvdFrom: emptyAddressSet,
+    voted: false >), emptyMsgContSet)] > 
+< 1 . 1 : Client | txns: noTrans,pendingTrans: emptyAddressSet > 
+< 1 . 2 : Client | txns: noTrans,pendingTrans: emptyAddressSet > 
+< 2 . 1 : Replica | datastore: (< k1,[4],3 >, < k2,[2],3 >),committed: (
+< 1 . 1 . 1 : Transaction | operations: nil,proxy: 2 . 1,readSet: (< k1,1 >, <
+    k2,1 >),writeSet: (< k1,[4] >, < k2,[2] >),status: undecided,localVars: (
+    k1l |-> [0], k2l |-> [0]),version: (< k1,2 >, < k2,2 >),votesRcvdFrom:
+    emptyAddressSet,voted: false > 
+< 1 . 2 . 1 : Transaction | operations: nil,proxy: 2 . 1,readSet: (< k1,2 >, <
+    k2,2 >),writeSet: (< k1,[4] >, < k2,[2] >),status: undecided,localVars: (
+    k1l |-> [4], k2l |-> [2]),version: (< k1,3 >, < k2,3 >),votesRcvdFrom:
+    emptyAddressSet,voted: false >),aborted: null,executing: null,submitted:
+    null,rmtCommitted: (transStatus(1 . 1 . 1, commit) ; transStatus(1 . 2 . 1,
+    commit)),certificationQueue: noTrans > 
+< 2 . 2 : Replica | datastore: (< k1,[4],3 >, < k2,[2],3 >),committed: null,
+    aborted: null,executing: null,submitted: null,rmtCommitted: (transStatus(1
+    . 1 . 1, commit) ; transStatus(1 . 2 . 1, commit)),certificationQueue:
+    noTrans >
 Bye.

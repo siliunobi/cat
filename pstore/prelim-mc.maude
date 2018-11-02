@@ -13,9 +13,7 @@
 ---load full-maude
 
 *** NEW
-load sampler
 load apmaude
-load model-checker
 
 fmod SOME-PARAMETERS is
   sort Version .   --- could be different things
@@ -122,6 +120,10 @@ mod SORTS is
   eq (RID ; RIDS) \ RID = RIDS .
   eq RIDS \ RID = RIDS [owise] .
 
+  op _in_ : Address AddressSet -> Bool .
+  eq RID in (RID ; RIDS) = true .
+  eq RID in RIDS = false [owise] .
+
   sort TransStatusSet .
   op noTS : -> TransStatusSet [ctor] .
   op transStatus : Address TransStatus -> TransStatusSet [ctor] .
@@ -164,6 +166,13 @@ mod SORTS is
   op _in_ : Key Set{KeyValue} -> Bool .
   eq K in (WRITESET,< K,V >) = true .
   eq K in WRITESET = false [owise] .
+
+  vars OPS OPS' : OperationList .  var EXPR : Expression .
+  var X : LocalVar . 
+  op _in_ : Key OperationList -> Bool .
+  eq K in (OPS (X :=read K) OPS') = true .
+  eq K in (OPS write(K,EXPR) OPS') = true .
+  eq K in OPS = false [owise] .
 
 endm
 
