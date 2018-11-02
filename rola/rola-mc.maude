@@ -324,8 +324,7 @@ mod ROLA is
                               1stGetSites: 1STGETS',
                               2ndGetSites: (2NDGETS ; 2nd(TID,RIDS)), AS' >
             gen2ndGets(TID,VL',RS',RID,REPLICA-TABLE)
-            (commit-reads(TID) to RID)
-            ---(if RIDS == empty then null else (commit-reads(TID) to RID) fi)
+
        else < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
                                                        readSet: RS',
                                                        localVars: insert(X,V,VARS),  --- useless for read-only txns
@@ -349,9 +348,7 @@ mod ROLA is
      < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
                                                 readSet: (RS,< K,ts2Ver(TS) >),
                                                 localVars: insert(X,V,VARS), AS >,
-                       2ndGetSites: remove(TID,RID',2NDGETS), AS' >
----??? !!!
-     (commit-reads(TID) to RID) .
+                       2ndGetSites: remove(TID,RID',2NDGETS), AS' > .
 
 
   --- Similar to RAMP, ROLA deals with rw-txns in a different way than Walter, 
@@ -360,7 +357,7 @@ mod ROLA is
  crl [commit-reads] :
      < O@M : Monitor | clock: GT@M, log: (TID |-> 
        < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
-     (commit-reads(TID) to RID)
+
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | executing: < TID : Txn | operations: OPS,
                                                 localVars: VARS,
@@ -410,29 +407,5 @@ mod ROLA is
         SQN' := SQN + 1 /\
         RIDS := prepareSites(OPS,RID,REPLICA-TABLE) /\
         WS' := ws(OPS,VARS) .
-
-
- crl [not-ready-to-commit-reads] :
-     (commit-reads(TID) to RID)
-     < RID : Replica | executing: < TID : Txn | AS >,
-                       1stGetSites: 1STGETS,
-                       2ndGetSites: 2NDGETS, AS' >
-  =>
-    < RID : Replica | executing: < TID : Txn | AS >,
-                      1stGetSites: 1STGETS,
-                      2ndGetSites: 2NDGETS, AS' >
-    if 1STGETS[TID] =/= empty or
-        2NDGETS[TID] =/= empty .
-
-*** NEW
- crl [already-committed-reads] :
-     (commit-reads(TID) to RID)
-     < RID : Replica | 1stGetSites: 1STGETS,
-                       2ndGetSites: 2NDGETS, AS' >
-  =>
-     < RID : Replica | 1stGetSites: 1STGETS,
-                       2ndGetSites: 2NDGETS, AS' >
-    if (not TID in 1STGETS) /\
-       (not TID in 2NDGETS) .
 
 endm

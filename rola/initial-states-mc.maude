@@ -186,7 +186,8 @@ mod INITIAL-STATES is
                       committed: emptyTxnList, aborted: emptyTxnList, votes: noVote,
                       voteSites: noVS, 
                       1stGetSites: no1st,
-                      2ndGetSites: no2nd, commitSites: noVS, tsSqn: empty >
+                      2ndGetSites: no2nd, commitSites: noVS, tsSqn: empty,
+                      decided: noTS >
               (start to s SERS)) .
 
 ---(

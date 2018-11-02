@@ -3,13 +3,8 @@
 		     /||||||||||||||||||\
 	   Maude 2.7.1 built: Jun 27 2016 16:35:16
 	    Copyright 1997-2016 SRI International
-		   Mon Oct 29 10:18:56 2018
+		   Wed Oct 31 12:01:17 2018
 ==========================================
 search [1] in ROLA-ANALYSIS : initConfig =>! C:Config 
 < M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not psi(
     LOG:Log) = true .
-
-No solution.
-states: 3181905  rewrites: 196705404 in 3021808ms cpu (3026312ms real) (65095
-    rewrites/second)
-Bye.

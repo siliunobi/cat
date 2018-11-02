@@ -1,4 +1,4 @@
-set show advisories off .
+---set show advisories off .
 
 load apmaude
 
@@ -12,12 +12,13 @@ fmod TXN-SORTS is
 
   sorts Key Value Operation LocalVar Expression ConfigList AddressList AddressSet
         KeyVersion KeyValueVersion ValueVersion Vote Timestamp ReplicaTable Record 
-        KeyValue .
+        KeyValue TxnStatus TxnStatusSet .
   subsort Actor < ConfigList .
   subsort Address < AddressList .
   subsort Address < AddressSet .
   subsort LocalVar < Expression .
   subsort Nat < Expression .
+  subsort TxnStatus < TxnStatusSet .
 
   --- RID, SQN
   --- ??? initial value: ts(0,0) or eptTS???
@@ -77,7 +78,7 @@ fmod TXN-AUX1 is
   var A : Address .
   var AS : AddressSet .  
 
-  eq A ; A = A .
+  ---eq A ; A = A .
 
   op delete : Address AddressSet -> AddressSet .
   op delete1 : Address AddressSet -> AddressSet .
@@ -94,6 +95,9 @@ fmod TXN-AUX1 is
   eq keys(empty) = empty .
   eq keys((K |-> V,WS)) = K, keys(WS) .
 
+  op [_,_] : Address Bool -> TxnStatus .
+  op noTS : -> TxnStatusSet .
+  op _;_ : TxnStatusSet TxnStatusSet -> TxnStatusSet [ctor assoc comm id: noTS] .
 endfm
 view AddressSet from TRIV to TXN-AUX1 is sort Elt to AddressSet . endv
 view ValueVersionList from TRIV to TXN-AUX1 is sort Elt to ValueVersionList . endv
@@ -208,6 +212,8 @@ fmod CLIENT-REPLICA is
   op commitSites:_ : VoteSites -> Attribute .  --- init: noVS
 
   op tsSqn:_ : TimestampSqn -> Attribute .  --- init: empty
+*** NEW
+  op decided:_ : TxnStatusSet -> Attribute .
 
   op Txn : -> ActorType .
   op operations:_ : OperationList -> Attribute .  --- initialized on some distributions
@@ -230,14 +236,6 @@ fmod CLIENT-REPLICA is
 
 *** New
   op clock:_ : Nat -> Attribute .
-
----(
-  op noRecord : -> Record [ctor] .
-  --- TID, issueTime, finishTime, values read, values written, committed?
-  --- finishTime in ROLA is the time when a txn commits or aborts
-  op record : Address Float Float VersionSet VersionSet Bool -> Record [ctor] .
-  op _;_ : Record Record -> Record [ctor assoc id: noRecord] . 
-)
 
 *** NEW 
   op <_,_,_,_,_> : VectorTime VectorTime Bool Set{KeyVersion} Set{KeyVersion} -> Record [ctor] .
