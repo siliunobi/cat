@@ -18,7 +18,8 @@ mod CONSISTENCY is
   *** Read Committed ***
 
   op abortedRead : Log -> Bool .
-  eq abortedRead((TID1 |-> < VT1,VT2,true,(< X,V >,RS),WS >, TID2 |-> < VT3,VT4,false,RS',(< X,V >,WS') >, LOG)) = true .  
+  eq abortedRead((TID1 |-> < VT1,VT2,true,(< X,V >,RS),WS >, 
+       TID2 |-> < VT3,VT4,false,RS',(< X,V >,WS') >, LOG)) = true .  
   eq abortedRead(LOG) = false [owise] .
 
   op uncommittedRead : Log -> Bool .
