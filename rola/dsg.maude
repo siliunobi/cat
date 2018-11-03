@@ -26,6 +26,13 @@ mod DSG is
   var DSG : Dsg . var X : Key . vars VS VS' VX VY VX' : Version .
   vars T T' T1 T2 T3 T4 T5 T6 T1' T2' T3' : Nat .
 
+  op noCommittedBetween : Key Nat Nat Log -> Bool .
+ ceq noCommittedBetween(X,T,T',
+       (TID |-> < RID |-> T1,(RID |-> T2,VT),true,RS,(< X,VS >,WS) >,LOG))
+     = false if T2 > T /\ T2 < T' .
+  eq noCommittedBetween(X,T,T',LOG) = true [owise] .
+
+
   eq dsg(LOG) = dsg(LOG,LOG,emptyDsg) .
   --- Firstly, work on versions read
   --- Read dependency
@@ -34,6 +41,7 @@ mod DSG is
    = dsg((TID |-> < VT1,VT2,true,RS,WS >,LOG'),
         (TID' |-> < VT3,VT4,true,RS',(< X,VS >,WS') >,LOG),
           (DSG ; < TID' ; TID >)) .  
+
 
   --- Antidependency
   --- VS' is the next version of VS for X
@@ -51,16 +59,11 @@ mod DSG is
           (DSG ; < TID ; TID' >)) 
      if noCommittedBetween(X,T6,T4,LOG) .
 
-  op noCommittedBetween : Key Nat Nat Log -> Bool .
- ceq noCommittedBetween(X,T,T',
-       (TID |-> < RID |-> T1,(RID |-> T2,VT),true,RS,(< X,VS >,WS) >,LOG))
-     = false if T2 > T /\ T2 < T' .
-  eq noCommittedBetween(X,T,T',LOG) = true [owise] .
- 
 
   --- Move to next version read             
   eq dsg((TID |-> < VT1,VT2,true,(< X,VS >,RS),WS >,LOG'),LOG,DSG)
        = dsg((TID |-> < VT1,VT2,true,RS,WS >,LOG'),LOG,DSG) [owise] .
+
 
 
   --- Secondly, work on versions written (with read set empty)
@@ -75,7 +78,9 @@ mod DSG is
        (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,RS',
          (< X,VS' >,WS') >,LOG),
            (DSG ; < TID ; TID' >)) 
-     if noCommittedBetween(X,T2,T4,LOG) .
+     if VS' =/= VS /\ T2 < T4 /\ 
+        noCommittedBetween(X,T2,T4,LOG) .
+
 
   --- Antidependency
   --- VS is the next version of VS' for X
@@ -91,9 +96,11 @@ mod DSG is
        TID'' |-> < RID'' |-> T5,(RID'' |-> T6,VT6),true,RS'',
          (< X,VS' >,WS'') >,LOG),
            (DSG ; < TID' ; TID >)) 
-     if noCommittedBetween(X,T6,T2,
+     if VS' =/= VS /\ T6 < T2 /\ 
+        noCommittedBetween(X,T6,T2,
           (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,
              (< X,VS' >,RS'),WS' >,LOG)) . 
+
 
   --- Move to next version written             
   eq dsg((TID |-> < VT1,VT2,true,empty,(< X,VS >,WS) >,LOG'),LOG,DSG)
@@ -113,23 +120,36 @@ mod DSG is
   eq dsg(empty,LOG,DSG) = DSG . 
 
 
+  sort Addresses .
+  subsort Address < Addresses .
+  op emptyAddrs : -> Addresses [ctor] .
+  op _::_ : Addresses Addresses -> Addresses [ctor assoc comm id: emptyAddrs] .
+
+  vars ADDR ADDR' : Address . vars ADDRS ADDRS' : Addresses . 
+  eq ADDR :: ADDR = ADDR .
+
   op cycle : Dsg -> Bool .
-  eq cycle(DSG) = cycle(txnIds(DSG),DSG,empty) .  --- initialized
+  eq cycle(DSG) = cycle(txnIds(DSG),DSG,emptyAddrs) .  --- initialized
 
-  op cycle : AddressSet Dsg AddressSet -> Bool .
- ceq cycle((TID ; TIDS),DSG,TIDS') = true if TID in TIDS' .
- ceq cycle((TID ; TIDS),DSG,TIDS') =
-       cycle(destNodes(TID,DSG),DSG,(TIDS' ; TID))
-         or cycle(TIDS,DSG,TIDS') if not (TID in TIDS') .
-  eq cycle(empty,DSG,TIDS') = false .
+  op cycle : Addresses Dsg Addresses -> Bool .
+ ceq cycle((ADDR :: ADDRS),DSG,ADDRS') = true if ADDR in ADDRS' .
+ ceq cycle((ADDR :: ADDRS),DSG,ADDRS') =
+       cycle(destNodes(ADDR,DSG),DSG,(ADDRS' :: ADDR))
+         or cycle(ADDRS,DSG,ADDRS') if not (ADDR in ADDRS') .
+  eq cycle(emptyAddrs,DSG,ADDRS') = false .
 
-  op txnIds : Dsg -> AddressSet .
-  eq txnIds(DSG ; < TID ; TID' >) = TID ; TID' ; txnIds(DSG) .
-  eq txnIds(emptyDsg) = empty .
+  op _in_ : Address Addresses -> Bool .
+  eq ADDR in (ADDR :: ADDRS) = true .
+  eq ADDR in ADDRS = false [owise] .
 
-  op destNodes : Address Dsg -> AddressSet .
-  eq destNodes(TID,(< TID ; TID' > ; DSG)) = TID' ; destNodes(TID,DSG) .
-  eq destNodes(TID,DSG) = empty [owise] .
+
+  op txnIds : Dsg -> Addresses .
+  eq txnIds(DSG ; < ADDR ; ADDR' >) = ADDR :: ADDR' :: txnIds(DSG) .
+  eq txnIds(emptyDsg) = emptyAddrs .
+
+  op destNodes : Address Dsg -> Addresses .
+  eq destNodes(ADDR,(< ADDR ; ADDR' > ; DSG)) = ADDR' :: destNodes(ADDR,DSG) .
+  eq destNodes(ADDR,DSG) = emptyAddrs [owise] .
 
 
   *** dsg-update for US

@@ -1,0 +1,22 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	   Maude 2.7.1 built: Jun 27 2016 16:35:16
+	    Copyright 1997-2016 SRI International
+		   Fri Nov  2 22:55:55 2018
+==========================================
+search [1] in ROLA-ANALYSIS : initConfig =>! C:Config 
+< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not rc(
+    LOG:Log) = true .
+
+No solution.
+states: 36789  rewrites: 1943824 in 2800ms cpu (2802ms real) (694222
+    rewrites/second)
+Bye.
+
+
+  --- Init parameters 
+  eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
+  eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
+  eq nbOfRwTxns = 2 .  eq nbOfOpsPerRwTxn = 4 .  --- must be even number
+  eq nbOfServs  = 2 .  eq nbOfKeys = 2 .  eq nbOfRepls = 1 .

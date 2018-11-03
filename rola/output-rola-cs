@@ -3,12 +3,12 @@
 		     /||||||||||||||||||\
 	   Maude 2.7.1 built: Jun 27 2016 16:35:16
 	    Copyright 1997-2016 SRI International
-		   Fri Nov  2 22:52:49 2018
+		   Fri Nov  2 22:54:10 2018
 ==========================================
 search [1] in ROLA-ANALYSIS : initConfig =>! C:Config 
-< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not psi(
+< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not cs(
     LOG:Log) = true .
 
 No solution.
-states: 1797  rewrites: 53444 in 84ms cpu (87ms real) (636238 rewrites/second)
+states: 1797  rewrites: 53648 in 88ms cpu (86ms real) (609636 rewrites/second)
 Bye.

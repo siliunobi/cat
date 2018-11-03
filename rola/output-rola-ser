@@ -3,14 +3,14 @@
 		     /||||||||||||||||||\
 	   Maude 2.7.1 built: Jun 27 2016 16:35:16
 	    Copyright 1997-2016 SRI International
-		   Fri Nov  2 22:53:10 2018
+		   Fri Nov  2 22:51:34 2018
 ==========================================
 search [1] in ROLA-ANALYSIS : initConfig =>! C:Config 
-< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not si(
+< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not ser(
     LOG:Log) = true .
 
 Solution 1 (state 1741)
-states: 1797  rewrites: 52566 in 88ms cpu (88ms real) (597340 rewrites/second)
+states: 1797  rewrites: 52745 in 84ms cpu (86ms real) (627916 rewrites/second)
 C:Config --> 
 < 1 : Replica | datastore: (version(k1, [0], eptTS, empty) version(k2, [0],
     eptTS, empty) version(k1, [2], ts(1, 2), empty) version(k1, [2], ts(2, 2),
