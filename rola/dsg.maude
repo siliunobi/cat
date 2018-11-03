@@ -57,7 +57,8 @@ mod DSG is
       TID'' |-> < RID'' |-> T5,(RID'' |-> T6,VT6),true,RS'',
         (< X,VS >,WS'') >,LOG),
           (DSG ; < TID ; TID' >)) 
-     if noCommittedBetween(X,T6,T4,LOG) .
+     if VS' =/= VS /\ T6 < T4 /\ 
+        noCommittedBetween(X,T6,T4,LOG) .
 
 
   --- Move to next version read             
