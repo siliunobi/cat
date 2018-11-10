@@ -1,0 +1,16 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	   Maude 2.7.1 built: Jun 27 2016 16:35:16
+	    Copyright 1997-2016 SRI International
+		   Sat Nov 10 14:41:58 2018
+==========================================
+search [1] in RAMP-F-ANALYSIS : initConfig =>! C:Config 
+< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not nmsi(
+    LOG:Log) = true .
+
+No solution.
+states: 16689  rewrites: 509160 in 828ms cpu (826ms real) (614927
+    rewrites/second)
+Bye.
+Sat Nov 10 14:41:59 CST 2018

@@ -1,24 +1,22 @@
-load initial-states-mc
+load consistency
 
 mod RAMP-F-ANALYSIS is
-  including INITIAL-STATES .
-  including APMAUDE .
-  including MODEL-CHECKER .
+  inc INITIAL-STATES .
+  inc CONSISTENCY .
 
-  subsort Config < State .
+  --- Init parameters 
+  eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
+  eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
+  eq nbOfRwTxns = 3 .  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
+  eq nbOfServs  = 2 .  eq nbOfKeys = 2 .  eq nbOfRepls = 1 .
 
-  eq LIMIT = 10000000.0 .
 
   op initConfig : -> Config .
-  ---eq initConfig = run(initState,LIMIT) .
+  eq initConfig = init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,
+      nbOfOpsPerRoTxn,nbOfOpsPerWoTxn,nbOfOpsPerRwTxn, 
+      nbOfServs,nbOfKeys,nbOfRepls) . 
 
-  ops x y z : -> Key .
-  ops tb r1 r2 r3 t1 t2 t3 t4 : -> Address .
-  ops xl yl zl : -> LocalVar .
-
-  --- init(RTX,WTX,RWTX,REPLS,KEYS,ROPS,WOPS,RWOPS,KAD) 
-   ---eq initState = init(2,2,0,2,10,8,8,0,uniform) .
-
+  ---(
 
   eq initConfig = < tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
      (start to 1) (start to 2)
@@ -43,71 +41,62 @@ mod RAMP-F-ANALYSIS is
                       voteSites: noVS, 
                        1stGetSites: no1st,
                        2ndGetSites: no2nd, commitSites: noVS > .
-  
-  
----(
-  --- Metrics
-  vars T T' T1 T2 NUMBER : Float .
-  var C : Config .
-  vars M TID : Address .
-  vars RECORD RECORD' : Record . 
-  vars READS WRITES : Versions .
-  var FLAG : Bool .
+  )
 
-  --- Throughput
-  op totalRunTime : Record -> Float .
-  op trt : Record Float -> Float .
-  eq totalRunTime(RECORD) = trt(RECORD,0.0) .
-  eq trt((record(TID,T1,T2,READS,WRITES,FLAG) ; RECORD),T) = 
-       if T2 > T
-         then trt(RECORD,T2)
-         else trt(RECORD,T)
-       fi .
-  eq trt(noRecord,T) = T .
-         
-  op throughput : Config -> Float .
-  eq throughput(< M : Monitor | log: RECORD > C) = committedNumber(RECORD) / totalRunTime(RECORD) .
-
-  op committedNumber : Record -> Float .
-  op $committedNumber : Record Float -> Float .
-  eq committedNumber(RECORD) = $committedNumber(RECORD,0.0) .
-  eq $committedNumber((record(TID,T1,T2,READS,WRITES,true) ; RECORD),NUMBER) = 
-       $committedNumber(RECORD,NUMBER + 1.0) .
-  eq $committedNumber((record(TID,T1,T2,READS,WRITES,false) ; RECORD),NUMBER) = 
-       $committedNumber(RECORD,NUMBER) .
-  eq $committedNumber(noRecord,NUMBER) = NUMBER .
-
-  --- Commit Rate
-  op commitRate : Config -> Float .
-  eq commitRate(< M : Monitor | log: RECORD > C) = committedNumber(RECORD) / totalNumber(RECORD) .
-
-  op totalNumber : Record -> Float .
-  op $totalNumber : Record Float -> Float .
-  eq totalNumber(RECORD) = $totalNumber(RECORD,0.0) .
-  eq $totalNumber((record(TID,T1,T2,READS,WRITES,FLAG) ; RECORD),NUMBER) = 
-       $totalNumber(RECORD,NUMBER + 1.0) .
-  eq $totalNumber(noRecord,NUMBER) = NUMBER .  
-
-  --- Avg Latency
-  op avgLatency : Config -> Float .
-  eq avgLatency(< M : Monitor | log: RECORD > C) = totalLatency(RECORD) / committedNumber(RECORD) .
-  
-  op totalLatency : Record -> Float .
-  op $totalLatency : Record Float -> Float .
-  eq totalLatency(RECORD) = $totalLatency(RECORD,0.0) .
-  eq $totalLatency((record(TID,T1,T2,READS,WRITES,true) ; RECORD),NUMBER) =
-       $totalLatency(RECORD,NUMBER + T2 - T1) .
-  eq $totalLatency((record(TID,T1,T2,READS,WRITES,false) ; RECORD),NUMBER) = 
-       $totalLatency(RECORD,NUMBER) .
-  eq $totalLatency(noRecord,NUMBER) = NUMBER .
-
-  --- PVESTA interfaces
-  eq val(0,C) = throughput(C) .
-  eq val(1,C) = avgLatency(C) .
-  eq val(2,C) = commitRate(C) .
-  )     
 endm
 
----set clear rules off .
----rewrite initConfig .
-search initConfig =>! C:Config .
+---rew initConfig .
+---search initConfig =>! C:Config .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not rc(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not ra(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not cs(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not ua(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not si(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not psi(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not nmsi(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not us(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not ser(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not sser(LOG:Log) .
+
+---(
+rew cycle(dsg(
+( 1 . 1 |-> < 1 |-> 0,1 |-> 2,false,< k1,< 0,0 > >,< k1,< 1,2 > > >,
+    1 . 2 |-> < 1 |-> 3,1 |-> 5,false,< k1,< 0,0 > >,< k1,< 1,4 > > >, 
+2 . 1 |-> < 2 |-> 1,2 |-> 4,true,< k1,< 0,0 > >,< k1,< 2,2 > > >))) .
+)
+
+---(
+rew dsg-update(
+(1 . 1 |-> < 1 |-> 0,1 |-> 2,false,(< k1,< 0,0 > >, < k2,< 0,0 > >),(< k1,< 1,2 > >, < k2,< 1,2 > >) >, 
+1 . 2 |-> < 1 |-> 3,1 |-> 5,true,(< k1,< 2,2 > >, < k2,< 2,2 > >),(< k1,< 1,5 > >, < k2,< 1,5 > >) >,
+2 . 1 |-> < 2 |-> 1,2 |-> 4,true,(< k1,< 0,0 > >, < k2,< 0,0 > >),(< k1,< 2,2 > >, < k2,< 2,2 > >) >)) .
+)
+
+---(
+rew sser(
+(1 . 1 |-> < 1 |-> 0,1 |-> 2,false,(< k1,< 0,0 > >, < k2,< 0,0 > >),(< k1,< 1,2 > >, < k2,< 1,2 > >) >, 
+1 . 2 |-> < 1 |-> 3,1 |-> 5,true,(< k1,< 2,2 > >, < k2,< 2,2 > >),(< k1,< 1,5 > >, < k2,< 1,5 > >) >,
+2 . 1 |-> < 2 |-> 1,2 |-> 4,true,(< k1,< 0,0 > >, < k2,< 0,0 > >),(< k1,< 2,2 > >, < k2,< 2,2 > >) >)) .
+)
+
+q

@@ -4,30 +4,8 @@ mod RAMP-F-AUX is
   including CLIENT-REPLICA .
   including MESSAGE .
   including REPLICA-TABLE .
-  including SAMPLER .
   including VERSION-RAMP .
   including VALUES-NAT .
-
-  op ld : -> Delay .  --- local delay 
-  op rd : -> Delay .  --- remote delay
-  op nd : -> Delay .  --- no delay
-  eq nd = 0.0 .
-
-  --- lognormal distribution
-  eq ld = sampleLogNormal(0.0,1.0) . --- miu, sigma 
-  eq rd = sampleLogNormal(3.0,2.0) .
-
-  --- weibull distribution
----   eq ld = sampleWeibull(5.0,1.0) . 
----   eq rd = sampleWeibull(3.0,300.0) .
-
-  --- or, ld = 0.0
-  --- in our model, local delay seems to be local "processing" delay,
-  --- which is negligible compared to the distributed data communication
-  --- thus, the settings in our experiments could be:
----  eq ld = 0.0 .
----  eq rd = sampleLogNormal(0.0,1.0) .
---- eq rd = sampleWeibull(5.0,1.0) .
 
 
   vars RID TID RID' TABLE M : Address .
@@ -276,5 +254,25 @@ mod RAMP-F-AUX is
   op kver : Set{KeyValue} Version -> Set{KeyVersion} . 
   eq kver((< K,V >,WS),VERSION) = < K,VERSION >, kver(WS,VERSION) .
   eq kver(empty,VERSION) = empty .
-   
+
+  --- version order
+  op _<_ : Version Version -> Bool .
+  eq < RID,SQN > < < RID',SQN' > =
+       if SQN < SQN'
+         then true
+         else if SQN == SQN' and RID < RID'
+                then true
+                else false
+              fi
+       fi .
+
+  op _in_ : Key Versions -> Bool .
+  eq K in (DS,version(K,V,TS,MD)) = true .
+  eq K in DS = false [owise] .
+
+  op _in_ : Key OperationList -> Bool .
+  eq K in (OPS (X :=read K) OPS') = true .
+  eq K in (OPS write(K,EXPR) OPS') = true .
+  eq K in OPS = false [owise] .
+
 endm

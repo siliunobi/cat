@@ -1,6 +1,4 @@
-load sampler
 load apmaude
-load model-checker
 
 fmod SOME-PARAMETERS is
   sort Version .  --- In RAMP version is a 4-tuple (key,value,timestamp,metadata)
