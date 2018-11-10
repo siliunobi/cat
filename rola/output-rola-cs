@@ -12,3 +12,9 @@ search [1] in ROLA-ANALYSIS : initConfig =>! C:Config
 No solution.
 states: 1797  rewrites: 53648 in 88ms cpu (86ms real) (609636 rewrites/second)
 Bye.
+
+  --- Init parameters 
+  eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
+  eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
+  eq nbOfRwTxns = 2 .  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
+  eq nbOfServs  = 2 .  eq nbOfKeys = 2 .  eq nbOfRepls = 1 .

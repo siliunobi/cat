@@ -3,18 +3,17 @@
 		     /||||||||||||||||||\
 	   Maude 2.7.1 built: Jun 27 2016 16:35:16
 	    Copyright 1997-2016 SRI International
-		   Sat Nov 10 13:32:07 2018
+		   Sat Nov 10 13:33:22 2018
 ==========================================
 search [1] in ROLA-ANALYSIS : initConfig =>! C:Config 
-< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not psi(
+< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not nmsi(
     LOG:Log) = true .
 
 No solution.
-states: 27033  rewrites: 850576 in 1516ms cpu (1517ms real) (561065
+states: 27033  rewrites: 846108 in 1508ms cpu (1510ms real) (561079
     rewrites/second)
 Bye.
-Sat Nov 10 13:32:08 CST 2018
-
+Sat Nov 10 13:33:24 CST 2018
 
   --- Init parameters 
   eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .

@@ -3,42 +3,45 @@
 		     /||||||||||||||||||\
 	   Maude 2.7.1 built: Jun 27 2016 16:35:16
 	    Copyright 1997-2016 SRI International
-		   Fri Nov  2 22:51:34 2018
+		   Sat Nov 10 12:29:10 2018
 ==========================================
 search [1] in ROLA-ANALYSIS : initConfig =>! C:Config 
 < M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not ser(
     LOG:Log) = true .
 
-Solution 1 (state 1741)
-states: 1797  rewrites: 52745 in 84ms cpu (86ms real) (627916 rewrites/second)
+Solution 1 (state 19065)
+states: 21285  rewrites: 725933 in 1244ms cpu (1244ms real) (583547
+    rewrites/second)
 C:Config --> 
 < 1 : Replica | datastore: (version(k1, [0], eptTS, empty) version(k2, [0],
-    eptTS, empty) version(k1, [2], ts(1, 2), empty) version(k1, [2], ts(2, 2),
-    empty)),sqn: 4,executing: noActor,committed: 
+    eptTS, empty) version(k1, [2], ts(2, 2), empty)),sqn: 4,executing: noActor,
+    committed: emptyTxnList,aborted: (
 < 1 . 1 : Txn | operations: ((k1l :=read k1) write(k1, 2)),localVars: (k1l |->
     [0]),txnSQN: 2,latest: (k1 |-> ts(-1, -1)),readSet: < k1,< 0,0 > >,
-    writeSet: < k1,[2] >,version: < 1,2 > >,aborted: emptyTxnList,gotTxns:
-    emptyTxnList,votes: noVote,voteSites: voteSites(1 . 1, empty),latestCommit:
-    (k1 |-> ts(2, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites:
-    voteSites(1 . 1, empty),tsSqn: (ts(1, 2) |-> 3, ts(2, 2) |-> 4),decided:
-    noTS > 
+    writeSet: < k1,[2] >,version: < 1,2 > > ;; 
+< 1 . 2 : Txn | operations: ((k1l :=read k1) write(k1, 2)),localVars: (k1l |->
+    [0]),txnSQN: 4,latest: (k1 |-> ts(-1, -1)),readSet: < k1,< 0,0 > >,
+    writeSet: < k1,[2] >,version: < 1,4 > >),gotTxns: emptyTxnList,votes:
+    noVote,voteSites: (voteSites(1 . 1, empty) ; voteSites(1 . 2, empty)),
+    latestCommit: (k1 |-> ts(2, 2)),1stGetSites: no1st,2ndGetSites: no2nd,
+    commitSites: noVS,tsSqn: (ts(2, 2) |-> 3),decided: noTS > 
 < 2 : Replica | datastore: nil,sqn: 2,executing: noActor,committed: 
 < 2 . 1 : Txn | operations: ((k1l :=read k1) write(k1, 2)),localVars: (k1l |->
-    [2]),txnSQN: 2,latest: (k1 |-> ts(-1, -1)),readSet: < k1,< 1,2 > >,
+    [0]),txnSQN: 2,latest: (k1 |-> ts(-1, -1)),readSet: < k1,< 0,0 > >,
     writeSet: < k1,[2] >,version: < 2,2 > >,aborted: emptyTxnList,gotTxns:
     emptyTxnList,votes: noVote,voteSites: voteSites(2 . 1, empty),latestCommit:
     empty,1stGetSites: no1st,2ndGetSites: no2nd,commitSites: voteSites(2 . 1,
     empty),tsSqn: empty,decided: noTS > 
 < 0 . 1 : Table | table: [replicatingSites(k1, 1) ;; replicatingSites(k2, 1)] >
 M:Address --> 0 . 2
-AS:AttributeSet --> clock: 4
-LOG:Log --> 1 . 1 |-> < 1 |-> 0,1 |-> 2,true,< k1,< 0,0 > >,< k1,< 1,2 > > >, 2
-    . 1 |-> < 2 |-> 1,2 |-> 3,true,< k1,< 1,2 > >,< k1,< 2,2 > > >
+AS:AttributeSet --> clock: 6
+LOG:Log --> 1 . 1 |-> < 1 |-> 0,1 |-> 2,false,< k1,< 0,0 > >,< k1,< 1,2 > > >,
+    1 . 2 |-> < 1 |-> 3,1 |-> 5,false,< k1,< 0,0 > >,< k1,< 1,4 > > >, 2 . 1
+    |-> < 2 |-> 1,2 |-> 4,true,< k1,< 0,0 > >,< k1,< 2,2 > > >
 Bye.
-
 
   --- Init parameters 
   eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
   eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
-  eq nbOfRwTxns = 2 .  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
+  eq nbOfRwTxns = 3 .  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
   eq nbOfServs  = 2 .  eq nbOfKeys = 2 .  eq nbOfRepls = 1 .

@@ -7,9 +7,9 @@ mod CONSISTENCY is
   inc DSG .
 
   vars VT1 VT2 VT3 VT4 VT5 VT6 VT VT' : VectorTime .  vars X Y : Key .
-  vars V V' VX VX' VY VY' : Version .  var LOG : Log .
+  vars V V' VX VX' VY VY' VS VS' : Version .  var LOG : Log .
   vars RS RS' RS1 RS2 RS3 WS WS' WS1 WS2 WS3 : Set{KeyVersion} .
-  vars TID1 TID2 TID3 RID RID' RID1 RID2 RID3 : Address .  
+  vars TID TID1 TID2 TID3 RID RID' RID1 RID2 RID3 : Address .  
   var KVER : KeyVersion .  var FLAG : Bool .  
   vars T T' T1 T2 T3 T4 T1' T2' T3' : Nat .
 
@@ -132,42 +132,52 @@ mod CONSISTENCY is
   ******************************
   *** Update Serializability ***
   op us : Log -> Bool .
-  eq us(LOG) = not cycle(dsg-update(LOG)) .
+  eq us(LOG) = not cycle(dsg(updateTxn(LOG))) .
 
   ******************************
   *** Strict Serializability ***
   --- Read dependency violates real-time order
   --- TID1 reads stale version
   op notRtReadDep : Log -> Bool .
- ceq notRtReadDep((TID1 |-> < RID |-> T,VT,true,(< X,VX >,RS),WS >, 
-      TID2 |-> < RID' |-> T1,(RID' |-> T2,VT'),true,
-          RS',(< X,VX >,WS') >, LOG)) = true
-     if T2 < T /\ not noCommittedBetween(X,T2,T,LOG) .
-  eq notRtReadDep(LOG) = false [owise] . 
+ ceq notRtReadDep((TID1 |-> < RID |-> T,VT,true,(< X,VS >,RS),WS >, 
+      TID2 |-> < RID' |-> T1,(RID' |-> T2,VT'),true,RS',
+        (< X,VS >,WS') >,LOG)) = true
+     if T2 < T /\ rtCommittedBetween(X,T2,T,LOG) .
+
+  op rtCommittedBetween : Key Nat Nat Log -> Bool .
+ ceq rtCommittedBetween(X,T1,T2,
+     (TID |-> < RID |-> T,(RID |-> T',VT),true,RS,(< X,V >,WS) >,LOG))
+   = true if T1 < T' /\ T' < T2 .
+  eq rtCommittedBetween(X,T1,T2,LOG) = false [owise] .
+
+
 
   --- Write dependency violates real-time order
   --- TID2 writes the next version, but TID1 should have done that
   op notRtWriteDep : Log -> Bool .
- ceq notRtWriteDep((TID1 |-> < RID |-> T1,(RID |-> T1',VT),
-         true,RS,(< X,VX >,WS) >, 
-      TID2 |-> < RID' |-> T2,(RID' |-> T2',VT'),
-         true,RS',(< X,VX' >,WS') >, LOG)) = true
-     if T1' > T2 /\ T1' < T2' /\ noCommittedBetween(X,T1',T2',LOG) .
-  eq notRtWriteDep(LOG) = false [owise] . 
+ ceq notRtWriteDep((
+      TID1 |-> < RID |-> T1,(RID |-> T1',VT),true,RS,(< X,VS >,WS) >, 
+      TID2 |-> < RID' |-> T2,(RID' |-> T2',VT'),true,RS',
+      (< X,VS' >,WS') >,LOG)) = true
+     if VS' =/= VS /\ not committedBetween(X,VS,VS',LOG) /\
+        rtCommittedBetween(X,T1',T2',LOG)  . 
+
+
 
   --- Anti-dependency violates real-time order
   --- TID2 writes the next version, but TID1 should have done that
   op notRtAntiDep : Log -> Bool .
- ceq notRtAntiDep((TID1 |-> < RID1 |-> T1,(RID1 |-> T1',VT1),
-         true,(< X,VX >,RS1),WS1 >, 
-      TID2 |-> < RID2 |-> T2,(RID2 |-> T2',VT2),
-         true,RS2,(< X,VX' >,WS2) >,
-      TID3 |-> < RID3 |-> T3, (RID3 |-> T3',VT3), 
-         true,RS3,(< X,VX >,WS3) >,LOG)) = true 
-     if T3' < T2' /\ T1' > T2 /\ noCommittedBetween(X,T3',T2',LOG) .
-  eq notRtAntiDep(LOG) = false [owise] . 
+ ceq notRtAntiDep((
+      TID1 |-> < RID1 |-> T1,(RID1 |-> T1',VT1),true,
+        (< X,VS >,RS1),WS1 >, 
+      TID2 |-> < RID2 |-> T2,(RID2 |-> T2',VT2),true,
+        RS2,(< X,VS' >,WS2) >,LOG)) = true
+     if VS' =/= VS /\ not committedBetween(X,VS,VS',LOG) /\
+        rtCommittedBetween(X,T1',T2',LOG)  . 
+
 
   op sser : Log -> Bool .
   eq sser(LOG) = not notRtReadDep(LOG) and 
        not notRtWriteDep(LOG) and not notRtAntiDep(LOG) .
+
 endm
