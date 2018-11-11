@@ -7,22 +7,18 @@
 load walter-aux-mc
 
 mod WALTER is
-  including DELAY .
   including CLIENT-REPLICA .
   including MESSAGE .
   including REPLICA-TABLE .
   including VERSION-WALTER .
-  including SAMPLER .
   including VALUES-NAT .
   including WALTER-AUX .
-  including SCHEDULER .
  
 
   vars AS AS' : AttributeSet .
   vars TID RID RID' TABLE M : Address .
   vars RIDS DSTXNS GVTXNS : AddressSet .
   vars TXNS TXNS' TXNS'' : ConfigList .
-  vars T T1 : Float .
   var OPS : OperationList .
   var K : Key .
   vars V V' : Value .
@@ -49,7 +45,6 @@ mod WALTER is
   vars PTXNS PTXNS' PTXNS'' : PropagatedTxns .
   vars DTXNS DTXNS' : DurableTxns .
   vars RECORD RECORD' : Record .
-  var MSGS : ScheduleList .
 
   var O@M : Address .  var GT : Float .  var LOG@M : Log .
   vars VTS1@M VTS2@M : VectorTime . var FLAG@M : Bool . 

@@ -1,0 +1,49 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	   Maude 2.7.1 built: Jun 27 2016 16:35:16
+	    Copyright 1997-2016 SRI International
+		   Sun Nov 11 13:33:19 2018
+==========================================
+search [1] in WALTER-ANALYSIS : initConfig =>! C:Config 
+< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not ra(
+    LOG:Log) = true .
+
+Solution 1 (state 5326)
+states: 5341  rewrites: 198261 in 432ms cpu (432ms real) (458937
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [4],< 2,1 > > < [4],< 2,2 >
+    >, k2 |-> < [0],< 0,0 > > < [2],< 2,1 > > < [2],< 2,2 > >),sqn: 0,
+    executing: noActor,committed: emptyTxnList,aborted: emptyTxnList,
+    committedVTS: (2 |-> 2),gotVTS: (2 |-> 2),locked: empty,gotTxns:
+    emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns: emptyAddressSet,gvTxns:
+    emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1, 1, empty) ;
+    propagatedTxns(2 . 2, 2, 2 |-> 1)),recDurableTxns: (durableTxns(2 . 1) ;
+    durableTxns(2 . 2)),votes: noVote,voteSites: noVS,abortSites: noVS,
+    rmtCommitted: (2 . 1 ; 2 . 2) > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [4],< 2,1 > > < [4],< 2,2 >
+    >, k2 |-> < [0],< 0,0 > > < [2],< 2,1 > > < [2],< 2,2 > >),sqn: 2,
+    executing: noActor,committed: (
+< 2 . 1 : Txn | operations: nil,readSet: (< k1,< 0,0 > >, < k2,< 0,0 > >),
+    writeSet: (< k1,[4] >, < k2,[2] >),localVars: (k1l |-> [0], k2l |-> [0]),
+    startVTS: empty,txnSQN: 1,version: < 2,1 > > ;; 
+< 2 . 2 : Txn | operations: nil,readSet: (< k1,< 0,0 > >, < k2,< 2,1 > >),
+    writeSet: (< k1,[4] >, < k2,[2] >),localVars: (k1l |-> [0], k2l |-> [2]),
+    startVTS: (2 |-> 1),txnSQN: 2,version: < 2,2 > >),aborted: emptyTxnList,
+    committedVTS: (2 |-> 2),gotVTS: empty,locked: empty,gotTxns: emptyTxnList,
+    dsSites: (propagateSites(2 . 1, k1, 1) ; propagateSites(2 . 1, k2, 1) ;
+    propagateSites(2 . 2, k1, 1) ; propagateSites(2 . 2, k2, 1)),vsbSites: (
+    voteSites(2 . 1, emptyAddressSet) ; voteSites(2 . 2, emptyAddressSet)),
+    dsTxns: (2 . 1 ; 2 . 2),gvTxns: (2 . 1 ; 2 . 2),recPropTxns: noPT,
+    recDurableTxns: noDT,votes: (vote(2 . 1, 1, true) ; vote(2 . 2, 1, true)),
+    voteSites: (voteSites(2 . 1, emptyAddressSet) ; voteSites(2 . 2,
+    emptyAddressSet)),abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1) ;; replicatingSites(k2, 1)] >
+M:Address --> 0 . 2
+AS:AttributeSet --> clock: 6
+LOG:Log --> 2 . 1 |-> < 2 |-> 0,1 |-> 3, 2 |-> 1,true,< k1,< 0,0 > >, < k2,< 0,
+    0 > >,< k1,< 2,1 > >, < k2,< 2,1 > > >, 2 . 2 |-> < 2 |-> 2,1 |-> 5, 2 |->
+    4,true,< k1,< 0,0 > >, < k2,< 2,1 > >,< k1,< 2,2 > >, < k2,< 2,2 > > >
+Bye.
+Sun Nov 11 13:33:19 CST 2018
