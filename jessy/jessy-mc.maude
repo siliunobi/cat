@@ -12,7 +12,7 @@ mod JESSY is
 
   vars AS AS' : AttributeSet .
   vars TID RID RID' TABLE M : Address .
-  vars RIDS DSTXNS GVTXNS RIDS' : AddressSet .
+  vars RIDS DSTXNS GVTXNS RIDS' TIDS : AddressSet .
   vars TXNS TXNS' TXNS'' : ConfigList .
   vars C C' C'' : Config .
   vars T T1 : Float .
@@ -368,32 +368,36 @@ mod JESSY is
   eq abortTxn(TID,emptyAddressSet,RID') = null .
      
 
-
   rl [receive-commit] :
+     < O@M : Monitor | clock: GT@M, log: (TID |-> 
+       < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
      < TABLE : Table | table: REPLICA-TABLE >
-     < RID : Replica | committed: C,
-                       certifying: (C' < TID : Txn | writeSet: WS,
+     < RID : Replica | certifying: (C' < TID : Txn | writeSet: WS,
                                                     vecWrite: VW, AS' >),
                        datastore: DS,
-                       depVector: DV, AS >
+                       depVector: DV,
+                       rmtCommitted: TIDS, AS >
      (msg commit(TID) from RID' to RID)
    =>
+     < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+       < VTS1@M,insert(RID,GT@M,VTS2@M),FLAG@M,READS@M,WRITES@M >,LOG@M) >
      < TABLE : Table | table: REPLICA-TABLE >
-     < RID : Replica | committed: (C < TID : Txn | writeSet: WS,
-                                                   vecWrite: VW, AS' >),
-                       certifying: C',
+     < RID : Replica | certifying: C',
                        datastore: (DS,update(WS,VW,RID,REPLICA-TABLE)),
-                       depVector: update(VW,RID,REPLICA-TABLE,DV), AS >
+                       depVector: update(VW,RID,REPLICA-TABLE,DV),
+                       rmtCommitted: (TID ; TIDS), AS >
      (msg committed(TID) from RID to RID') .
 
 
   rl [receive-abort] :
-     < RID : Replica | aborted: C,
-                       certifying: (C' < TID : Txn | AS' >), AS >
+     < O@M : Monitor | clock: GT@M, log: (TID |-> 
+       < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < RID : Replica | certifying: (C' < TID : Txn | AS' >), AS >
      (msg abort(TID) from RID' to RID)
    =>
-     < RID : Replica | aborted: (C < TID : Txn | AS' >),
-                       certifying: C', AS >
+     < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+       < VTS1@M,insert(RID,GT@M,VTS2@M),FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < RID : Replica | certifying: C', AS >
      (msg aborted(TID) from RID to RID') .
 
 

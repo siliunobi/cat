@@ -7,7 +7,7 @@ mod JESSY-ANALYSIS is
   --- Init parameters 
   eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
   eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
-  eq nbOfRwTxns = 3 .  eq nbOfOpsPerRwTxn = 4 .  --- must be even number
+  eq nbOfRwTxns = 3 .  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
   eq nbOfServs  = 2 .  eq nbOfKeys = 2 .  eq nbOfRepls = 1 .
 
 
@@ -62,8 +62,8 @@ endm
 ---rew initConfig .
 ---search initConfig =>! C:Config .
 
-search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
-  such that not rc(LOG:Log) .
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not rc(LOG:Log) .
 
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not ra(LOG:Log) .
@@ -80,8 +80,8 @@ search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet 
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not psi(LOG:Log) .
 
----search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
-  ---such that not nmsi(LOG:Log) .
+search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  such that not nmsi(LOG:Log) .
 
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not us(LOG:Log) .

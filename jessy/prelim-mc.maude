@@ -309,6 +309,7 @@ fmod CLIENT-REPLICA is
 
 *** NEW
   op depVector:_ : DepVector -> Attribute .
+  op rmtCommitted:_ : AddressSet -> Attribute .
 
 
   op Txn : -> ActorType .

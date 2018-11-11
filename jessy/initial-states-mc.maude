@@ -185,7 +185,8 @@ mod INITIAL-STATES is
                       executing: null, submitted: null,
                       committed: null, aborted: null, certifying: null,
                       votes: noVote, voteSites: noVS,
-                      commitSites: noVS, abortSites: noVS >
+                      commitSites: noVS, abortSites: noVS,
+                      rmtCommitted: emptyAddressSet >
               (start to s SERS)) .
 
 
