@@ -1,0 +1,67 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	   Maude 2.7.1 built: Jun 27 2016 16:35:16
+	    Copyright 1997-2016 SRI International
+		   Sat Nov 10 19:12:33 2018
+==========================================
+search [1] in JESSY-ANALYSIS : initConfig =>! C:Config 
+< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not ua(
+    LOG:Log) = true .
+
+Solution 1 (state 41441)
+states: 44241  rewrites: 1326687 in 3028ms cpu (3030ms real) (438139
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | datastore: (< k1,[0],< 0,0 > >, < k1,[4],< 1,1 > >, < k1,[4],<
+    2,1 > >, < k2,[0],< 0,0 > >, < k2,[2],< 1,1 > >, < k2,[2],< 2,1 > >),sqn:
+    2,executing: null,submitted: null,committed: (
+< 1 . 1 : Txn | operations: nil,readSet: (< k1,< 0,0 > >, < k2,< 0,0 > >),
+    writeSet: (< k1,[4] >, < k2,[2] >),localVars: (k1l |-> [0], k2l |-> [0]),
+    txnSQN: 1,version: < 1,1 >,vecRead: (< k1,< 0,0 > > |-> (k1 |-> 0, k2 |->
+    0), < k2,< 0,0 > > |-> k2 |-> 0),vecWrite: (< k1,< 1,1 > > |-> (k1 |-> 1,
+    k2 |-> 1), < k2,< 1,1 > > |-> (k1 |-> 1, k2 |-> 1)) > 
+< 2 . 1 : Txn | operations: nil,readSet: (< k1,< 0,0 > >, < k2,< 0,0 > >),
+    writeSet: (< k1,[4] >, < k2,[2] >),localVars: (k1l |-> [0], k2l |-> [0]),
+    txnSQN: 1,version: < 2,1 >,vecRead: (< k1,< 0,0 > > |-> (k1 |-> 0, k2 |->
+    0), < k2,< 0,0 > > |-> k2 |-> 0),vecWrite: (< k1,< 2,1 > > |-> (k1 |-> 1,
+    k2 |-> 1), < k2,< 2,1 > > |-> (k1 |-> 1, k2 |-> 1)) >),aborted: 
+< 1 . 2 : Txn | operations: nil,readSet: (< k1,< 0,0 > >, < k2,< 0,0 > >),
+    writeSet: (< k1,[4] >, < k2,[2] >),localVars: (k1l |-> [0], k2l |-> [0]),
+    txnSQN: 2,version: < 1,2 >,vecRead: (< k1,< 0,0 > > |-> (k1 |-> 0, k2 |->
+    0), < k2,< 0,0 > > |-> k2 |-> 0),vecWrite: (< k1,< 1,2 > > |-> (k1 |-> 1,
+    k2 |-> 1), < k2,< 1,2 > > |-> (k1 |-> 1, k2 |-> 1)) >,gotTxns:
+    emptyTxnList,votes: (vote(1 . 1, 1, true) ; vote(1 . 2, 1, false)),
+    voteSites: (voteSites(1 . 1, emptyAddressSet) ; voteSites(1 . 2,
+    emptyAddressSet)),abortSites: voteSites(1 . 2, emptyAddressSet),
+    commitSites: voteSites(1 . 1, emptyAddressSet),certifying: null,depVector:
+    (< k1,< 0,0 > > |-> (k1 |-> 0, k2 |-> 0), < k1,< 1,1 > > |-> (k1 |-> 1, k2
+    |-> 1), < k1,< 2,1 > > |-> (k1 |-> 1, k2 |-> 1), < k2,< 0,0 > > |-> k2 |->
+    0, < k2,< 1,1 > > |-> (k1 |-> 1, k2 |-> 1), < k2,< 2,1 > > |-> (k1 |-> 1,
+    k2 |-> 1)) > 
+< 2 : Replica | datastore: empty,sqn: 1,executing: null,submitted: null,
+    committed: 
+< 2 . 1 : Txn | operations: nil,readSet: (< k1,< 0,0 > >, < k2,< 0,0 > >),
+    writeSet: (< k1,[4] >, < k2,[2] >),localVars: (k1l |-> [0], k2l |-> [0]),
+    txnSQN: 1,version: < 2,1 >,vecRead: (< k1,< 0,0 > > |-> (k1 |-> 0, k2 |->
+    0), < k2,< 0,0 > > |-> k2 |-> 0),vecWrite: (< k1,< 2,1 > > |-> (k1 |-> 1,
+    k2 |-> 1), < k2,< 2,1 > > |-> (k1 |-> 1, k2 |-> 1)) >,aborted: null,
+    gotTxns: emptyTxnList,votes: vote(2 . 1, 1, true),voteSites: voteSites(2 .
+    1, emptyAddressSet),abortSites: noVS,commitSites: voteSites(2 . 1,
+    emptyAddressSet),certifying: null,depVector: empty > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1) ;; replicatingSites(k2, 1)] >
+M:Address --> 0 . 2
+AS:AttributeSet --> clock: 6
+LOG:Log --> 1 . 1 |-> < 1 |-> 0,1 |-> 2,true,< k1,< 0,0 > >, < k2,< 0,0 > >,<
+    k1,< 1,1 > >, < k2,< 1,1 > > >, 1 . 2 |-> < 1 |-> 3,1 |-> 5,false,< k1,< 0,
+    0 > >, < k2,< 0,0 > >,< k1,< 1,2 > >, < k2,< 1,2 > > >, 2 . 1 |-> < 2 |->
+    1,2 |-> 4,true,< k1,< 0,0 > >, < k2,< 0,0 > >,< k1,< 2,1 > >, < k2,< 2,1 >
+    > >
+Bye.
+Sat Nov 10 19:12:36 CST 2018
+
+  --- Init parameters 
+  eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
+  eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
+  eq nbOfRwTxns = 3 .  eq nbOfOpsPerRwTxn = 4 .  --- must be even number
+  eq nbOfServs  = 2 .  eq nbOfKeys = 2 .  eq nbOfRepls = 1 .

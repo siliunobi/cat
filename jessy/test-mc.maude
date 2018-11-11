@@ -1,26 +1,23 @@
-load initial-states-mc
+load consistency
 
 mod JESSY-ANALYSIS is
-  including INITIAL-STATES .
-  including APMAUDE .
-  including MODEL-CHECKER .
+  inc INITIAL-STATES .
+  inc CONSISTENCY .
 
+  --- Init parameters 
+  eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
+  eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
+  eq nbOfRwTxns = 3 .  eq nbOfOpsPerRwTxn = 4 .  --- must be even number
+  eq nbOfServs  = 2 .  eq nbOfKeys = 2 .  eq nbOfRepls = 1 .
 
-  subsort Config < State .
-
-  eq LIMIT = 10000000.0 .
 
   op initConfig : -> Config .
-  ---eq initConfig = run(initState,LIMIT) .
-
-  ops x y z : -> Key .
-  ops m tb r1 r2 r3 t1 t2 t3 t4 t5 t6 : -> Address .
-  ops xl yl zl : -> LocalVar .
-  
-  --- init(RTX,WTX,RWTX,REPLS,KEYS,ROPS,WOPS,RWOPS,KAD) 
-  ---eq initState = init(20,0,180,25,150,2,2,4,uniform) .
+  eq initConfig = init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,
+      nbOfOpsPerRoTxn,nbOfOpsPerWoTxn,nbOfOpsPerRwTxn, 
+      nbOfServs,nbOfKeys,nbOfRepls) . 
 
 
+---(
   eq initConfig = < tb : Table | table: [replicatingSites(x, 1) ;; 
                                          replicatingSites(y, 1) ;; 
                                          replicatingSites(z, 3)] > 
@@ -59,78 +56,62 @@ mod JESSY-ANALYSIS is
                       committed: null, aborted: null, certifying: null,
                      votes: noVote, voteSites: noVS,
                       commitSites: noVS, abortSites: noVS > .
-  
----(
-  --- Metrics
-  vars T T' T1 T2 NUMBER : Float .
-  var C : Config .
-  vars M TID : Address .
-  vars RECORD RECORD' : Record . 
-  var FLAG : Bool .
-
-  --- Throughput
-  op totalRunTime : Record -> Float .
-  op trt : Record Float -> Float .
-  eq totalRunTime(RECORD) = trt(RECORD,0.0) .
-  eq trt((record(TID,T1,T2,FLAG) ; RECORD),T) = 
-       if T2 > T
-         then trt(RECORD,T2)
-         else trt(RECORD,T)
-       fi .
-  eq trt(noRecord,T) = T .
-         
-  op throughput : Config -> Float .
-  eq throughput(< M : Monitor | log: RECORD > C) = committedNumber(RECORD) / totalRunTime(RECORD) .
-
-  op committedNumber : Record -> Float .
-  op $committedNumber : Record Float -> Float .
-  eq committedNumber(RECORD) = $committedNumber(RECORD,0.0) .
-  eq $committedNumber((record(TID,T1,T2,true) ; RECORD),NUMBER) = 
-       $committedNumber(RECORD,NUMBER + 1.0) .
-  eq $committedNumber((record(TID,T1,T2,false) ; RECORD),NUMBER) = 
-       $committedNumber(RECORD,NUMBER) .
-  eq $committedNumber(noRecord,NUMBER) = NUMBER .
-
-  --- Commit Rate
-  op commitRate : Config -> Float .
-  eq commitRate(< M : Monitor | log: RECORD > C) = committedNumber(RECORD) / totalNumber(RECORD) .
-
-  op totalNumber : Record -> Float .
-  op $totalNumber : Record Float -> Float .
-  eq totalNumber(RECORD) = $totalNumber(RECORD,0.0) .
-  eq $totalNumber((record(TID,T1,T2,FLAG) ; RECORD),NUMBER) = 
-       $totalNumber(RECORD,NUMBER + 1.0) .
-  eq $totalNumber(noRecord,NUMBER) = NUMBER .  
-
-  --- Avg Latency
-  op avgLatency : Config -> Float .
-  eq avgLatency(< M : Monitor | log: RECORD > C) = totalLatency(RECORD) / committedNumber(RECORD) .
-  
-  op totalLatency : Record -> Float .
-  op $totalLatency : Record Float -> Float .
-  eq totalLatency(RECORD) = $totalLatency(RECORD,0.0) .
-  eq $totalLatency((record(TID,T1,T2,true) ; RECORD),NUMBER) =
-       $totalLatency(RECORD,NUMBER + T2 - T1) .
-  eq $totalLatency((record(TID,T1,T2,false) ; RECORD),NUMBER) = 
-       $totalLatency(RECORD,NUMBER) .
-  eq $totalLatency(noRecord,NUMBER) = NUMBER .
-
-  --- PVESTA interfaces
-  eq val(0,C) = throughput(C) .
-  eq val(1,C) = avgLatency(C) .
-  eq val(2,C) = commitRate(C) .
 )
 endm
 
----set clear rules off .
 ---rew initConfig .
-search initConfig =>! C:Config .
+---search initConfig =>! C:Config .
 
----rewrite commitRate(initConfig) .
----rewrite (not modified((x |-> [1]),empty,(x |-> < [0],version(0, 0) >))) .
----rewrite (not locked((x |-> [1]),empty)) .
----rewrite update((x |-> [1]),version(1,2),(x |-> < [0],version(0, 0) >)) .
+search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  such that not rc(LOG:Log) .
 
----rew max((x |-> 0, y |-> 1, z |-> 2),(x |-> 1, y |-> 0, z |-> 4)) .
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not ra(LOG:Log) .
 
----q
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not cs(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not ua(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not si(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not psi(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not nmsi(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not us(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not ser(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not sser(LOG:Log) .
+
+---(
+rew cycle(dsg(
+( 1 . 1 |-> < 1 |-> 0,1 |-> 2,false,< k1,< 0,0 > >,< k1,< 1,2 > > >,
+    1 . 2 |-> < 1 |-> 3,1 |-> 5,false,< k1,< 0,0 > >,< k1,< 1,4 > > >, 
+2 . 1 |-> < 2 |-> 1,2 |-> 4,true,< k1,< 0,0 > >,< k1,< 2,2 > > >))) .
+)
+
+---(
+rew dsg-update(
+(1 . 1 |-> < 1 |-> 0,1 |-> 2,false,(< k1,< 0,0 > >, < k2,< 0,0 > >),(< k1,< 1,2 > >, < k2,< 1,2 > >) >, 
+1 . 2 |-> < 1 |-> 3,1 |-> 5,true,(< k1,< 2,2 > >, < k2,< 2,2 > >),(< k1,< 1,5 > >, < k2,< 1,5 > >) >,
+2 . 1 |-> < 2 |-> 1,2 |-> 4,true,(< k1,< 0,0 > >, < k2,< 0,0 > >),(< k1,< 2,2 > >, < k2,< 2,2 > >) >)) .
+)
+
+---(
+rew sser(
+(1 . 1 |-> < 1 |-> 0,1 |-> 2,false,(< k1,< 0,0 > >, < k2,< 0,0 > >),(< k1,< 1,2 > >, < k2,< 1,2 > >) >, 
+1 . 2 |-> < 1 |-> 3,1 |-> 5,true,(< k1,< 2,2 > >, < k2,< 2,2 > >),(< k1,< 1,5 > >, < k2,< 1,5 > >) >,
+2 . 1 |-> < 2 |-> 1,2 |-> 4,true,(< k1,< 0,0 > >, < k2,< 0,0 > >),(< k1,< 2,2 > >, < k2,< 2,2 > >) >)) .
+)
+
+q
+

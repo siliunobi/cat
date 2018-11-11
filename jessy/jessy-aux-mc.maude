@@ -20,7 +20,7 @@ mod JESSY-AUX is
   vars TXNS TXNS' TXNS'' : ConfigList .
   vars C C' C'' : Config .
   vars T T1 : Float .
-  var OPS : OperationList .
+  vars OPS OPS' : OperationList .
   vars K K' : Key .
   vars V V' : Value .
   var X : LocalVar .
@@ -157,6 +157,26 @@ mod JESSY-AUX is
   op kver : Set{KeyValue} Version -> Set{KeyVersion} . 
   eq kver((< K,V >,WS),VERSION) = < K,VERSION >, kver(WS,VERSION) .
   eq kver(empty,VERSION) = empty .
+
+  --- version order
+  op _<_ : Version Version -> Bool .
+  eq < RID,SQN > < < RID',SQN' > =
+       if SQN < SQN'
+         then true
+         else if SQN == SQN' and RID < RID'
+                then true
+                else false
+              fi
+       fi .
+
+  op _in_ : Key Datastore -> Bool .
+  eq K in (< K,V,VERSION >,DS) = true .
+  eq K in DS = false [owise] .
+
+  op _in_ : Key OperationList -> Bool .
+  eq K in (OPS (X :=read K) OPS') = true .
+  eq K in (OPS write(K,EXPR) OPS') = true .
+  eq K in OPS = false [owise] .
 endm 
 
 
