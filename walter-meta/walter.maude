@@ -109,9 +109,6 @@ load walter-aux
      if VTS' gt VTS /\
         s(VTS'[RID']) == SQN .
 
-endm)
-eof 
-
 
   *** Walter Dynamics ***
 
@@ -760,26 +757,7 @@ eof
         DS' := update(locRepWS(WS,RID,REPLICA-TABLE),< RID',SQN >,DS) .
 
 
-  --- ??? 
- crl [receive-ds-durable-visible] :
 
-     < RID : Replica | recPropTxns: (propagatedTxns(TID,SQN,VTS) ; PTXNS),
-                       recDurableTxns: DTXNS,
-                       committedVTS: VTS',
-                       locked: LOCKS,
-***NEW
-                       rmtCommitted: RIDS, AS' >
-     (msg ds-durable(TID) from RID' to RID)
-   =>
-
-     < RID : Replica | recPropTxns: (propagatedTxns(TID,SQN,VTS) ; PTXNS),
-                       recDurableTxns: (durableTxns(TID) ; DTXNS),
-                       committedVTS: insert(RID',SQN,VTS'),
-                       locked: release(TID,LOCKS),
-                       rmtCommitted: (RIDS ; TID), AS' >
-     (msg visible(TID) from RID to RID')
-     if VTS' gt VTS /\
-        s(VTS'[RID']) == SQN .
 
 
   --- ???

@@ -1,42 +1,3 @@
-Warning: <automatic>: variable RID@M:Address is used before it is bound in rule:
-crl
-< M:Address : Monitor | clock: GT:Nat,log: (LOG:Log, TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion} >) >
-< RID:Address : Replica | AS':AttributeSet,abortSites: ABORTS:VoteSites,aborted: TXNS':ConfigList,executing:
-< TID:Address : Txn | AS:AttributeSet,readSet: RS:Set{KeyVersion},version: VERSION:Version,writeSet: WS:Set{KeyValue} > > msg aborted(TID:Address) from RID':Address to
-    RID:Address => if ABORTS':VoteSites[TID:Address] == emptyAddressSet then ((start to RID:Address)
-< RID:Address : Replica | executing: noActor,aborted: (TXNS':ConfigList ;;
-< TID:Address : Txn | writeSet: WS:Set{KeyValue},readSet: RS:Set{KeyVersion},AS:AttributeSet,version: VERSION:Version >),AS':AttributeSet,abortSites: ABORTS':VoteSites >)
-< M:Address : Monitor | clock: (GT:Nat + 1),log: (LOG:Log, TID:Address |-> < VTS1:VectorTime,insert(RID:Address, GT:Nat, VTS2:VectorTime),false,RS:Set{KeyVersion},kver(
-    WS:Set{KeyValue}, VERSION:Version) >) > else
-< M:Address : Monitor | clock: GT:Nat,log: (LOG:Log, TID:Address |-> < RID@M:Address |-> T1:Nat,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion} >) >
-
-< RID:Address : Replica | executing:
-< TID:Address : Txn | writeSet: WS:Set{KeyValue},readSet: RS:Set{KeyVersion},AS:AttributeSet,version: VERSION:Version >,aborted: TXNS':ConfigList,AS':AttributeSet,
-    abortSites: ABORTS':VoteSites > fi if ABORTS':VoteSites := remove(TID:Address, RID':Address, ABORTS:VoteSites) [label receive-aborted] .
-
-    
-Warning: <automatic>: variable VTS1:VectorTime is used before it is bound in rule:
-crl
-< M:Address : Monitor | clock: GT:Nat,log: (LOG:Log, TID:Address |-> < RID@M:Address |-> T1:Nat,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion} >) >
-
-< RID:Address : Replica | AS':AttributeSet,committedVTS: VTS':VectorTime,locked: LOCKS:Locks,recDurableTxns: (DTXNS:DurableTxns ; nonDurableTxns(TID:Address,
-    RID':Address)),recPropTxns: (PTXNS:PropagatedTxns ; propagatedTxns(TID:Address, SQN:Nat, VTS:VectorTime)),rmtCommitted: RIDS:AddressSet > => (
-< RID:Address : Replica | recPropTxns: (PTXNS:PropagatedTxns ; propagatedTxns(TID:Address, SQN:Nat, VTS:VectorTime)),recDurableTxns: (DTXNS:DurableTxns ; durableTxns(
-    TID:Address)),committedVTS: insert(RID':Address, SQN:Nat, VTS':VectorTime),locked: release(TID:Address, LOCKS:Locks),AS':AttributeSet,rmtCommitted: (TID:Address ;
-    RIDS:AddressSet) > msg visible(TID:Address) from RID:Address to RID':Address)
-< M:Address : Monitor | clock: (GT:Nat + 1),log: (LOG:Log, TID:Address |-> < VTS1:VectorTime,insert(RID:Address, GT:Nat, VTS2:VectorTime),FFLAG:Bool,READS:Set{KeyVersion},
-    WRITES:Set{KeyVersion} >) > if VTS':VectorTime gt VTS:VectorTime = true /\ s (VTS':VectorTime[RID':Address]) == SQN:Nat = true [label later-visible] .
-Warning: <automatic>: variable VTS1:VectorTime is used before it is bound in rule:
-crl
-< M:Address : Monitor | clock: GT:Nat,log: (LOG:Log, TID:Address |-> < RID@M:Address |-> T1:Nat,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion} >) >
-
-< RID:Address : Replica | AS':AttributeSet,committedVTS: VTS':VectorTime,locked: LOCKS:Locks,recDurableTxns: DTXNS:DurableTxns,recPropTxns: (PTXNS:PropagatedTxns ;
-    propagatedTxns(TID:Address, SQN:Nat, VTS:VectorTime)),rmtCommitted: RIDS:AddressSet > msg ds-durable(TID:Address) from RID':Address to RID:Address => (
-< RID:Address : Replica | recPropTxns: (PTXNS:PropagatedTxns ; propagatedTxns(TID:Address, SQN:Nat, VTS:VectorTime)),recDurableTxns: (DTXNS:DurableTxns ; durableTxns(
-    TID:Address)),committedVTS: insert(RID':Address, SQN:Nat, VTS':VectorTime),locked: release(TID:Address, LOCKS:Locks),AS':AttributeSet,rmtCommitted: (TID:Address ;
-    RIDS:AddressSet) > msg visible(TID:Address) from RID:Address to RID':Address)
-< M:Address : Monitor | clock: (GT:Nat + 1),log: (LOG:Log, TID:Address |-> < VTS1:VectorTime,insert(RID:Address, GT:Nat, VTS2:VectorTime),FFLAG:Bool,READS:Set{KeyVersion},
-    WRITES:Set{KeyVersion} >) > if VTS':VectorTime gt VTS:VectorTime = true /\ s (VTS':VectorTime[RID':Address]) == SQN:Nat = true [label receive-ds-durable-visible] .
 mod WALTER-TAGGED is
   including BOOL .
   including DELAY .
@@ -59,8 +20,8 @@ mod WALTER-TAGGED is
   eq prepareTxn(TID:Address,KS:KeySet,VTS:VectorTime,emptyAddressSet,REPLICA-TABLE:ReplicaTable,RID':Address)
     = null .
   eq prepareTxn(TID:Address,KS:KeySet,VTS:VectorTime,RID:Address ; RIDS:AddressSet,REPLICA-TABLE:ReplicaTable,RID':Address)
-    = prepareTxn(TID:Address,KS:KeySet,VTS:VectorTime,RIDS:AddressSet,REPLICA-TABLE:ReplicaTable,RID':Address)msg prepare(TID:Address,onSite(KS:KeySet,RID:Address,
-    REPLICA-TABLE:ReplicaTable),VTS:VectorTime)from RID':Address to RID:Address .
+    = prepareTxn(TID:Address,KS:KeySet,VTS:VectorTime,RIDS:AddressSet,REPLICA-TABLE:ReplicaTable,RID':Address)msg prepare(TID:Address,onSite(KS:KeySet,RID:Address,REPLICA-TABLE:ReplicaTable),VTS:VectorTime)from RID':Address to
+    RID:Address .
   eq propagateAbort(TID:Address,emptyAddressSet,RID':Address)
     = null .
   eq propagateAbort(TID:Address,RID:Address ; RIDS:AddressSet,RID':Address)
@@ -68,323 +29,277 @@ mod WALTER-TAGGED is
   eq propagateTxn(TID:Address,SQN:Nat,VTS:VectorTime,WS:Set{KeyValue},emptyAddressSet,RID':Address)
     = null .
   eq propagateTxn(TID:Address,SQN:Nat,VTS:VectorTime,WS:Set{KeyValue},RID:Address ; RIDS:AddressSet,RID':Address)
-    = propagateTxn(TID:Address,SQN:Nat,VTS:VectorTime,WS:Set{KeyValue},RIDS:AddressSet,RID':Address)msg propagate(TID:Address,SQN:Nat,VTS:VectorTime,WS:Set{KeyValue})from
-    RID':Address to RID:Address .
-  rl
+    = propagateTxn(TID:Address,SQN:Nat,VTS:VectorTime,WS:Set{KeyValue},RIDS:AddressSet,RID':Address)msg propagate(TID:Address,SQN:Nat,VTS:VectorTime,WS:Set{KeyValue})from RID':Address to RID:Address .
+  rl 
 < M:Address : Monitor | clock: GT:Nat,log: LOG:Log >(start to RID:Address)
 < RID:Address : Replica | gotTxns:(
 < TID:Address : Txn | startVTS: empty,AS:AttributeSet > ;; TXNS:ConfigList),executing: noActor,committedVTS: VTS:VectorTime,AS':AttributeSet >
-    =>
+    => 
 < M:Address : Monitor | clock:(GT:Nat + 1),log: insert(TID:Address,< RID:Address |-> GT:Nat,empty,false,empty,empty >,LOG:Log)>
 < RID:Address : Replica | gotTxns: TXNS:ConfigList,executing:
 < TID:Address : Txn | startVTS: VTS:VectorTime,AS:AttributeSet >,committedVTS: VTS:VectorTime,AS':AttributeSet > execute to RID:Address [label start-txn] .
-  rl
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>(execute to
-    RID:Address)
+  rl 
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>(execute to RID:Address)
 < RID:Address : Replica | executing:
 < TID:Address : Txn | operations: nil,writeSet: empty,readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >,committed: TXNS':ConfigList,AS':AttributeSet >
-    =>
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{KeyVersion},kver(empty,
-    VERSION:Version)>, LOG:Log)>
+    => 
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{KeyVersion},kver(empty,VERSION:Version)>, LOG:Log)>
 < TID:Address : Txn | operations: nil,writeSet: empty,readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet > [label commit-read-only-txn] .
-  rl
+  rl 
 < RID:Address : Replica | executing:
-< TID:Address : Txn | operations:(waitRemote(K:Key,X:LocalVar)OPS:OperationList),readSet: RS:Set{KeyVersion},localVars: VARS:LocalVars,AS:AttributeSet >,history:
-    DS:Datastore,AS':AttributeSet > msg reply(TID:Address,K:Key,< V:Value,VERSION:Version >)from RID':Address to RID:Address
-    =>
+< TID:Address : Txn | operations:(waitRemote(K:Key,X:LocalVar)OPS:OperationList),readSet: RS:Set{KeyVersion},localVars: VARS:LocalVars,AS:AttributeSet >,history: DS:Datastore,AS':AttributeSet > msg reply(TID:Address,K:Key,<
+    V:Value,VERSION:Version >)from RID':Address to RID:Address
+    => 
 < RID:Address : Replica | executing:
-< TID:Address : Txn | operations: OPS:OperationList,readSet:(< K:Key,VERSION:Version >, RS:Set{KeyVersion}),localVars: insert(X:LocalVar,V:Value,VARS:LocalVars),
-    AS:AttributeSet >,history: merge(K:Key,< V:Value,VERSION:Version >,DS:Datastore),AS':AttributeSet > execute to RID:Address [label receive-remote-reply] .
-  rl
+< TID:Address : Txn | operations: OPS:OperationList,readSet:(< K:Key,VERSION:Version >, RS:Set{KeyVersion}),localVars: insert(X:LocalVar,V:Value,VARS:LocalVars),AS:AttributeSet >,history: merge(K:Key,< V:Value,VERSION:Version >,
+    DS:Datastore),AS':AttributeSet > execute to RID:Address [label receive-remote-reply] .
+  rl 
 < RID:Address : Replica | gotTxns: emptyTxnList,AS:AttributeSet > start to RID:Address
-    =>
+    => 
 < RID:Address : Replica | gotTxns: emptyTxnList,AS:AttributeSet > [label receiving-start-when-no-txn-to-start] .
-  rl
+  rl 
 < RID:Address : Replica | locked: LOCKS:Locks,AS:AttributeSet > msg abort(TID:Address)from RID':Address to RID:Address
-    =>
-< RID:Address : Replica | locked: release(TID:Address,LOCKS:Locks),AS:AttributeSet > msg aborted(TID:Address)from RID:Address to RID':Address [label
-    slow-commit-receive-abort] .
-  rl
+    => 
+< RID:Address : Replica | locked: release(TID:Address,LOCKS:Locks),AS:AttributeSet > msg aborted(TID:Address)from RID:Address to RID':Address [label slow-commit-receive-abort] .
+  rl 
 < RID:Address : Replica | locked: LOCKS:Locks,history: DS:Datastore,AS:AttributeSet > msg prepare(TID:Address,KS:KeySet,VTS:VectorTime)from RID':Address to RID:Address
     => if not locked(KS:KeySet,LOCKS:Locks)and not modified(KS:KeySet,VTS:VectorTime,DS:Datastore)then
-< RID:Address : Replica | locked:(addLock(KS:KeySet,TID:Address), LOCKS:Locks),history: DS:Datastore,AS:AttributeSet > msg prepare-reply(TID:Address,true)from RID:Address
-    to RID':Address else
-< RID:Address : Replica | locked: LOCKS:Locks,history: DS:Datastore,AS:AttributeSet > msg prepare-reply(TID:Address,false)from RID:Address to RID':Address fi [label
-    slow-commit-receive-prepare] .
-  rl
-< RID:Address : Replica | recPropTxns:(nonPropagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime,WS:Set{KeyValue},RID':Address); PTXNS:PropagatedTxns),recDurableTxns:
-    DTXNS:DurableTxns,AS':AttributeSet > msg ds-durable(TID:Address)from RID':Address to RID:Address
-    =>
-< RID:Address : Replica | recPropTxns:(nonPropagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime,WS:Set{KeyValue},RID':Address); PTXNS:PropagatedTxns),recDurableTxns:(
-    nonDurableTxns(TID:Address,RID':Address); DTXNS:DurableTxns),AS':AttributeSet > [label receive-ds-durable-not-visible-non-propagated-1] .
+< RID:Address : Replica | locked:(addLock(KS:KeySet,TID:Address), LOCKS:Locks),history: DS:Datastore,AS:AttributeSet > msg prepare-reply(TID:Address,true)from RID:Address to RID':Address else
+< RID:Address : Replica | locked: LOCKS:Locks,history: DS:Datastore,AS:AttributeSet > msg prepare-reply(TID:Address,false)from RID:Address to RID':Address fi [label slow-commit-receive-prepare] .
+  rl 
+< RID:Address : Replica | recPropTxns:(nonPropagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime,WS:Set{KeyValue},RID':Address); PTXNS:PropagatedTxns),recDurableTxns: DTXNS:DurableTxns,AS':AttributeSet > msg ds-durable(TID:Address)from
+    RID':Address to RID:Address
+    => 
+< RID:Address : Replica | recPropTxns:(nonPropagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime,WS:Set{KeyValue},RID':Address); PTXNS:PropagatedTxns),recDurableTxns:(nonDurableTxns(TID:Address,RID':Address); DTXNS:DurableTxns),
+    AS':AttributeSet > [label receive-ds-durable-not-visible-non-propagated-1] .
   rl (execute to RID:Address)
 < RID:Address : Replica | executing:
-< TID:Address : Txn | operations:((X:LocalVar :=read K:Key)OPS:OperationList),writeSet:(< K:Key,V:Value >, WS:Set{KeyValue}),localVars: VARS:LocalVars,AS:AttributeSet >,
-    AS':AttributeSet >
-    =>
+< TID:Address : Txn | operations:((X:LocalVar :=read K:Key)OPS:OperationList),writeSet:(< K:Key,V:Value >, WS:Set{KeyValue}),localVars: VARS:LocalVars,AS:AttributeSet >,AS':AttributeSet >
+    => 
 < RID:Address : Replica | executing:
-< TID:Address : Txn | operations: OPS:OperationList,writeSet:(< K:Key,V:Value >, WS:Set{KeyValue}),localVars: insert(X:LocalVar,V:Value,VARS:LocalVars),AS:AttributeSet >,
-    AS':AttributeSet > execute to RID:Address [label execute-read-own-write] .
+< TID:Address : Txn | operations: OPS:OperationList,writeSet:(< K:Key,V:Value >, WS:Set{KeyValue}),localVars: insert(X:LocalVar,V:Value,VARS:LocalVars),AS:AttributeSet >,AS':AttributeSet > execute to RID:Address [label
+    execute-read-own-write] .
   rl (execute to RID:Address)
 < RID:Address : Replica | executing:
 < TID:Address : Txn | operations:(write(K:Key,EXPR:Expression)OPS:OperationList),localVars: VARS:LocalVars,writeSet: WS:Set{KeyValue},AS:AttributeSet >,AS':AttributeSet >
-    =>
+    => 
 < RID:Address : Replica | executing:
-< TID:Address : Txn | operations: OPS:OperationList,localVars: VARS:LocalVars,writeSet:(< K:Key,eval(EXPR:Expression,VARS:LocalVars)>, WS:Set{KeyValue}),AS:AttributeSet >,
-    AS':AttributeSet > execute to RID:Address [label execute-write] .
-  crl
+< TID:Address : Txn | operations: OPS:OperationList,localVars: VARS:LocalVars,writeSet:(< K:Key,eval(EXPR:Expression,VARS:LocalVars)>, WS:Set{KeyValue}),AS:AttributeSet >,AS':AttributeSet > execute to RID:Address [label
+    execute-write] .
+  crl 
 < M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
-< RID:Address : Replica | executing:
-< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,
-    AS:AttributeSet >,committed: TXNS':ConfigList,aborted: TXNS'':ConfigList,votes: VOTES:Vote,voteSites: VSTS:VoteSites,sqn: SQN:Nat,history: DS:Datastore,committedVTS:
-    VTS':VectorTime,locked: LOCKS:Locks,dsSites: PSTS:PropagateSites,abortSites: ABORTS:VoteSites,AS':AttributeSet > msg prepare-reply(TID:Address,FLAG:Bool)from
-    RID':Address to RID:Address
-    =>
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),false,RS:Set{KeyVersion},kver(WS:Set{KeyValue},
-    VERSION:Version)>, LOG:Log)>
-< RID:Address : Replica | executing: noActor,committed: TXNS':ConfigList,aborted:(TXNS'':ConfigList ;;
-< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: < RID:Address,SQN':Nat >,
-    AS:AttributeSet >),votes:(VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool)),voteSites: VSTS':VoteSites,sqn: SQN':Nat,history: DS:Datastore,committedVTS:
-    VTS':VectorTime,locked: LOCKS:Locks,dsSites: PSTS:PropagateSites,abortSites: ABORTS:VoteSites,AS':AttributeSet > start to RID:Address
-    if remove(TID:Address,RID':Address,VSTS:VoteSites)[TID:Address]== emptyAddressSet = true /\ not allYes(TID:Address,VOTES:Vote ; vote(TID:Address,RID':Address,
-    FLAG:Bool))= true /\ yesSites(TID:Address,VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool))== emptyAddressSet = true /\ SQN':Nat := SQN:Nat + 1 /\ VSTS':VoteSites
-    := remove(TID:Address,RID':Address,VSTS:VoteSites) [label slow-commit-receive-prepare-reply-4] .
-  crl
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
-< RID:Address : Replica | executing:
-< TID:Address : Txn | writeSet: WS:Set{KeyValue},readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >,aborted: TXNS':ConfigList,abortSites:
-    ABORTS:VoteSites,AS':AttributeSet > msg aborted(TID:Address)from RID':Address to RID:Address
-    => if ABORTS':VoteSites[TID:Address]== emptyAddressSet then
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),false,RS:Set{KeyVersion},kver(WS:Set{KeyValue},
-    VERSION:Version)>, LOG:Log)>
-< RID:Address : Replica | executing: noActor,aborted:(TXNS':ConfigList ;;
-< TID:Address : Txn | writeSet: WS:Set{KeyValue},readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >),abortSites: ABORTS':VoteSites,AS':AttributeSet >
-    start to RID:Address else
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < RID@M:Address |-> T1:Nat,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
-< RID:Address : Replica | executing:
-< TID:Address : Txn | writeSet: WS:Set{KeyValue},readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >,aborted: TXNS':ConfigList,abortSites:
-    ABORTS':VoteSites,AS':AttributeSet > fi
-    if ABORTS':VoteSites := remove(TID:Address,RID':Address,ABORTS:VoteSites) [label receive-aborted] .
-  crl
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
-< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
-< RID:Address : Replica | executing:
-< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,
-    AS:AttributeSet >,committed: TXNS':ConfigList,aborted: TXNS'':ConfigList,votes: VOTES:Vote,voteSites: VSTS:VoteSites,sqn: SQN:Nat,history: DS:Datastore,committedVTS:
-    VTS':VectorTime,locked: LOCKS:Locks,dsSites: PSTS:PropagateSites,abortSites: ABORTS:VoteSites,AS':AttributeSet > msg prepare-reply(TID:Address,FLAG:Bool)from
-    RID':Address to RID:Address
-    =>
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{KeyVersion},kver(WS:Set{KeyValue},
-    VERSION:Version)>, LOG:Log)>
-< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,
-    AS:AttributeSet >
-    if remove(TID:Address,RID':Address,VSTS:VoteSites)[TID:Address]== emptyAddressSet = true /\ allYes(TID:Address,VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool))=
-    true /\ SQN':Nat := SQN:Nat + 1 /\ DS':Datastore := update(WS:Set{KeyValue},< RID:Address,SQN':Nat >,DS:Datastore)/\ VTS'':VectorTime := insert(RID:Address,SQN':Nat,
-    VTS':VectorTime)/\ PSTS':PropagateSites := PSTS:PropagateSites ; txnPropagateSites(TID:Address,WS:Set{KeyValue}) [label slow-commit-receive-prepare-reply-2] .
-  crl
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>(execute to
-    RID:Address)
-< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
-< RID:Address : Replica | executing:
-< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >,aborted:
-    TXNS':ConfigList,history: DS:Datastore,locked: LOCKS:Locks,sqn: SQN:Nat,AS':AttributeSet >
-    =>
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),false,RS:Set{KeyVersion},kver(WS:Set{KeyValue},
-    VERSION:Version)>, LOG:Log)>
-< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
-< RID:Address : Replica | executing: noActor,aborted:(TXNS':ConfigList ;;
-< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,readSet: RS:Set{KeyVersion},version: < RID:Address,SQN:Nat + 1 >,AS:AttributeSet
-    >),history: DS:Datastore,locked: LOCKS:Locks,sqn:(SQN:Nat + 1),AS':AttributeSet > start to RID:Address
-    if WS:Set{KeyValue}=/=(empty).Set{KeyValue}= true /\ allLocalPreferred(WS:Set{KeyValue},RID:Address,REPLICA-TABLE:ReplicaTable)= true /\ modified(WS:Set{KeyValue},
-    VTS:VectorTime,DS:Datastore)or locked(WS:Set{KeyValue},LOCKS:Locks)= true [label fast-commit-failed] .
-  crl
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>(execute to
-    RID:Address)
-< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
-< RID:Address : Replica | executing:
-< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,
-    AS:AttributeSet >,committed: TXNS':ConfigList,history: DS:Datastore,locked: LOCKS:Locks,sqn: SQN:Nat,committedVTS: VTS':VectorTime,dsSites: PSTS:PropagateSites,
-    AS':AttributeSet >
-    =>
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{KeyVersion},kver(WS:Set{KeyValue},
-    VERSION:Version)>, LOG:Log)>
-< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,
-    AS:AttributeSet >
-    if WS:Set{KeyValue}=/=(empty).Set{KeyValue}= true /\ allLocalPreferred(WS:Set{KeyValue},RID:Address,REPLICA-TABLE:ReplicaTable)= true /\ not modified(WS:Set{KeyValue},
-    VTS:VectorTime,DS:Datastore)= true /\ not locked(WS:Set{KeyValue},LOCKS:Locks)= true /\ SQN':Nat := SQN:Nat + 1 /\ DS':Datastore := update(WS:Set{KeyValue},<
-    RID:Address,SQN':Nat >,DS:Datastore)/\ VTS'':VectorTime := insert(RID:Address,SQN':Nat,VTS':VectorTime)/\ PSTS':PropagateSites := PSTS:PropagateSites ;
-    txnPropagateSites(TID:Address,WS:Set{KeyValue}) [label fast-commit-success] .
-  crl
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < RID@M:Address |-> T1:Nat,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
-< RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns:(nonDurableTxns(TID:Address,RID':Address);
-    DTXNS:DurableTxns),committedVTS: VTS':VectorTime,locked: LOCKS:Locks,rmtCommitted: RIDS:AddressSet,AS':AttributeSet >
-    =>
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{
-    KeyVersion}>, LOG:Log)>
-< RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns:(durableTxns(TID:Address);
-    DTXNS:DurableTxns),committedVTS: insert(RID':Address,SQN:Nat,VTS':VectorTime),locked: release(TID:Address,LOCKS:Locks),rmtCommitted:(RIDS:AddressSet ; TID:Address),
-    AS':AttributeSet > msg visible(TID:Address)from RID:Address to RID':Address
+< RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns:(nonDurableTxns(TID:Address,RID':Address); DTXNS:DurableTxns),committedVTS: VTS':VectorTime,locked:
+    LOCKS:Locks,rmtCommitted: RIDS:AddressSet,AS':AttributeSet >
+    => 
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
+< RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns:(durableTxns(TID:Address); DTXNS:DurableTxns),committedVTS: insert(RID':Address,SQN:Nat,
+    VTS':VectorTime),locked: release(TID:Address,LOCKS:Locks),rmtCommitted:(RIDS:AddressSet ; TID:Address),AS':AttributeSet > msg visible(TID:Address)from RID:Address to RID':Address
     if VTS':VectorTime gt VTS:VectorTime = true /\ s(VTS':VectorTime[RID':Address])== SQN:Nat = true [label later-visible] .
-  crl
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < RID@M:Address |-> T1:Nat,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
-< RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns: DTXNS:DurableTxns,committedVTS:
-    VTS':VectorTime,locked: LOCKS:Locks,rmtCommitted: RIDS:AddressSet,AS':AttributeSet > msg ds-durable(TID:Address)from RID':Address to RID:Address
-    =>
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{
-    KeyVersion}>, LOG:Log)>
-< RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns:(durableTxns(TID:Address);
-    DTXNS:DurableTxns),committedVTS: insert(RID':Address,SQN:Nat,VTS':VectorTime),locked: release(TID:Address,LOCKS:Locks),rmtCommitted:(RIDS:AddressSet ; TID:Address),
-    AS':AttributeSet > msg visible(TID:Address)from RID:Address to RID':Address
+  crl 
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >,committed: TXNS':ConfigList,aborted:
+    TXNS'':ConfigList,votes: VOTES:Vote,voteSites: VSTS:VoteSites,sqn: SQN:Nat,history: DS:Datastore,committedVTS: VTS':VectorTime,locked: LOCKS:Locks,dsSites: PSTS:PropagateSites,abortSites: ABORTS:VoteSites,AS':AttributeSet > msg
+    prepare-reply(TID:Address,FLAG:Bool)from RID':Address to RID:Address
+    => 
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),false,RS:Set{KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG:Log)>
+< RID:Address : Replica | executing: noActor,committed: TXNS':ConfigList,aborted:(TXNS'':ConfigList ;;
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: < RID:Address,SQN':Nat >,AS:AttributeSet >),votes:(VOTES:Vote ; vote(TID:Address,
+    RID':Address,FLAG:Bool)),voteSites: VSTS':VoteSites,sqn: SQN':Nat,history: DS:Datastore,committedVTS: VTS':VectorTime,locked: LOCKS:Locks,dsSites: PSTS:PropagateSites,abortSites: ABORTS:VoteSites,AS':AttributeSet > start to
+    RID:Address
+    if remove(TID:Address,RID':Address,VSTS:VoteSites)[TID:Address]== emptyAddressSet = true /\ not allYes(TID:Address,VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool))= true /\ yesSites(TID:Address,VOTES:Vote ; vote(
+    TID:Address,RID':Address,FLAG:Bool))== emptyAddressSet = true /\ SQN':Nat := SQN:Nat + 1 /\ VSTS':VoteSites := remove(TID:Address,RID':Address,VSTS:VoteSites) [label slow-commit-receive-prepare-reply-4] .
+  crl 
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
+< RID:Address : Replica | executing:
+< TID:Address : Txn | writeSet: WS:Set{KeyValue},readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >,aborted: TXNS':ConfigList,abortSites: ABORTS:VoteSites,AS':AttributeSet > msg aborted(TID:Address)from
+    RID':Address to RID:Address
+    => if ABORTS':VoteSites[TID:Address]== emptyAddressSet then
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),false,RS:Set{KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG:Log)>
+< RID:Address : Replica | executing: noActor,aborted:(TXNS':ConfigList ;;
+< TID:Address : Txn | writeSet: WS:Set{KeyValue},readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >),abortSites: ABORTS':VoteSites,AS':AttributeSet > start to RID:Address else
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
+< RID:Address : Replica | executing:
+< TID:Address : Txn | writeSet: WS:Set{KeyValue},readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >,aborted: TXNS':ConfigList,abortSites: ABORTS':VoteSites,AS':AttributeSet > fi
+    if ABORTS':VoteSites := remove(TID:Address,RID':Address,ABORTS:VoteSites) [label receive-aborted] .
+  crl 
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
+< RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns: DTXNS:DurableTxns,committedVTS: VTS':VectorTime,locked: LOCKS:Locks,rmtCommitted: RIDS:AddressSet,
+    AS':AttributeSet > msg ds-durable(TID:Address)from RID':Address to RID:Address
+    => 
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
+< RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns:(durableTxns(TID:Address); DTXNS:DurableTxns),committedVTS: insert(RID':Address,SQN:Nat,
+    VTS':VectorTime),locked: release(TID:Address,LOCKS:Locks),rmtCommitted:(RIDS:AddressSet ; TID:Address),AS':AttributeSet > msg visible(TID:Address)from RID:Address to RID':Address
     if VTS':VectorTime gt VTS:VectorTime = true /\ s(VTS':VectorTime[RID':Address])== SQN:Nat = true [label receive-ds-durable-visible] .
-  crl
+  crl 
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >,committed: TXNS':ConfigList,aborted:
+    TXNS'':ConfigList,votes: VOTES:Vote,voteSites: VSTS:VoteSites,sqn: SQN:Nat,history: DS:Datastore,committedVTS: VTS':VectorTime,locked: LOCKS:Locks,dsSites: PSTS:PropagateSites,abortSites: ABORTS:VoteSites,AS':AttributeSet > msg
+    prepare-reply(TID:Address,FLAG:Bool)from RID':Address to RID:Address
+    => 
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG:Log)>
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >
+    if remove(TID:Address,RID':Address,VSTS:VoteSites)[TID:Address]== emptyAddressSet = true /\ allYes(TID:Address,VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool))= true /\ SQN':Nat := SQN:Nat + 1 /\ DS':Datastore := update(
+    WS:Set{KeyValue},< RID:Address,SQN':Nat >,DS:Datastore)/\ VTS'':VectorTime := insert(RID:Address,SQN':Nat,VTS':VectorTime)/\ PSTS':PropagateSites := PSTS:PropagateSites ; txnPropagateSites(TID:Address,WS:Set{KeyValue}) [label
+    slow-commit-receive-prepare-reply-2] .
+  crl 
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>(execute to RID:Address)
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >,aborted: TXNS':ConfigList,history: DS:Datastore,locked: LOCKS:Locks,
+    sqn: SQN:Nat,AS':AttributeSet >
+    => 
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),false,RS:Set{KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG:Log)>
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | executing: noActor,aborted:(TXNS':ConfigList ;;
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,readSet: RS:Set{KeyVersion},version: < RID:Address,SQN:Nat + 1 >,AS:AttributeSet >),history: DS:Datastore,locked: LOCKS:Locks,sqn:(SQN:Nat +
+    1),AS':AttributeSet > start to RID:Address
+    if WS:Set{KeyValue}=/=(empty).Set{KeyValue}= true /\ allLocalPreferred(WS:Set{KeyValue},RID:Address,REPLICA-TABLE:ReplicaTable)= true /\ modified(WS:Set{KeyValue},VTS:VectorTime,DS:Datastore)or locked(WS:Set{KeyValue},
+    LOCKS:Locks)= true [label fast-commit-failed] .
+  crl 
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>(execute to RID:Address)
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >,committed: TXNS':ConfigList,history: DS:Datastore,
+    locked: LOCKS:Locks,sqn: SQN:Nat,committedVTS: VTS':VectorTime,dsSites: PSTS:PropagateSites,AS':AttributeSet >
+    => 
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG:Log)>
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >
+    if WS:Set{KeyValue}=/=(empty).Set{KeyValue}= true /\ allLocalPreferred(WS:Set{KeyValue},RID:Address,REPLICA-TABLE:ReplicaTable)= true /\ not modified(WS:Set{KeyValue},VTS:VectorTime,DS:Datastore)= true /\ not locked(WS:Set{
+    KeyValue},LOCKS:Locks)= true /\ SQN':Nat := SQN:Nat + 1 /\ DS':Datastore := update(WS:Set{KeyValue},< RID:Address,SQN':Nat >,DS:Datastore)/\ VTS'':VectorTime := insert(RID:Address,SQN':Nat,VTS':VectorTime)/\
+    PSTS':PropagateSites := PSTS:PropagateSites ; txnPropagateSites(TID:Address,WS:Set{KeyValue}) [label fast-commit-success] .
+  crl 
 < RID:Address : Replica | dsTxns: DSTXNS:AddressSet,AS:AttributeSet > msg propagate-ack(TID:Address)from RID':Address to RID:Address
-    =>
+    => 
 < RID:Address : Replica | dsTxns: DSTXNS:AddressSet,AS:AttributeSet >
     if TID:Address in DSTXNS:AddressSet = true [label receive-propagate-ack-after-ds-durable-mark] .
-  crl
+  crl 
 < RID:Address : Replica | executing:
-< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,
-    AS:AttributeSet >,committed: TXNS':ConfigList,aborted: TXNS'':ConfigList,votes: VOTES:Vote,voteSites: VSTS:VoteSites,sqn: SQN:Nat,history: DS:Datastore,committedVTS:
-    VTS':VectorTime,locked: LOCKS:Locks,dsSites: PSTS:PropagateSites,abortSites: ABORTS:VoteSites,AS':AttributeSet > msg prepare-reply(TID:Address,FLAG:Bool)from
-    RID':Address to RID:Address
-    =>
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >,committed: TXNS':ConfigList,aborted:
+    TXNS'':ConfigList,votes: VOTES:Vote,voteSites: VSTS:VoteSites,sqn: SQN:Nat,history: DS:Datastore,committedVTS: VTS':VectorTime,locked: LOCKS:Locks,dsSites: PSTS:PropagateSites,abortSites: ABORTS:VoteSites,AS':AttributeSet > msg
+    prepare-reply(TID:Address,FLAG:Bool)from RID':Address to RID:Address
+    => 
 < RID:Address : Replica | executing:
-< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,
-    AS:AttributeSet >,committed: TXNS':ConfigList,aborted: TXNS'':ConfigList,votes:(VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool)),voteSites: remove(TID:Address,
-    RID':Address,VSTS:VoteSites),sqn: SQN:Nat,history: DS:Datastore,committedVTS: VTS':VectorTime,locked: LOCKS:Locks,dsSites: PSTS:PropagateSites,abortSites:
-    ABORTS:VoteSites,AS':AttributeSet >
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >,committed: TXNS':ConfigList,aborted:
+    TXNS'':ConfigList,votes:(VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool)),voteSites: remove(TID:Address,RID':Address,VSTS:VoteSites),sqn: SQN:Nat,history: DS:Datastore,committedVTS: VTS':VectorTime,locked: LOCKS:Locks,
+    dsSites: PSTS:PropagateSites,abortSites: ABORTS:VoteSites,AS':AttributeSet >
     if remove(TID:Address,RID':Address,VSTS:VoteSites)[TID:Address]=/= emptyAddressSet = true [label slow-commit-receive-prepare-reply-1] .
-  crl
+  crl 
 < RID:Address : Replica | executing:
-< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,
-    AS:AttributeSet >,committed: TXNS':ConfigList,aborted: TXNS'':ConfigList,votes: VOTES:Vote,voteSites: VSTS:VoteSites,sqn: SQN:Nat,history: DS:Datastore,committedVTS:
-    VTS':VectorTime,locked: LOCKS:Locks,dsSites: PSTS:PropagateSites,abortSites: ABORTS:VoteSites,AS':AttributeSet > msg prepare-reply(TID:Address,FLAG:Bool)from
-    RID':Address to RID:Address
-    =>
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: VERSION:Version,AS:AttributeSet >,committed: TXNS':ConfigList,aborted:
+    TXNS'':ConfigList,votes: VOTES:Vote,voteSites: VSTS:VoteSites,sqn: SQN:Nat,history: DS:Datastore,committedVTS: VTS':VectorTime,locked: LOCKS:Locks,dsSites: PSTS:PropagateSites,abortSites: ABORTS:VoteSites,AS':AttributeSet > msg
+    prepare-reply(TID:Address,FLAG:Bool)from RID':Address to RID:Address
+    => 
 < RID:Address : Replica | executing:
-< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: < RID:Address,SQN':Nat >,
-    AS:AttributeSet >,committed: TXNS':ConfigList,aborted: TXNS'':ConfigList,votes:(VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool)),voteSites: VSTS':VoteSites,sqn:
-    SQN':Nat,history: DS:Datastore,committedVTS: VTS':VectorTime,locked: LOCKS:Locks,dsSites: PSTS:PropagateSites,abortSites: ABORTS':VoteSites,AS':AttributeSet >
-    propagateAbort(TID:Address,yesSites(TID:Address,VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool)),RID:Address)
-    if remove(TID:Address,RID':Address,VSTS:VoteSites)[TID:Address]== emptyAddressSet = true /\ not allYes(TID:Address,VOTES:Vote ; vote(TID:Address,RID':Address,
-    FLAG:Bool))= true /\ yesSites(TID:Address,VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool))=/= emptyAddressSet = true /\ ABORTS':VoteSites := ABORTS:VoteSites ;
-    voteSites(TID:Address,yesSites(TID:Address,VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool)))/\ SQN':Nat := SQN:Nat + 1 /\ VSTS':VoteSites := remove(TID:Address,
-    RID':Address,VSTS:VoteSites) [label slow-commit-receive-prepare-reply-3] .
-  crl
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version: < RID:Address,SQN':Nat >,AS:AttributeSet >,committed: TXNS':ConfigList,aborted:
+    TXNS'':ConfigList,votes:(VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool)),voteSites: VSTS':VoteSites,sqn: SQN':Nat,history: DS:Datastore,committedVTS: VTS':VectorTime,locked: LOCKS:Locks,dsSites: PSTS:PropagateSites,
+    abortSites: ABORTS':VoteSites,AS':AttributeSet > propagateAbort(TID:Address,yesSites(TID:Address,VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool)),RID:Address)
+    if remove(TID:Address,RID':Address,VSTS:VoteSites)[TID:Address]== emptyAddressSet = true /\ not allYes(TID:Address,VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool))= true /\ yesSites(TID:Address,VOTES:Vote ; vote(
+    TID:Address,RID':Address,FLAG:Bool))=/= emptyAddressSet = true /\ ABORTS':VoteSites := ABORTS:VoteSites ; voteSites(TID:Address,yesSites(TID:Address,VOTES:Vote ; vote(TID:Address,RID':Address,FLAG:Bool)))/\ SQN':Nat := SQN:Nat
+    + 1 /\ VSTS':VoteSites := remove(TID:Address,RID':Address,VSTS:VoteSites) [label slow-commit-receive-prepare-reply-3] .
+  crl 
 < RID:Address : Replica | history: DS:Datastore,AS:AttributeSet > msg request(K:Key,TID:Address,VTS:VectorTime)from RID':Address to RID:Address
-    =>
+    => 
 < RID:Address : Replica | history: DS:Datastore,AS:AttributeSet > msg reply(TID:Address,K:Key,< V:Value,VERSION:Version >)from RID:Address to RID':Address
     if < V:Value,VERSION:Version > := choose(VTS:VectorTime,DS:Datastore[K:Key]) [label receive-remote-request] .
-  crl
+  crl 
 < RID:Address : Replica | recPropTxns: PTXNS:PropagatedTxns,recDurableTxns: DTXNS:DurableTxns,AS':AttributeSet > msg ds-durable(TID:Address)from RID':Address to RID:Address
-    =>
+    => 
 < RID:Address : Replica | recPropTxns: PTXNS:PropagatedTxns,recDurableTxns:(nonDurableTxns(TID:Address,RID':Address); DTXNS:DurableTxns),AS':AttributeSet >
     if not TID:Address in PTXNS:PropagatedTxns = true [label receive-ds-durable-not-visible-non-propagated-2] .
-  crl
-< RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns: DTXNS:DurableTxns,committedVTS:
-    VTS':VectorTime,AS':AttributeSet > msg ds-durable(TID:Address)from RID':Address to RID:Address
-    =>
-< RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns:(nonDurableTxns(TID:Address,RID':Address);
-    DTXNS:DurableTxns),committedVTS: VTS':VectorTime,AS':AttributeSet >
+  crl 
+< RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns: DTXNS:DurableTxns,committedVTS: VTS':VectorTime,AS':AttributeSet > msg ds-durable(TID:Address)from
+    RID':Address to RID:Address
+    => 
+< RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns:(nonDurableTxns(TID:Address,RID':Address); DTXNS:DurableTxns),committedVTS: VTS':VectorTime,
+    AS':AttributeSet >
     if not VTS':VectorTime gt VTS:VectorTime or s(VTS':VectorTime[RID':Address])=/= SQN:Nat = true [label receive-ds-durable-not-visible-not-match-condition] .
-  crl
+  crl 
 < RID:Address : Replica | vsbSites: VSBS:VoteSites,gvTxns: GVTXNS:AddressSet,AS:AttributeSet > msg visible(TID:Address)from RID':Address to RID:Address
     => if VSBS':VoteSites[TID:Address]== emptyAddressSet then
 < RID:Address : Replica | vsbSites: VSBS':VoteSites,gvTxns:(TID:Address ; GVTXNS:AddressSet),AS:AttributeSet > else
 < RID:Address : Replica | vsbSites: VSBS':VoteSites,gvTxns: GVTXNS:AddressSet,AS:AttributeSet > fi
     if VSBS':VoteSites := remove(TID:Address,RID':Address,VSBS:VoteSites) [label receive-visible] .
-  crl
+  crl 
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
-< RID:Address : Replica | gotVTS: VTS':VectorTime,history: DS:Datastore,recPropTxns:(nonPropagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime,WS:Set{KeyValue},RID':Address);
-    PTXNS:PropagatedTxns),AS:AttributeSet >
-    =>
+< RID:Address : Replica | gotVTS: VTS':VectorTime,history: DS:Datastore,recPropTxns:(nonPropagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime,WS:Set{KeyValue},RID':Address); PTXNS:PropagatedTxns),AS:AttributeSet >
+    => 
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable > if RID:Address =/= RID':Address then
-< RID:Address : Replica | gotVTS: VTS'':VectorTime,history: DS':Datastore,recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),
-    AS:AttributeSet > msg propagate-ack(TID:Address)from RID:Address to RID':Address else
-< RID:Address : Replica | gotVTS: VTS'':VectorTime,history: DS:Datastore,recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),
-    AS:AttributeSet > msg propagate-ack(TID:Address)from RID:Address to RID':Address fi
-    if s(VTS':VectorTime[RID':Address])== SQN:Nat = true /\ VTS':VectorTime gt VTS:VectorTime = true /\ VTS'':VectorTime := insert(RID':Address,SQN:Nat,VTS':VectorTime)/\
-    DS':Datastore := update(locRepWS(WS:Set{KeyValue},RID:Address,REPLICA-TABLE:ReplicaTable),< RID':Address,SQN:Nat >,DS:Datastore) [label later-propagate-ack] .
-  crl
+< RID:Address : Replica | gotVTS: VTS'':VectorTime,history: DS':Datastore,recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),AS:AttributeSet > msg propagate-ack(TID:Address)from RID:Address to
+    RID':Address else
+< RID:Address : Replica | gotVTS: VTS'':VectorTime,history: DS:Datastore,recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns),AS:AttributeSet > msg propagate-ack(TID:Address)from RID:Address to
+    RID':Address fi
+    if s(VTS':VectorTime[RID':Address])== SQN:Nat = true /\ VTS':VectorTime gt VTS:VectorTime = true /\ VTS'':VectorTime := insert(RID':Address,SQN:Nat,VTS':VectorTime)/\ DS':Datastore := update(locRepWS(WS:Set{KeyValue},
+    RID:Address,REPLICA-TABLE:ReplicaTable),< RID':Address,SQN:Nat >,DS:Datastore) [label later-propagate-ack] .
+  crl 
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
 < RID:Address : Replica | dsSites: PSTS:PropagateSites,vsbSites: VSBS:VoteSites,committed:(TXNS:ConfigList ;;
-< TID:Address : Txn | writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: SQN:Nat,AS:AttributeSet > ;; TXNS':ConfigList),dsTxns: DSTXNS:AddressSet,gvTxns:
-    GVTXNS:AddressSet,AS':AttributeSet > msg propagate-ack(TID:Address)from RID':Address to RID:Address
-    =>
+< TID:Address : Txn | writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: SQN:Nat,AS:AttributeSet > ;; TXNS':ConfigList),dsTxns: DSTXNS:AddressSet,gvTxns: GVTXNS:AddressSet,AS':AttributeSet > msg propagate-ack(
+    TID:Address)from RID':Address to RID:Address
+    => 
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable > if dsDurable(TID:Address,PSTS':PropagateSites)then if RIDS:AddressSet =/= emptyAddressSet then
 < RID:Address : Replica | dsSites: PSTS':PropagateSites,vsbSites: VSBS':VoteSites,committed:(TXNS:ConfigList ;;
-< TID:Address : Txn | writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: SQN:Nat,AS:AttributeSet > ;; TXNS':ConfigList),dsTxns:(TID:Address ; DSTXNS:AddressSet),
-    gvTxns: GVTXNS:AddressSet,AS':AttributeSet > dsDurableTxn(TID:Address,RIDS:AddressSet,RID:Address)else
+< TID:Address : Txn | writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: SQN:Nat,AS:AttributeSet > ;; TXNS':ConfigList),dsTxns:(TID:Address ; DSTXNS:AddressSet),gvTxns: GVTXNS:AddressSet,AS':AttributeSet > dsDurableTxn(
+    TID:Address,RIDS:AddressSet,RID:Address)else
 < RID:Address : Replica | dsSites: PSTS':PropagateSites,vsbSites: VSBS':VoteSites,committed:(TXNS:ConfigList ;;
-< TID:Address : Txn | writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: SQN:Nat,AS:AttributeSet > ;; TXNS':ConfigList),dsTxns:(TID:Address ; DSTXNS:AddressSet),
-    gvTxns:(TID:Address ; GVTXNS:AddressSet),AS':AttributeSet > fi else
+< TID:Address : Txn | writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: SQN:Nat,AS:AttributeSet > ;; TXNS':ConfigList),dsTxns:(TID:Address ; DSTXNS:AddressSet),gvTxns:(TID:Address ; GVTXNS:AddressSet),AS':AttributeSet >
+    fi else
 < RID:Address : Replica | dsSites: PSTS':PropagateSites,vsbSites: VSBS:VoteSites,committed:(TXNS:ConfigList ;;
-< TID:Address : Txn | writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: SQN:Nat,AS:AttributeSet > ;; TXNS':ConfigList),dsTxns: DSTXNS:AddressSet,gvTxns:
-    GVTXNS:AddressSet,AS':AttributeSet > fi
-    if PSTS':PropagateSites := add(TID:Address,keys(WS:Set{KeyValue}),RID':Address,REPLICA-TABLE:ReplicaTable,PSTS:PropagateSites)/\ not TID:Address in DSTXNS:AddressSet =
-    true /\ RIDS:AddressSet := allServers(REPLICA-TABLE:ReplicaTable)\ RID:Address /\ VSBS':VoteSites := VSBS:VoteSites ; voteSites(TID:Address,RIDS:AddressSet) [label
-    receive-propagate-ack] .
-  crl
+< TID:Address : Txn | writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,txnSQN: SQN:Nat,AS:AttributeSet > ;; TXNS':ConfigList),dsTxns: DSTXNS:AddressSet,gvTxns: GVTXNS:AddressSet,AS':AttributeSet > fi
+    if PSTS':PropagateSites := add(TID:Address,keys(WS:Set{KeyValue}),RID':Address,REPLICA-TABLE:ReplicaTable,PSTS:PropagateSites)/\ not TID:Address in DSTXNS:AddressSet = true /\ RIDS:AddressSet := allServers(
+    REPLICA-TABLE:ReplicaTable)\ RID:Address /\ VSBS':VoteSites := VSBS:VoteSites ; voteSites(TID:Address,RIDS:AddressSet) [label receive-propagate-ack] .
+  crl 
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
-< RID:Address : Replica | gotVTS: VTS':VectorTime,history: DS:Datastore,recPropTxns: PTXNS:PropagatedTxns,AS':AttributeSet > msg propagate(TID:Address,SQN:Nat,
-    VTS:VectorTime,WS:Set{KeyValue})from RID':Address to RID:Address
-    =>
-< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable > if s(VTS':VectorTime[RID':Address])== SQN:Nat and VTS':VectorTime gt VTS:VectorTime then if RID:Address =/=
-    RID':Address then
-< RID:Address : Replica | gotVTS: VTS'':VectorTime,history: DS':Datastore,recPropTxns: PTXNS':PropagatedTxns,AS':AttributeSet > msg propagate-ack(TID:Address)from
-    RID:Address to RID':Address else
-< RID:Address : Replica | gotVTS: VTS'':VectorTime,history: DS:Datastore,recPropTxns: PTXNS':PropagatedTxns,AS':AttributeSet > msg propagate-ack(TID:Address)from
-    RID:Address to RID':Address fi else
+< RID:Address : Replica | gotVTS: VTS':VectorTime,history: DS:Datastore,recPropTxns: PTXNS:PropagatedTxns,AS':AttributeSet > msg propagate(TID:Address,SQN:Nat,VTS:VectorTime,WS:Set{KeyValue})from RID':Address to RID:Address
+    => 
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable > if s(VTS':VectorTime[RID':Address])== SQN:Nat and VTS':VectorTime gt VTS:VectorTime then if RID:Address =/= RID':Address then
+< RID:Address : Replica | gotVTS: VTS'':VectorTime,history: DS':Datastore,recPropTxns: PTXNS':PropagatedTxns,AS':AttributeSet > msg propagate-ack(TID:Address)from RID:Address to RID':Address else
+< RID:Address : Replica | gotVTS: VTS'':VectorTime,history: DS:Datastore,recPropTxns: PTXNS':PropagatedTxns,AS':AttributeSet > msg propagate-ack(TID:Address)from RID:Address to RID':Address fi else
 < RID:Address : Replica | gotVTS: VTS':VectorTime,history: DS:Datastore,recPropTxns: PTXNS'':PropagatedTxns,AS':AttributeSet > fi
-    if PTXNS':PropagatedTxns := propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns /\ PTXNS'':PropagatedTxns := nonPropagatedTxns(TID:Address,SQN:Nat,
-    VTS:VectorTime,WS:Set{KeyValue},RID':Address); PTXNS:PropagatedTxns /\ VTS'':VectorTime := insert(RID':Address,SQN:Nat,VTS':VectorTime)/\ DS':Datastore := update(
-    locRepWS(WS:Set{KeyValue},RID:Address,REPLICA-TABLE:ReplicaTable),< RID':Address,SQN:Nat >,DS:Datastore)/\ VTS:VectorTime =/=(empty).VectorTime = true [label
-    receive-propagate-non-empty-VTS] .
-  crl
+    if PTXNS':PropagatedTxns := propagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime); PTXNS:PropagatedTxns /\ PTXNS'':PropagatedTxns := nonPropagatedTxns(TID:Address,SQN:Nat,VTS:VectorTime,WS:Set{KeyValue},RID':Address);
+    PTXNS:PropagatedTxns /\ VTS'':VectorTime := insert(RID':Address,SQN:Nat,VTS':VectorTime)/\ DS':Datastore := update(locRepWS(WS:Set{KeyValue},RID:Address,REPLICA-TABLE:ReplicaTable),< RID':Address,SQN:Nat >,DS:Datastore)/\
+    VTS:VectorTime =/=(empty).VectorTime = true [label receive-propagate-non-empty-VTS] .
+  crl 
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
-< RID:Address : Replica | gotVTS: VTS':VectorTime,history: DS:Datastore,recPropTxns: PTXNS:PropagatedTxns,AS':AttributeSet > msg propagate(TID:Address,SQN:Nat,empty,WS:Set{
-    KeyValue})from RID':Address to RID:Address
-    =>
+< RID:Address : Replica | gotVTS: VTS':VectorTime,history: DS:Datastore,recPropTxns: PTXNS:PropagatedTxns,AS':AttributeSet > msg propagate(TID:Address,SQN:Nat,empty,WS:Set{KeyValue})from RID':Address to RID:Address
+    => 
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable > if RID:Address =/= RID':Address then
-< RID:Address : Replica | gotVTS: VTS'':VectorTime,history: DS':Datastore,recPropTxns: PTXNS':PropagatedTxns,AS':AttributeSet > msg propagate-ack(TID:Address)from
-    RID:Address to RID':Address else
-< RID:Address : Replica | gotVTS: VTS'':VectorTime,history: DS:Datastore,recPropTxns: PTXNS':PropagatedTxns,AS':AttributeSet > msg propagate-ack(TID:Address)from
-    RID:Address to RID':Address fi
-    if PTXNS':PropagatedTxns := propagatedTxns(TID:Address,SQN:Nat,empty); PTXNS:PropagatedTxns /\ VTS'':VectorTime := insert(RID':Address,SQN:Nat,VTS':VectorTime)/\
-    DS':Datastore := update(locRepWS(WS:Set{KeyValue},RID:Address,REPLICA-TABLE:ReplicaTable),< RID':Address,SQN:Nat >,DS:Datastore) [label receive-propagate-empty-VTS] .
+< RID:Address : Replica | gotVTS: VTS'':VectorTime,history: DS':Datastore,recPropTxns: PTXNS':PropagatedTxns,AS':AttributeSet > msg propagate-ack(TID:Address)from RID:Address to RID':Address else
+< RID:Address : Replica | gotVTS: VTS'':VectorTime,history: DS:Datastore,recPropTxns: PTXNS':PropagatedTxns,AS':AttributeSet > msg propagate-ack(TID:Address)from RID:Address to RID':Address fi
+    if PTXNS':PropagatedTxns := propagatedTxns(TID:Address,SQN:Nat,empty); PTXNS:PropagatedTxns /\ VTS'':VectorTime := insert(RID':Address,SQN:Nat,VTS':VectorTime)/\ DS':Datastore := update(locRepWS(WS:Set{KeyValue},RID:Address,
+    REPLICA-TABLE:ReplicaTable),< RID':Address,SQN:Nat >,DS:Datastore) [label receive-propagate-empty-VTS] .
   crl (execute to RID:Address)
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
 < RID:Address : Replica | executing:
 < TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,AS:AttributeSet >,voteSites: VSTS:VoteSites,AS':AttributeSet >
-    =>
+    => 
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
 < RID:Address : Replica | executing:
-< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,AS:AttributeSet >,voteSites:(VSTS:VoteSites ; voteSites(TID:Address,
-    RIDS:AddressSet)),AS':AttributeSet > prepareTxn(TID:Address,keys(WS:Set{KeyValue}),VTS:VectorTime,RIDS:AddressSet,REPLICA-TABLE:ReplicaTable,RID:Address)
-    if WS:Set{KeyValue}=/=(empty).Set{KeyValue}= true /\ not allLocalPreferred(WS:Set{KeyValue},RID:Address,REPLICA-TABLE:ReplicaTable)= true /\ RIDS:AddressSet :=
-    allPreferredSites(WS:Set{KeyValue},REPLICA-TABLE:ReplicaTable)/\ not TID:Address in VSTS:VoteSites = true [label slow-commit-prepare] .
+< TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,AS:AttributeSet >,voteSites:(VSTS:VoteSites ; voteSites(TID:Address,RIDS:AddressSet)),AS':AttributeSet > prepareTxn(TID:Address,keys(WS:Set{
+    KeyValue}),VTS:VectorTime,RIDS:AddressSet,REPLICA-TABLE:ReplicaTable,RID:Address)
+    if WS:Set{KeyValue}=/=(empty).Set{KeyValue}= true /\ not allLocalPreferred(WS:Set{KeyValue},RID:Address,REPLICA-TABLE:ReplicaTable)= true /\ RIDS:AddressSet := allPreferredSites(WS:Set{KeyValue},REPLICA-TABLE:ReplicaTable)/\
+    not TID:Address in VSTS:VoteSites = true [label slow-commit-prepare] .
   crl (execute to RID:Address)
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
 < RID:Address : Replica | executing:
-< TID:Address : Txn | operations:((X:LocalVar :=read K:Key)OPS:OperationList),writeSet: WS:Set{KeyValue},readSet: RS:Set{KeyVersion},localVars: VARS:LocalVars,startVTS:
-    VTS:VectorTime,AS:AttributeSet >,history: DS:Datastore,AS':AttributeSet >
-    =>
+< TID:Address : Txn | operations:((X:LocalVar :=read K:Key)OPS:OperationList),writeSet: WS:Set{KeyValue},readSet: RS:Set{KeyVersion},localVars: VARS:LocalVars,startVTS: VTS:VectorTime,AS:AttributeSet >,history: DS:Datastore,
+    AS':AttributeSet >
+    => 
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
 < RID:Address : Replica | executing:
-< TID:Address : Txn | operations: OPS:OperationList,writeSet: WS:Set{KeyValue},readSet:(< K:Key,VERSION:Version >, RS:Set{KeyVersion}),localVars: insert(X:LocalVar,V:Value,
-    VARS:LocalVars),startVTS: VTS:VectorTime,AS:AttributeSet >,history: DS:Datastore,AS':AttributeSet > execute to RID:Address
-    if not K:Key in WS:Set{KeyValue}= true /\ localReplica(K:Key,RID:Address,REPLICA-TABLE:ReplicaTable)= true /\ < V:Value,VERSION:Version > := choose(VTS:VectorTime,
-    DS:Datastore[K:Key]) [label execute-read-local] .
+< TID:Address : Txn | operations: OPS:OperationList,writeSet: WS:Set{KeyValue},readSet:(< K:Key,VERSION:Version >, RS:Set{KeyVersion}),localVars: insert(X:LocalVar,V:Value,VARS:LocalVars),startVTS: VTS:VectorTime,AS:AttributeSet >,
+    history: DS:Datastore,AS':AttributeSet > execute to RID:Address
+    if not K:Key in WS:Set{KeyValue}= true /\ localReplica(K:Key,RID:Address,REPLICA-TABLE:ReplicaTable)= true /\ < V:Value,VERSION:Version > := choose(VTS:VectorTime,DS:Datastore[K:Key]) [label execute-read-local] .
   crl (execute to RID:Address)
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
 < RID:Address : Replica | executing:
 < TID:Address : Txn | operations:((X:LocalVar :=read K:Key)OPS:OperationList),writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,AS:AttributeSet >,AS':AttributeSet >
-    =>
+    => 
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
 < RID:Address : Replica | executing:
-< TID:Address : Txn | operations:(waitRemote(K:Key,X:LocalVar)OPS:OperationList),writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,AS:AttributeSet >,AS':AttributeSet >
-    msg request(K:Key,TID:Address,VTS:VectorTime)from RID:Address to RID':Address
-    if not K:Key in WS:Set{KeyValue}= true /\ not localReplica(K:Key,RID:Address,REPLICA-TABLE:ReplicaTable)= true /\ RID':Address := preferredSite(K:Key,
-    REPLICA-TABLE:ReplicaTable) [label execute-read-remote] .
+< TID:Address : Txn | operations:(waitRemote(K:Key,X:LocalVar)OPS:OperationList),writeSet: WS:Set{KeyValue},startVTS: VTS:VectorTime,AS:AttributeSet >,AS':AttributeSet > msg request(K:Key,TID:Address,VTS:VectorTime)from RID:Address
+    to RID':Address
+    if not K:Key in WS:Set{KeyValue}= true /\ not localReplica(K:Key,RID:Address,REPLICA-TABLE:ReplicaTable)= true /\ RID':Address := preferredSite(K:Key,REPLICA-TABLE:ReplicaTable) [label execute-read-remote] .
 endm
-

@@ -190,8 +190,8 @@ endm .
     eq getAttr(Q,C) = empty .
 
 
-    ops   isSwitched : Term Term -> Bool .
-    ops isExecuted isCommitted isAborted : Term Term -> Term .
+    *** ops    : Term Term -> Bool .
+    ops isExecuted isCommitted isAborted isRmtCommitted : Term Term -> Term .
 
     op getTID : Term -> Term .
     op getTIDfromList : TermList -> TermList . 
@@ -200,11 +200,11 @@ endm .
     eq getTIDfromList(('<_:_|_>[V,'Txn.ActorType,TL],TL')) = V, getTIDfromList(TL') .
     eq getTIDfromList(('<_:_|`>[V,'Txn.ActorType],TL')) = V, getTIDfromList(TL') .
 
-        eq getTIDfromList(('<_:_|_>[V,'Transaction.ActorType,TL],TL')) = V, getTIDfromList(TL') .
+    eq getTIDfromList(('<_:_|_>[V,'Transaction.ActorType,TL],TL')) = V, getTIDfromList(TL') .
     eq getTIDfromList(('<_:_|`>[V,'Transaction.ActorType],TL')) = V, getTIDfromList(TL') .
 
     eq getTIDfromList((Q[TL],TL')) = getTIDfromList((TL,TL')) [owise] . 
-    eq getTIDfromList((V,TL)) = getTIDfromList(TL) .
+    eq getTIDfromList((V,TL)) =  if getType(V) == 'Address then V, getTIDfromList(TL) else getTIDfromList(TL) fi .
     eq getTIDfromList((C,TL)) = getTIDfromList(TL) .
     eq getTIDfromList(empty) = empty .
 
@@ -252,6 +252,10 @@ endm .
      TL2 := getAttr('aborted:_,T') /\
      T1 := diff(getTIDfromList(TL1),getTIDfromList(TL2)) .
 
+    ceq isRmtCommitted(T, T') = T1
+  if TL1 := getAttr('rmtCommitted:_,T)  /\
+     TL2 := getAttr('rmtCommitted:_,T') /\
+     T1 := diff(getTIDfromList(TL1),getTIDfromList(TL2)) .
 
 
      ***(testing code 
@@ -270,20 +274,20 @@ endm .
     eq getTID(T) = 'nil.Address [owise] .
     
 
-
-    ceq isSwitched(T,T') = true 
+    ***(
+    ceq isRmtCommitted(T,T') = true 
       if T1 := getAttr('recPropTxns:_,T)  /\
 	  '_;_['propagatedTxns[T3,TL],TL1] := T1 /\  *** T3 is the TID of the propagated tran 
           T2 := getAttr('locked:_,T') /\   *** T2 is the locked trans 
 	  is T3 subTermOf T2 .
-
+  )
 
     *** go to fix switch using walter case 
     
     eq isAborted(T,T') = 'nil.Address [owise] .
     eq isCommitted(T,T') = 'nil.Address [owise] .
     eq isExecuted(T,T') = 'nil.Address [owise] .
-    eq isSwitched(T,T') = false [owise] .
+    eq isRmtCommitted(T,T') = 'nil.Address [owise] .
     
     op getPropagatedTxnsID : Term -> Term .
 
@@ -377,7 +381,7 @@ ceq tagLeftRightHand(T,T',B) =
       if isAborted(T1,TT2) =/= 'nil.Address or 
         isCommitted(T1,TT2) =/= 'nil.Address or 
         isExecuted(T1,TT2) =/= 'nil.Address 
-        *** or isSwitched(T1,TT2) =/= 'nil.Address 
+        *** or isRmtCommitted(T1,TT2) =/= 'nil.Address 
         then 
            'if_then_else_fi[TT1,'__[T3,TT2],'__[T4,TT3]] 
       else 
@@ -458,8 +462,8 @@ ceq tagLeftRightHand(T,T',B) =
 	fi 
       if not hasBranch(T') /\ not isAborted(T,T') /\
 	  not isCommitted(T,T') /\ not isExecuted(T,T')
-	  /\ not isSwitched(T,T')  . 
-)
+	  /\ not isRmtCommitted(T,T')  . 
+
       
       
       --- this equation formalizes the switch of a trans 
@@ -468,7 +472,7 @@ ceq tagLeftRightHand(T,T',B) =
         '__['__[newMonitorObjRecord(getPropagatedTxnsID(T)),T],
 	  '__[resultMonitorObjInsert(getPropagatedTxnsID(T),
 	      getReplicaID(T),'FFLAG:Bool,'READS:Set`{KeyVersion`},'WRITES:Set`{KeyVersion`}),T']]
-      if not hasBranch(T') /\ isSwitched(T,T')  .       
+      if not hasBranch(T') /\ isRmtCommitted(T,T')  .       
 
 
       *** to fix if_then_else_fi case 
@@ -476,7 +480,15 @@ ceq tagLeftRightHand(T,T',B) =
         '__['__[newMonitorObjRecord(getPropagatedTxnsID(T)),T],
       '__[resultMonitorObjInsert(getPropagatedTxnsID(T),
           getReplicaID(T),'FFLAG:Bool,'READS:Set`{KeyVersion`},'WRITES:Set`{KeyVersion`}),T']]
-      if hasBranch(T') /\ isSwitched(T,T')  .       
+      if hasBranch(T') /\ isRmtCommitted(T,T')  .   
+      )
+
+        ceq tagLeftRightHand(T,T',B) =
+        '__['__[newMonitorObjRecord2(T2),T],
+    '__[resultMonitorObjInsert(T2,getReplicaID(T)),T']]
+      if not hasBranch(T') /\ 
+        T2 := isRmtCommitted(T,T') /\
+        T2 =/= 'nil.Address .     
 
 
     op tagRightHand : Term TermList -> TermList .
