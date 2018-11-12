@@ -1,0 +1,67 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	   Maude 2.7.1 built: Jun 27 2016 16:35:16
+	    Copyright 1997-2016 SRI International
+		   Sun Nov 11 18:32:30 2018
+==========================================
+search [1] in TEST-GDUR-PSTORE : initConfig =>! C:Config 
+< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not psi(
+    LOG:Log) = true .
+
+Solution 1 (state 789809)
+states: 795713  rewrites: 38806593 in 153268ms cpu (153274ms real) (253194
+    rewrites/second)
+C:Config --> 
+< 0 . 1 : Table | table: [replicatingSites(k1, 2 . 1 ; 2 . 2) ;;
+    replicatingSites(k2, 2 . 1 ; 2 . 2)] > 
+< 0 . 3 : A-Table | am-table: [am-entry(2 . 1, certify(
+< 1 . 1 . 1 : Transaction | operations: nil,proxy: 2 . 1,readSet: empty,
+    writeSet: (< k1,[2] >, < k2,[1] >),status: undecided,localVars: (k1l |-> [
+    0], k2l |-> [0]),version: empty,votesRcvdFrom: emptyAddressSet,voted: false
+    >) :: certify(
+< 1 . 2 . 1 : Transaction | operations: nil,proxy: 2 . 1,readSet: empty,
+    writeSet: (< k1,[2] >, < k2,[1] >),status: undecided,localVars: (k1l |-> [
+    0], k2l |-> [0]),version: empty,votesRcvdFrom: emptyAddressSet,voted: false
+    >), emptyMsgContSet) am-entry(2 . 2, certify(
+< 1 . 1 . 1 : Transaction | operations: nil,proxy: 2 . 1,readSet: empty,
+    writeSet: (< k1,[2] >, < k2,[1] >),status: undecided,localVars: (k1l |-> [
+    0], k2l |-> [0]),version: empty,votesRcvdFrom: emptyAddressSet,voted: false
+    >) :: certify(
+< 1 . 2 . 1 : Transaction | operations: nil,proxy: 2 . 1,readSet: empty,
+    writeSet: (< k1,[2] >, < k2,[1] >),status: undecided,localVars: (k1l |-> [
+    0], k2l |-> [0]),version: empty,votesRcvdFrom: emptyAddressSet,voted: false
+    >), emptyMsgContSet)] > 
+< 1 . 1 : Client | txns: noTrans,pendingTrans: emptyAddressSet > 
+< 1 . 2 : Client | txns: noTrans,pendingTrans: emptyAddressSet > 
+< 2 . 1 : Replica | datastore: (< k1,[2],3 >, < k2,[1],3 >),committed: (
+< 1 . 1 . 1 : Transaction | operations: nil,proxy: 2 . 1,readSet: empty,
+    writeSet: (< k1,[2] >, < k2,[1] >),status: undecided,localVars: (k1l |-> [
+    0], k2l |-> [0]),version: (< k1,2 >, < k2,2 >),votesRcvdFrom:
+    emptyAddressSet,voted: false > 
+< 1 . 2 . 1 : Transaction | operations: nil,proxy: 2 . 1,readSet: empty,
+    writeSet: (< k1,[2] >, < k2,[1] >),status: undecided,localVars: (k1l |-> [
+    0], k2l |-> [0]),version: (< k1,3 >, < k2,3 >),votesRcvdFrom:
+    emptyAddressSet,voted: false >),aborted: null,executing: null,submitted:
+    null,rmtCommitted: (transStatus(1 . 1 . 1, commit) ; transStatus(1 . 2 . 1,
+    commit)),certificationQueue: noTrans > 
+< 2 . 2 : Replica | datastore: (< k1,[2],3 >, < k2,[1],3 >),committed: null,
+    aborted: null,executing: null,submitted: null,rmtCommitted: (transStatus(1
+    . 1 . 1, commit) ; transStatus(1 . 2 . 1, commit)),certificationQueue:
+    noTrans >
+M:Address --> 0 . 2
+AS:AttributeSet --> clock: 8
+LOG:Log --> 1 . 1 . 1 |-> < 2 . 1 |-> 0,2 . 1 |-> 3, 2 . 2 |-> 4,true,empty,<
+    k1,2 >, < k2,2 > >, 1 . 2 . 1 |-> < 2 . 1 |-> 1,2 . 1 |-> 6, 2 . 2 |-> 7,
+    true,empty,< k1,3 >, < k2,3 > >
+Bye.
+Sun Nov 11 18:35:04 CST 2018
+
+  --- Init parameters 
+  eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
+  eq nbOfWoTxns = 2 .  eq nbOfOpsPerWoTxn = 2 .
+  eq nbOfRwTxns = 0 .  eq nbOfOpsPerRwTxn = 0 .  --- must be even number
+  eq nbOfCls = 2 . 
+  eq nbOfServs  = 2 .  
+  eq nbOfKeys = 2 .  
+  eq nbOfRepls = 2 .

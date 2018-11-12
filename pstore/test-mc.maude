@@ -5,9 +5,9 @@ mod TEST-GDUR-PSTORE is
   inc CONSISTENCY .
 
   --- Init parameters 
-  eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
-  eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
-  eq nbOfRwTxns = 3 .  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
+  eq nbOfRoTxns = 1 .  eq nbOfOpsPerRoTxn = 1 .
+  eq nbOfWoTxns = 2 .  eq nbOfOpsPerWoTxn = 1 .
+  eq nbOfRwTxns = 0 .  eq nbOfOpsPerRwTxn = 0 .  --- must be even number
   eq nbOfCls = 2 . 
   eq nbOfServs  = 2 .  
   eq nbOfKeys = 2 .  
@@ -194,8 +194,8 @@ endm
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not ua(LOG:Log) .
 
-search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
-  such that not si(LOG:Log) .
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not si(LOG:Log) .
 
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not psi(LOG:Log) .
@@ -209,7 +209,7 @@ search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet 
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not ser(LOG:Log) .
 
----search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
-  ---such that not sser(LOG:Log) .
+search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  such that not sser(LOG:Log) .
 
 q

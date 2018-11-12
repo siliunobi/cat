@@ -1,0 +1,25 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	   Maude 2.7.1 built: Jun 27 2016 16:35:16
+	    Copyright 1997-2016 SRI International
+		   Sun Nov 11 17:11:58 2018
+==========================================
+search [1] in TEST-GDUR-PSTORE : initConfig =>! C:Config 
+< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not cs(
+    LOG:Log) = true .
+
+No solution.
+states: 629729  rewrites: 17786403 in 102796ms cpu (103056ms real) (173026
+    rewrites/second)
+Bye.
+Sun Nov 11 17:13:41 CST 2018
+
+  --- Init parameters 
+  eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
+  eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
+  eq nbOfRwTxns = 2 .  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
+  eq nbOfCls = 2 . 
+  eq nbOfServs  = 2 .  
+  eq nbOfKeys = 2 .  
+  eq nbOfRepls = 2 .
