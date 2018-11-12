@@ -95,6 +95,7 @@ endm .
     ops newMonitorObjRecord : Term -> Term .
     ops newMonitorObjRecord2 : Term -> Term .    
     ops resultMonitorObj : Term Term -> Term .
+    ops resultMonitorObjInsert : Term Term -> Term .
     ops resultMonitorObjInsert : Term Term Term Term Term -> Term .
     ops resultMonitorObjInsert : Term Term Term Term Term Term -> Term .
     *** here are the functions to generate terms for tagged monitors
@@ -114,6 +115,11 @@ endm .
     '<_:_|_>['M:Address,'Monitor.ActorType,'_`,_['clock:_['GT:Nat],'log:_[
           '_`,_['_|->_[T1,'<_`,_`,_`,_`,_>['VTS1:VectorTime,'VTS2:VectorTime,
             'FFLAG:Bool,'READS:Set`{KeyVersion`},'WRITES:Set`{KeyVersion`}]],'LOG:Log]]]] .
+
+    eq resultMonitorObjInsert(T1,T2) =
+  '<_:_|_>['M:Address,'Monitor.ActorType,'_`,_['clock:_['_+_['GT:Nat,'s_[
+      '0.Zero]]],'log:_['_`,_['_|->_[T1,'<_`,_`,_`,_`,_>['VTS1:VectorTime,
+        'insert[T2,'GT:Nat,'VTS2:VectorTime],'FFLAG:Bool,'READS:Set`{KeyVersion`},'WRITES:Set`{KeyVersion`}]],'LOG:Log]]]] .
 
     eq resultMonitorObjInsert(T1,T2,T3,T4,T5) =
 	'<_:_|_>['M:Address,'Monitor.ActorType,'_`,_['clock:_['_+_['GT:Nat,'s_[
@@ -263,26 +269,6 @@ endm .
 
     eq getTID(T) = 'nil.Address [owise] .
     
-  
-    ***(obsolete   
-      ceq isCommitted(T, T') = true 
-        if T1 := getAttr('executing:_,T)  /\
-  	  '<_:_|_>[T3,TL] := T1 /\    *** T3 is the TID of the executing tran 
-  	  is T3 subTermOf getAttr('committed:_,T')  .       
-    
-
-    ceq isAborted(T, T') = true 
-      if T1 := getAttr('executing:_,T)  /\
-	  '<_:_|_>[T3,TL] := T1 /\    *** T3 is the TID of the executing tran 
-          T2 := getAttr('aborted:_,T') /\
-	  is T3 subTermOf T2  .
-
-      ceq isAborted(T, T') = true 
-      if T1 := getAttr('executing:_,T)  /\
-	  '<_:_|`>[T3,TL] := T1 /\    *** T3 is the TID of the executing tran 
-          T2 := getAttr('aborted:_,T') /\
-	  is T3 subTermOf T2  .
-    )
 
 
     ceq isSwitched(T,T') = true 
@@ -349,11 +335,20 @@ ceq tagLeftRightHand(T,T',B) =
         getReplicaID(T),'true.Bool,
         getAttr('readSet:_,T1),
         getAttr('writeSet:_,T1),
-        getAttr('version:_,T1)),T1]]
+        getAttr('version:_,T1)),T']]
       if not hasBranch(T') /\ 
         T2 := isCommitted(T,T') /\
         T2 =/= 'nil.Address /\ 
     T1 := getAttr('submitted:_,T) .    
+
+
+ceq tagLeftRightHand(T,T',B) =
+        '__['__[newMonitorObjRecord2(T2),T],
+    '__[resultMonitorObjInsert(T2,getReplicaID(T)),T']]
+      if not hasBranch(T') /\ 
+        T2 := isCommitted(T,T') /\
+        T2 =/= 'nil.Address /\ 
+        getAttr('submitted:_,T) == empty .  
 
 
 
@@ -404,6 +399,14 @@ ceq tagLeftRightHand(T,T',B) =
           T2 := isAborted(T,T') /\
           T2 =/= 'nil.Address /\ 
           T1 := getAttr('executing:_,T)  .      
+
+      ceq tagLeftRightHand(T,T',B) =
+        '__['__[newMonitorObjRecord2(T2),T], 
+        '__[resultMonitorObjInsert(T2,getReplicaID(T)),T']]
+      if not hasBranch(T') /\ 
+          T2 := isAborted(T,T') /\
+          T2 =/= 'nil.Address /\ 
+          getAttr('executing:_,T) == empty .       
 
 
      ceq tagLeftRightHand(T,T',B) =
