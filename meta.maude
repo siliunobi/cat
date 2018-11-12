@@ -277,6 +277,9 @@ endm .
           T2 := getAttr('locked:_,T') /\   *** T2 is the locked trans 
 	  is T3 subTermOf T2 .
 
+
+    *** go to fix switch using walter case 
+    
     eq isAborted(T,T') = 'nil.Address [owise] .
     eq isCommitted(T,T') = 'nil.Address [owise] .
     eq isExecuted(T,T') = 'nil.Address [owise] .
@@ -430,7 +433,7 @@ ceq tagLeftRightHand(T,T',B) =
                 getAttr('readSet:_,T1),
                 getAttr('writeSet:_,T1),
                 getAttr('version:_,T1)),
-            newMonitorObjRecord(getTID(T)))]
+            newMonitorObjRecord2(T2))]
       if hasBranch(T') /\ 
          T2 := isAborted(T,T') /\
          T2 =/= 'nil.Address /\ 
