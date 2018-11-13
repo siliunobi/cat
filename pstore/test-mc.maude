@@ -206,10 +206,10 @@ endm
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not us(LOG:Log) .
 
-search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
-  such that not ser(LOG:Log) .
-
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
-  ---such that not sser(LOG:Log) .
+  ---such that not ser(LOG:Log) .
+
+search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  such that not sser(LOG:Log) .
 
 q
