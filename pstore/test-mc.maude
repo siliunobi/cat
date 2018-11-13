@@ -11,7 +11,7 @@ mod TEST-GDUR-PSTORE is
   eq nbOfCls = 2 . 
   eq nbOfServs  = 2 .  
   eq nbOfKeys = 2 .  
-  eq nbOfRepls = 2 .
+  eq nbOfRepls = 1 .
 
   op initConfig : -> Config .
   eq initConfig = init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,

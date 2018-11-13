@@ -3,10 +3,14 @@
 		     /||||||||||||||||||\
 	   Maude 2.7.1 built: Jun 27 2016 16:35:16
 	    Copyright 1997-2016 SRI International
-		   Mon Nov 12 17:04:55 2018
+		   Mon Nov 12 17:33:08 2018
 ==========================================
 search [1] in TEST-GDUR-PSTORE : initConfig =>! C:Config 
 < M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not ser(
     LOG:Log) = true .
 
-Mon Nov 12 17:27:49 CST 2018
+No solution.
+states: 383361  rewrites: 9655801 in 31328ms cpu (160349ms real) (308216
+    rewrites/second)
+Bye.
+Mon Nov 12 17:35:54 CST 2018
