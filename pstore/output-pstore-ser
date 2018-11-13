@@ -14,3 +14,12 @@ states: 383361  rewrites: 9655801 in 31328ms cpu (160349ms real) (308216
     rewrites/second)
 Bye.
 Mon Nov 12 17:35:54 CST 2018
+
+  --- Init parameters 
+  eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
+  eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
+  eq nbOfRwTxns = 3 .  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
+  eq nbOfCls = 2 . 
+  eq nbOfServs  = 2 .  
+  eq nbOfKeys = 2 .  
+  eq nbOfRepls = 1 .
