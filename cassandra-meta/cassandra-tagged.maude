@@ -1,0 +1,204 @@
+mod CASSANDRA-TAGGED is
+  including BOOL .
+  including CASSANDRA-AUX .
+  op $genReadRepairs : KeyValueVersion Set{Address}Address -> Config .
+  op genReadRepairs : ResponseSet Address -> Config .
+  op genReadRequests : Address Key Set{Address}Address -> Config .
+  op genWriteRequests : Address Key Value Version Set{Address}Address -> Config .
+  eq $genReadRepairs(KVV:KeyValueVersion,empty,S:Address)
+    = null .
+  eq $genReadRepairs(KVV:KeyValueVersion,(RID:Address, RIDS:Set{Address}),S:Address)
+    = (msg readRepair(KVV:KeyValueVersion)from S:Address to RID:Address)$genReadRepairs(
+    KVV:KeyValueVersion,RIDS:Set{Address},S:Address) .
+  eq genReadRepairs(RSET:ResponseSet,S:Address)
+    = $genReadRepairs(resultForRead(RSET:ResponseSet),repairReplicas(resultForRead(
+    RSET:ResponseSet),RSET:ResponseSet),S:Address) .
+  eq genReadRequests(TID:Address,K:Key,empty,S:Address)
+    = null .
+  eq genReadRequests(TID:Address,K:Key,(RID:Address, RIDS:Set{Address}),S:Address)
+    = (msg readRequest(TID:Address,K:Key)from S:Address to RID:Address)genReadRequests(
+    TID:Address,K:Key,RIDS:Set{Address},S:Address) .
+  eq genWriteRequests(TID:Address,K:Key,V:Value,VERSION:Version,empty,S:Address)
+    = null .
+  eq genWriteRequests(TID:Address,K:Key,V:Value,VERSION:Version,(RID:Address, RIDS:Set{
+    Address}),S:Address)
+    = (msg writeRequest(TID:Address,[K:Key,V:Value,VERSION:Version])from S:Address to
+    RID:Address)genWriteRequests(TID:Address,K:Key,V:Value,VERSION:Version,RIDS:Set{Address},
+    S:Address) .
+  rl
+< A:Address : Client | executing:(
+< TID:Address : Txn | operations: read(K:Key),consLv: CL:ConsistLevel,AS':AttributeSet >
+    TXNS:Config),coord: S:Address,AS:AttributeSet >
+    =>
+< A:Address : Client | executing:(
+< TID:Address : Txn | operations: nil,consLv: CL:ConsistLevel,AS':AttributeSet > TXNS:Config),
+    coord: S:Address,AS:AttributeSet > msg request(TID:Address,read(K:Key),CL:ConsistLevel)from
+    A:Address to S:Address [label read-from-client-to-coord] .
+  rl
+< M:Address : Monitor | clock: GT:Nat,log: LOG:Log >
+< A:Address : Client | requestQueue:(
+< TID:Address : Txn | operations: OP:Operation,AS':AttributeSet > ;; TRANSES:ConfigList),
+    waitingList: TRANSES':ConfigList,lockedKeys: LOCKS:Set{LockedKey},executing: TXNS:Config,
+    AS:AttributeSet >
+    => if isLocked(OP:Operation,LOCKS:Set{LockedKey})then
+< M:Address : Monitor | clock: GT:Nat,log: LOG:Log >
+< A:Address : Client | requestQueue: TRANSES:ConfigList,waitingList:(TRANSES':ConfigList ;;
+< TID:Address : Txn | operations: OP:Operation,AS':AttributeSet >),lockedKeys: LOCKS:Set{
+    LockedKey},executing: TXNS:Config,AS:AttributeSet > else
+< M:Address : Monitor | clock:(GT:Nat + 1),log: insert(TID:Address,< A:Address |-> GT:Nat,
+    empty,false,empty,empty >,LOG:Log)>
+< A:Address : Client | requestQueue: TRANSES:ConfigList,waitingList: TRANSES':ConfigList,
+    lockedKeys:(lock(TID:Address,OP:Operation), LOCKS:Set{LockedKey}),executing:(
+< TID:Address : Txn | operations: OP:Operation,AS':AttributeSet > TXNS:Config),AS:AttributeSet
+    > fi [label dequeue] .
+  rl
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,
+    FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
+< A:Address : Client | executing:(
+< TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},version:
+    VERSION:Version,AS':AttributeSet > TXNS:Config),committed: TXNS':Config,lockedKeys:(
+    lockedKey(TID:Address,K:Key), LOCKS:Set{LockedKey}),AS:AttributeSet > done(TID:Address,
+    FLAG:Bool)
+    =>
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(
+    A:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{KeyVersion},kver(WS:Set{KeyValue},
+    VERSION:Version)>, LOG:Log)>
+< TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},version:
+    VERSION:Version,AS':AttributeSet > TXNS:Config [label rcv-done-write] .
+  rl
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,
+    FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
+< A:Address : Client | executing:(
+< TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},version:
+    VERSION:Version,AS':AttributeSet > TXNS:Config),committed: TXNS':Config,lockedKeys:(
+    lockedKey(TID:Address,K:Key), LOCKS:Set{LockedKey}),AS:AttributeSet > done(TID:Address,[
+    K:Key,V:Value,VERSION':Version])
+    =>
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> < VTS1:VectorTime,insert(
+    A:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{KeyVersion},kver(WS:Set{KeyValue},
+    VERSION:Version)>, LOG:Log)>
+< TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},version:
+    VERSION:Version,AS':AttributeSet > TXNS:Config [label rcv-done-read] .
+  rl
+< O:Address : Timer | globalTime: GT:Nat >
+< A:Address : Client | executing:(
+< TID:Address : Txn | operations: write(K:Key,V:Value),consLv: CL:ConsistLevel,writeSet:
+    WS:Set{KeyValue},version: VERSION:Version,AS':AttributeSet > TXNS:Config),coord: S:Address,
+    AS:AttributeSet >
+    =>
+< O:Address : Timer | globalTime:(GT:Nat + 1)>
+< A:Address : Client | executing:(
+< TID:Address : Txn | operations: nil,consLv: CL:ConsistLevel,writeSet:(WS:Set{KeyValue}, <
+    K:Key,V:Value >),version:(GT:Nat + 1),AS':AttributeSet > TXNS:Config),coord: S:Address,
+    AS:AttributeSet > msg request(TID:Address,write(K:Key,V:Value),GT:Nat + 1,
+    CL:ConsistLevel)from A:Address to S:Address [label write-from-client-to-coord] .
+  rl
+< RID:Address : Server | datastore:(DS:Set{KeyValueVersion}, [K:Key,V:Value,VERSION:Version]),
+    AS:AttributeSet > msg readRepair([K:Key,V':Value,VERSION':Version])from S:Address to
+    RID:Address
+    => if VERSION':Version >= VERSION:Version then
+< RID:Address : Server | datastore:(DS:Set{KeyValueVersion}, [K:Key,V':Value,
+    VERSION':Version]),AS:AttributeSet > else
+< RID:Address : Server | datastore:(DS:Set{KeyValueVersion}, [K:Key,V:Value,VERSION:Version]),
+    AS:AttributeSet > fi [label readrepair] .
+  rl
+< RID:Address : Server | datastore:(DS:Set{KeyValueVersion}, [K:Key,V:Value,VERSION:Version]),
+    AS:AttributeSet > msg readRequest(TID:Address,K:Key)from S:Address to RID:Address
+    =>
+< RID:Address : Server | datastore:(DS:Set{KeyValueVersion}, [K:Key,V:Value,VERSION:Version]),
+    AS:AttributeSet > msg readResponse(TID:Address,[K:Key,V:Value,VERSION:Version])from
+    RID:Address to S:Address [label read-from-repl-to-coord] .
+  rl
+< RID:Address : Server | datastore:(DS:Set{KeyValueVersion}, [K:Key,V:Value,VERSION:Version]),
+    AS:AttributeSet > msg writeRequest(TID:Address,[K:Key,V':Value,VERSION':Version])from
+    S:Address to RID:Address
+    => if VERSION':Version >= VERSION:Version then
+< RID:Address : Server | datastore:(DS:Set{KeyValueVersion}, [K:Key,V':Value,
+    VERSION':Version]),AS:AttributeSet > msg writeResponse(TID:Address,true)from RID:Address to
+    S:Address else
+< RID:Address : Server | datastore:(DS:Set{KeyValueVersion}, [K:Key,V:Value,VERSION:Version]),
+    AS:AttributeSet > msg writeResponse(TID:Address,false)from RID:Address to S:Address fi [
+    label write-from-repl-to-coord] .
+  rl
+< S:Address : Server | localRing: RPS:Set{RingPair},reqConsLv: RCL:ReqConsLv,respFromRepl:
+    RESPONSES:Responses,AS:AttributeSet > msg request(TID:Address,read(K:Key),
+    CL:ConsistLevel)from A:Address to S:Address
+    =>
+< S:Address : Server | localRing: RPS:Set{RingPair},reqConsLv:(RCL:ReqConsLv ;[TID:Address,
+    CL:ConsistLevel]),respFromRepl: insert(TID:Address,empty,RESPONSES:Responses),
+    AS:AttributeSet > genReadRequests(TID:Address,K:Key,nextNAddresses([K:Key],RPS:Set{
+    RingPair},replicaFactor),S:Address) [label read-from-coord-to-repl] .
+  rl
+< S:Address : Server | localRing: RPS:Set{RingPair},reqConsLv: RCL:ReqConsLv,respFromRepl:
+    RESPONSES:Responses,AS:AttributeSet > msg request(TID:Address,write(K:Key,V:Value),GT:Nat,
+    CL:ConsistLevel)from A:Address to S:Address
+    =>
+< S:Address : Server | localRing: RPS:Set{RingPair},reqConsLv:(RCL:ReqConsLv ;[TID:Address,
+    CL:ConsistLevel]),respFromRepl: insert(TID:Address,empty,RESPONSES:Responses),
+    AS:AttributeSet > genWriteRequests(TID:Address,K:Key,V:Value,GT:Nat,nextNAddresses([K:Key],
+    RPS:Set{RingPair},replicaFactor),S:Address) [label write-from-coord-to-repl] .
+  rl
+< S:Address : Server | reqConsLv:(RCL:ReqConsLv ;[TID:Address,CL:ConsistLevel]),respFromRepl:(
+    TID:Address |-> RSET:ResponseSet, RESPONSES:Responses),AS:AttributeSet > msg writeResponse(
+    TID:Address,FLAG:Bool)from RID:Address to S:Address
+    => if CL:ConsistLevel == | response(RID:Address,FLAG:Bool), RSET:ResponseSet | then
+< S:Address : Server | reqConsLv: RCL:ReqConsLv,respFromRepl:(TID:Address |->(response(
+    RID:Address,FLAG:Bool), RSET:ResponseSet), RESPONSES:Responses),AS:AttributeSet > done(
+    TID:Address,resultForWrite((response(RID:Address,FLAG:Bool), RSET:ResponseSet)))else
+< S:Address : Server | reqConsLv:(RCL:ReqConsLv ;[TID:Address,CL:ConsistLevel]),respFromRepl:(
+    TID:Address |->(response(RID:Address,FLAG:Bool), RSET:ResponseSet), RESPONSES:Responses),
+    AS:AttributeSet > fi [label write-at-coord] .
+  rl
+< S:Address : Server | respFromRepl:(TID:Address |-> RSET:ResponseSet, RESPONSES:Responses),
+    AS:AttributeSet > msg readResponse(TID:Address,KVV:KeyValueVersion)from RID:Address to
+    S:Address
+    =>
+< S:Address : Server | respFromRepl:(TID:Address |->(response(RID:Address,KVV:KeyValueVersion),
+    RSET:ResponseSet), RESPONSES:Responses),AS:AttributeSet > [label read-at-coord] .
+  crl
+< S:Address : Server | reqConsLv:(RCL:ReqConsLv ;[TID:Address,CL:ConsistLevel]),respFromRepl:(
+    TID:Address |->(response(RID:Address,KVV:KeyValueVersion), RSET:ResponseSet),
+    RESPONSES:Responses),AS:AttributeSet >
+    =>
+< S:Address : Server | reqConsLv: RCL:ReqConsLv,respFromRepl:(TID:Address |->(response(
+    RID:Address,KVV:KeyValueVersion), RSET:ResponseSet), RESPONSES:Responses),AS:AttributeSet >
+    genReadRepairs((response(RID:Address,KVV:KeyValueVersion), RSET:ResponseSet),
+    S:Address)done(TID:Address,resultForRead((response(RID:Address,KVV:KeyValueVersion),
+    RSET:ResponseSet)))
+    if | response(RID:Address,KVV:KeyValueVersion), RSET:ResponseSet | == replicaFactor = true
+    [label from-coord-to-client-readrepair] .
+  crl
+< S:Address : Server | reqConsLv:(RCL:ReqConsLv ;[TID:Address,CL:ConsistLevel]),respFromRepl:(
+    TID:Address |->(response(RID:Address,KVV:KeyValueVersion), RSET:ResponseSet),
+    RESPONSES:Responses),AS:AttributeSet >
+    =>
+< S:Address : Server | reqConsLv: RCL:ReqConsLv,respFromRepl:(TID:Address |->(response(
+    RID:Address,KVV:KeyValueVersion), RSET:ResponseSet), RESPONSES:Responses),AS:AttributeSet >
+    done(TID:Address,resultForRead((response(RID:Address,KVV:KeyValueVersion),
+    RSET:ResponseSet)))
+    if | response(RID:Address,KVV:KeyValueVersion), RSET:ResponseSet | =/= replicaFactor = true
+    /\ | response(RID:Address,KVV:KeyValueVersion), RSET:ResponseSet | == CL:ConsistLevel =
+    true [label from-coord-to-client] .
+  crl
+< M:Address : Monitor | clock: GT:Nat,log: LOG:Log >
+< A:Address : Client | waitingList:(TRANSES:ConfigList ;;
+< TID:Address : Txn | operations: OP:Operation,AS':AttributeSet > ;; TRANSES':ConfigList),
+    lockedKeys: LOCKS:Set{LockedKey},executing: TXNS:Config,AS:AttributeSet >
+    =>
+< M:Address : Monitor | clock:(GT:Nat + 1),log: insert(TID:Address,< A:Address |-> GT:Nat,
+    empty,false,empty,empty >,LOG:Log)>
+< A:Address : Client | waitingList:(TRANSES:ConfigList ;; TRANSES':ConfigList),lockedKeys:(
+    lock(TID:Address,OP:Operation), LOCKS:Set{LockedKey}),executing:(
+< TID:Address : Txn | operations: OP:Operation,AS':AttributeSet > TXNS:Config),AS:AttributeSet
+    >
+    if not isLocked(OP:Operation,LOCKS:Set{LockedKey})= true [label waiting-dequeue] .
+  crl
+< S:Address : Server | reqConsLv: RCL:ReqConsLv,respFromRepl:(TID:Address |-> RSET:ResponseSet,
+    RESPONSES:Responses),AS:AttributeSet > msg writeResponse(TID:Address,FLAG:Bool)from
+    RID:Address to S:Address
+    =>
+< S:Address : Server | reqConsLv: RCL:ReqConsLv,respFromRepl:(TID:Address |->(response(
+    RID:Address,FLAG:Bool), RSET:ResponseSet), RESPONSES:Responses),AS:AttributeSet >
+    if not TID:Address in RCL:ReqConsLv = true [label write-at-coord-later-coming] .
+endm
+

@@ -1,0 +1,270 @@
+set show advisories off .
+
+load apmaude
+*** load model-checker
+
+(fmod CASSANDRA-PARAMETERS is
+    pr NAT .
+    pr FLOAT .
+
+    op ringSize : -> Nat .
+    eq ringSize = 16 .
+
+    op replicaFactor : -> Nat .
+    eq replicaFactor = 3 .
+endfm)
+
+
+(fmod TUPLE2{X :: TRIV, Y :: TRIV} is
+	sort Tuple2 .
+	op `(_`,_`) : X$Elt Y$Elt -> Tuple2 .
+	op p1 : Tuple2 -> X$Elt .
+	op p2 : Tuple2 -> Y$Elt .
+	var X : X$Elt .
+	var Y : Y$Elt .
+	eq p1((X,Y)) = X .
+	eq p2((X,Y)) = Y .
+endfm)
+
+(fth NZNAT# is
+    pr NAT .
+    
+    op # : -> NzNat .
+endfth)
+
+(fmod NAT/{N :: NZNAT#} is
+    sort Nat/{N} .
+
+    op `[_`] : Nat -> Nat/{N} [ctor] .
+    op _+_ : Nat/{N} Nat/{N} -> Nat/{N} .
+    op s_ : Nat/{N} -> Nat/{N} .
+	
+    vars N M : Nat .
+	
+   ceq [ N ] = [ N rem # ] if N >= # .
+    eq [ N ] + [ M ] = [ N + M ] .
+    eq [ N ] + [ M ] = [ N * M ] .
+    eq s [ N ] = [ s N ] .
+endfm)
+
+
+(view RingSize from NZNAT# to CASSANDRA-PARAMETERS is op # to ringSize . endv)
+(fmod CASSANDRA-SORTS is
+    pr CASSANDRA-PARAMETERS .
+    pr INT .
+    pr ADDRESS .
+*** NEW
+  inc ACTOR-MODEL .
+  pr STRING .
+
+    sort Position .
+    sort ConsistLevel .
+
+    subsort Nat < ConsistLevel .
+
+    op zero   : -> ConsistLevel .
+    op any    : -> ConsistLevel .
+    op one    : -> ConsistLevel .
+    op two    : -> ConsistLevel .
+    op three  : -> ConsistLevel . 
+    op quorum : -> ConsistLevel .	
+    op all    : -> ConsistLevel .
+
+    eq zero   = 0 .
+    eq one    = 1 .
+    eq two    = 2 .
+    eq three  = 3 .
+    eq quorum = (replicaFactor quo 2) + 1 .
+    eq all    = replicaFactor .
+
+*** NEW
+  sorts Version KeyVersion KeyValue Record ConfigList Operation 
+        LockedKey Response KeyValueVersion ReqConsLv Key Value .
+  subsort Nat < Version .
+  subsort String < Value .
+  subsort Config < ConfigList .
+
+  op eptVersion : -> Version .
+
+  op <_`,_> : Key Version   -> KeyVersion [ctor] .
+  op <_`,_> : Key Value -> KeyValue [ctor] .
+  op `[_`,_`,_`] : Key Value Version   -> KeyValueVersion [ctor] .
+
+  op emptyTxnList : -> ConfigList [ctor] .
+  op _;;_ : ConfigList ConfigList -> ConfigList [ctor assoc id: emptyTxnList] .
+
+  op write : Key Value -> Operation [ctor] .
+  op read : Key -> Operation [ctor] .
+
+  op lockedKey : Address Key -> LockedKey .
+
+  op response : Address KeyValueVersion -> Response .
+  op response : Address Bool -> Response .
+
+  op `[_`,_`] : Address ConsistLevel -> ReqConsLv .
+  op empty : -> ReqConsLv [ctor] .
+  op _;_ : ReqConsLv ReqConsLv -> ReqConsLv [ctor assoc id: empty] .
+
+endfm) 
+
+
+(view Position from TRIV to CASSANDRA-SORTS is sort Elt to Position .   endv)
+(view KeyVersion from TRIV to CASSANDRA-SORTS is sort Elt to KeyVersion . endv)
+(view KeyValue from TRIV to CASSANDRA-SORTS is sort Elt to KeyValue . endv)
+(view Record from TRIV to CASSANDRA-SORTS is sort Elt to Record . endv)
+(view Operation from TRIV to CASSANDRA-SORTS is sort Elt to Operation . endv)
+(view LockedKey from TRIV to CASSANDRA-SORTS is sort Elt to LockedKey . endv)
+(view Response from TRIV to CASSANDRA-SORTS is sort Elt to Response . endv)
+(view KeyValueVersion from TRIV to CASSANDRA-SORTS is sort Elt to KeyValueVersion . endv)
+(view Key      from TRIV to CASSANDRA-SORTS is sort Elt to Key .      endv)
+(view Value    from TRIV to CASSANDRA-SORTS is sort Elt to Value .    endv)
+(view Content from TRIV to ACTOR-MODEL is sort Elt to Content . endv) 
+
+
+*** NEW
+(fmod VECTOR-TIME is
+  pr MAP{Address,Nat} * (sort Map{Address,Nat} to VectorTime) .
+endfm)
+
+(fmod CASSANDRA-IFACE is
+    pr TUPLE2{Position,Address} * (sort Tuple2 to RingPair) .
+
+*** NEW
+  pr SET{KeyVersion} .
+  pr SET{KeyValue} .
+  pr SET{LockedKey} .
+  pr SET{Response} * (sort Set{Response} to ResponseSet) .
+
+
+  var K : Key . var V : Value . var VERSION : Version . var WS : Set{KeyValue} .
+
+  op kver : Set{KeyValue} Version -> Set{KeyVersion} . 
+  eq kver((< K,V >,WS),VERSION) = < K,VERSION >, kver(WS,VERSION) .
+  eq kver(empty,VERSION) = empty .
+endfm)
+(view RingPair from TRIV to CASSANDRA-IFACE is sort Elt to RingPair .             endv)
+(view ResponseSet from TRIV to CASSANDRA-IFACE is sort Elt to ResponseSet .       endv)
+
+
+(fmod CASSANDRA-RING is
+    pr NAT/{RingSize} .
+    pr SET{RingPair} .
+    pr SET{Position} .
+    pr SET{Address} .
+
+    subsort Nat/{RingSize} < Position .
+
+    op nextPosition   : Position Set{Position} -> Position          [memo] .
+    op nextNPositions : Position Set{Position} Int -> Set{Position} [memo] .
+    op nextRingPair   : Position Set{RingPair} -> RingPair          [memo] .
+    op nextNRingPairs : Position Set{RingPair} Int -> Set{RingPair} [memo] .
+    op nextAddress    : Position Set{RingPair} -> Address           [memo] .
+    op nextNAddresses : Position Set{RingPair} Int -> Set{Address}  [memo] .
+    op getPositions   : Set{RingPair} -> Set{Position}              [memo] .
+    op getAddresses   : Set{RingPair} -> Set{Address}               [memo] .
+
+    vars P P' : Position .
+    var PS    : Set{Position} .
+    var I     : Int .
+    var A     : Address .
+    var RPS   : Set{RingPair} .
+    var RP    : RingPair .
+
+    eq nextPosition(P, (P,PS)) = P .
+   ceq nextPosition(P, PS) = nextPosition(s P, PS) if not (P in PS) .
+
+    eq nextNPositions(P, PS, 0) = empty . 
+   ceq nextNPositions(P, PS, I) = (nextPosition(P, PS), 
+                                   nextNPositions(s nextPosition(P, PS), PS, I - 1)) 
+       if I > 0 .
+
+    eq nextRingPair(P, ((P, A), RPS)) = (P, A) .
+   ceq nextRingPair(P, RPS) = nextRingPair(s P, RPS) if not (P in getPositions(RPS)) .
+
+    eq nextNRingPairs(P, RPS, 0) = empty .
+   ceq nextNRingPairs(P, RPS, I) = (nextRingPair(P, RPS), 
+                                    nextNRingPairs(s nextPosition(P, getPositions(RPS)), RPS, I - 1)) 
+       if I > 0 .
+
+    eq nextAddress(P, ((P, A), RPS)) = A .
+   ceq nextAddress(P, RPS) = nextAddress(s P, RPS) if not (P in getPositions(RPS)) .
+
+    eq nextNAddresses(P, RPS, 0) = empty .
+   ceq nextNAddresses(P, RPS, I) = (nextAddress(P, RPS), 
+                                    nextNAddresses(s nextPosition(P, getPositions(RPS)), RPS, I - 1)) 
+       if I > 0 .
+    
+    eq getPositions((RP, RPS)) = (p1(RP), getPositions(RPS)) . 
+    eq getPositions(empty) = empty .
+
+    eq getAddresses((RP, RPS)) = (p2(RP), getAddresses(RPS)) .
+    eq getAddresses(empty) = empty .
+endfm)
+
+(fmod CASSANDRA-SERVER-CLIENT is
+    pr ACTOR-MODEL .
+    pr CASSANDRA-SORTS .
+    pr CASSANDRA-RING .
+
+*** NEW
+  pr SET{Address} .
+  pr LIST{Operation} * (sort List{Operation} to OperationList) .
+  pr MAP{Address,Record} * (sort Map{Address,Record} to Log) .
+  pr VECTOR-TIME .
+  pr MAP{Address,ResponseSet} * (sort Map{Address,ResponseSet} to Responses) .
+  pr SET{KeyValueVersion} .
+
+
+    --- This is for Sever
+    op Server    : -> ActorType .                     
+    op localRing:_  : Set{RingPair} -> Attribute .
+*** NEW 
+  op respFromRepl:_ : Responses -> Attribute .
+  op reqConsLv:_ : ReqConsLv -> Attribute .
+  op datastore:_ : Set{KeyValueVersion} -> Attribute .
+
+
+*** NEW
+  op request : Address Operation ConsistLevel -> Content .  --- read
+  op request : Address Operation Version ConsistLevel -> Content .  --- write
+  op readRequest : Address Key -> Content .
+  op readResponse : Address KeyValueVersion -> Content .
+  op writeRequest : Address KeyValueVersion -> Content . 
+  op writeResponse : Address Bool -> Content .
+  op readRepair : KeyValueVersion -> Content .
+
+  op done : Address Bool -> Msg .
+  op done : Address KeyValueVersion -> Msg .
+
+
+    --- This is for Client
+    subsort Nat < Key .
+
+    op Client       : -> ActorType .
+    op coord:_ : Address -> Attribute .
+*** NEW
+  op requestQueue:_ : ConfigList -> Attribute .
+  op waitingList:_ : ConfigList -> Attribute .
+  op lockedKeys:_ : Set{LockedKey} -> Attribute .
+  op executing:_ : Config -> Attribute .
+  op committed:_ : Config -> Attribute .
+
+*** NEW
+  op Txn : -> ActorType .
+  op operations:_ : OperationList -> Attribute .
+  op readSet:_ : Set{KeyVersion} -> Attribute .
+  op writeSet:_ : Set{KeyValue} -> Attribute .
+  op version:_ : Version -> Attribute .
+  op consLv:_ : ConsistLevel -> Attribute .
+
+  op Timer : -> ActorType .
+  op globalTime:_ : Nat -> Attribute .
+
+  op Monitor : -> ActorType .
+  op log:_ : Log -> Attribute .
+  op clock:_ : Nat -> Attribute .
+
+  op <_`,_`,_`,_`,_> : VectorTime VectorTime Bool Set{KeyVersion} Set{KeyVersion} -> Record [ctor] .
+endfm)
+
+

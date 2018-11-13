@@ -1,0 +1,252 @@
+load cassandra-aux
+
+mod CASSANDRA is
+  inc CASSANDRA-AUX .
+
+  var K : Key .  vars V V' : Value .  var CL : ConsistLevel .
+  var RPS : Set{RingPair} .  var LOCKS : Set{LockedKey} .  var OP : Operation .
+  vars O TID RID A A' S S' : Address . vars AS AS' : AttributeSet .
+  vars TXNS TXNS' : Config .  vars TRANSES TRANSES' : ConfigList . 
+  var GT : Nat .  vars VERSION VERSION' : Version .
+  var WS : Set{KeyValue} .  var RS : Set{KeyVersion} . 
+  var RESPONSES : Responses . var RCL : ReqConsLv .
+  var RIDS : Set{Address} . var DS : Set{KeyValueVersion} .
+  var RSET : ResponseSet . vars KVV KVV' : KeyValueVersion .  var FLAG : Bool . 
+
+  var O@M : Address .  var LOG@M : Log .
+  vars VTS1@M VTS2@M : VectorTime . var FLAG@M : Bool . 
+  vars READS@M WRITES@M : Set{KeyVersion} .
+  var GT@M : Nat .
+
+
+  rl [dequeue] :
+     < O@M : Monitor | clock: GT@M, log: LOG@M >
+     < A : Client | requestQueue: (< TID : Txn | operations: OP, AS' > ;; TRANSES),
+                    waitingList: TRANSES',
+                    lockedKeys: LOCKS,
+                    executing: TXNS, AS > 
+   =>
+     if isLocked(OP,LOCKS)
+       then < O@M : Monitor | clock: GT@M, log: LOG@M >
+            < A : Client | requestQueue: TRANSES,
+                           waitingList: (TRANSES' ;; < TID : Txn | operations: OP, AS' >),
+                           lockedKeys: LOCKS,
+                           executing: TXNS, AS >  
+       else < O@M : Monitor | clock: (GT@M + 1), log: 
+              insert(TID,< A |-> GT@M,empty,false,empty,empty >,LOG@M) >
+            < A : Client | requestQueue: TRANSES,
+                           waitingList: TRANSES',
+                           lockedKeys: (lock(TID,OP),LOCKS),
+                           executing: (< TID : Txn | operations: OP, AS' > TXNS), AS > 
+     fi .
+
+
+ crl [waiting-dequeue] :
+     < O@M : Monitor | clock: GT@M, log: LOG@M >
+     < A : Client | waitingList: (TRANSES ;; < TID : Txn | operations: OP, AS' > ;; TRANSES'),
+                    lockedKeys: LOCKS,
+                    executing: TXNS, AS > 
+   =>
+     < O@M : Monitor | clock: (GT@M + 1), log: 
+              insert(TID,< A |-> GT@M,empty,false,empty,empty >,LOG@M) >
+     < A : Client | waitingList: (TRANSES ;; TRANSES'),
+                    lockedKeys: (lock(TID,OP),LOCKS),
+                    executing: (< TID : Txn | operations: OP, AS' > TXNS), AS > 
+     if not isLocked(OP,LOCKS) .
+
+
+  rl [read-from-client-to-coord] :
+     < A : Client | executing: (< TID : Txn | operations: read(K),
+                                              consLv: CL, AS' > TXNS),
+                    coord: S, AS >
+   =>
+     < A : Client | executing: (< TID : Txn | operations: nil,
+                                              consLv: CL, AS' > TXNS),
+                    coord: S, AS >
+     (msg request(TID,read(K),CL) from A to S) .
+
+
+  rl [write-from-client-to-coord] :
+     < O : Timer | globalTime: GT >
+     < A : Client | executing: (< TID : Txn | operations: write(K,V),
+                                              consLv: CL, 
+                                              writeSet: WS,
+                                              version: VERSION, AS' > TXNS),
+                    coord: S, AS >
+   =>
+     < O : Timer | globalTime: (GT + 1) >
+     < A : Client | executing: (< TID : Txn | operations: nil,
+                                              consLv: CL,
+                                              writeSet: (WS,< K,V >),
+                                              version: (GT + 1), AS' > TXNS),
+                    coord: S, AS >
+     (msg request(TID,write(K,V),GT + 1,CL) from A to S) .
+
+
+  rl [read-from-coord-to-repl] :
+     < S : Server | localRing: RPS,
+                    reqConsLv: RCL,
+                    respFromRepl: RESPONSES, AS >
+     (msg request(TID,read(K),CL) from A to S)
+   => 
+     < S : Server | localRing: RPS,
+                    reqConsLv: (RCL ; [TID,CL]),
+                    respFromRepl: insert(TID,empty,RESPONSES), AS > 
+     genReadRequests(TID,K,nextNAddresses([K],RPS,replicaFactor),S) . 
+
+  op genReadRequests : Address Key Set{Address} Address -> Config .
+  eq genReadRequests(TID,K,(RID,RIDS),S) = 
+       (msg readRequest(TID,K) from S to RID) 
+       genReadRequests(TID,K,RIDS,S) .
+  eq genReadRequests(TID,K,empty,S) = null .
+
+
+  rl [write-from-coord-to-repl] :
+     < S : Server | localRing: RPS,
+                    reqConsLv: RCL,
+                    respFromRepl: RESPONSES, AS >
+     (msg request(TID,write(K,V),GT,CL) from A to S) 
+   => 
+     < S : Server | localRing: RPS,
+                    reqConsLv: (RCL ; [TID,CL]),
+                    respFromRepl: insert(TID,empty,RESPONSES), AS > 
+     genWriteRequests(TID,K,V,GT,nextNAddresses([K],RPS,replicaFactor),S) . 
+
+  op genWriteRequests : Address Key Value Version Set{Address} Address -> Config .
+  eq genWriteRequests(TID,K,V,VERSION,(RID,RIDS),S) = 
+       (msg writeRequest(TID,[K,V,VERSION]) from S to RID) 
+       genWriteRequests(TID,K,V,VERSION,RIDS,S) .
+  eq genWriteRequests(TID,K,V,VERSION,empty,S) = null .
+
+
+  rl [read-from-repl-to-coord] :
+     < RID : Server | datastore: (DS, [K,V,VERSION]), AS >
+     (msg readRequest(TID,K) from S to RID)
+   => 
+     < RID : Server | datastore: (DS, [K,V,VERSION]), AS >
+     (msg readResponse(TID,[K,V,VERSION]) from RID to S) .
+
+
+  rl [write-from-repl-to-coord] :
+     < RID : Server | datastore: (DS, [K,V,VERSION]), AS >
+     (msg writeRequest(TID,[K,V',VERSION']) from S to RID)
+   => 
+     if VERSION' >= VERSION
+       then < RID : Server | datastore: (DS, [K,V',VERSION']), AS >
+            (msg writeResponse(TID,true) from RID to S)
+       else < RID : Server | datastore: (DS, [K,V,VERSION]), AS >
+            (msg writeResponse(TID,false) from RID to S)
+     fi .
+
+
+ rl [read-at-coord] : 
+     < S : Server | respFromRepl: (TID |-> RSET,RESPONSES), AS >
+     (msg readResponse(TID,KVV) from RID to S) 
+   =>
+     < S : Server | respFromRepl: (TID |-> (response(RID,KVV),RSET),RESPONSES), AS > .
+
+  rl [write-at-coord] : 
+     < S : Server | reqConsLv: (RCL ; [TID,CL]),
+                    respFromRepl: (TID |-> RSET,RESPONSES), AS >
+     (msg writeResponse(TID,FLAG) from RID to S) 
+   =>
+     if CL == | (response(RID,FLAG),RSET) |
+       then < S : Server | reqConsLv: RCL,
+                           respFromRepl: (TID |-> (response(RID,FLAG),RSET),RESPONSES), AS >
+            done(TID,resultForWrite((response(RID,FLAG),RSET)))
+       else < S : Server | reqConsLv: (RCL ; [TID,CL]),
+                           respFromRepl: (TID |-> (response(RID,FLAG),RSET),RESPONSES), AS >
+     fi .
+
+
+ crl [write-at-coord-later-coming] : 
+     < S : Server | reqConsLv: RCL,
+                    respFromRepl: (TID |-> RSET,RESPONSES), AS >
+     (msg writeResponse(TID,FLAG) from RID to S) 
+   =>
+     < S : Server | reqConsLv: RCL,
+                    respFromRepl: (TID |-> (response(RID,FLAG),RSET),RESPONSES), AS >
+     if not (TID in RCL) .  
+
+
+ crl [from-coord-to-client-readrepair] : 
+     < S : Server | reqConsLv: (RCL ; [TID,CL]),
+                    respFromRepl: (TID |-> (response(RID,KVV),RSET),RESPONSES), AS >
+   =>
+     < S : Server | reqConsLv: RCL,
+                    respFromRepl: (TID |-> (response(RID,KVV),RSET),RESPONSES), AS >
+     genReadRepairs((response(RID,KVV),RSET),S)
+     done(TID,resultForRead((response(RID,KVV),RSET)))
+     if | (response(RID,KVV),RSET) | == replicaFactor .   
+
+  op genReadRepairs : ResponseSet Address -> Config .
+  eq genReadRepairs(RSET,S) = 
+       $genReadRepairs(resultForRead(RSET),repairReplicas(resultForRead(RSET),RSET),S) .
+  
+  op $genReadRepairs : KeyValueVersion Set{Address} Address -> Config .
+  eq $genReadRepairs(KVV,(RID,RIDS),S) =
+       (msg readRepair(KVV) from S to RID)
+       $genReadRepairs(KVV,RIDS,S) .
+  eq $genReadRepairs(KVV,empty,S) = null .
+
+
+
+  rl [readrepair] :
+     < RID : Server | datastore: (DS, [K,V,VERSION]), AS >
+     (msg readRepair([K,V',VERSION']) from S to RID)
+   => 
+     if VERSION' >= VERSION
+       then < RID : Server | datastore: (DS, [K,V',VERSION']), AS >
+       else < RID : Server | datastore: (DS, [K,V,VERSION]), AS >
+     fi .
+
+
+ crl [from-coord-to-client] : 
+     < S : Server | reqConsLv: (RCL ; [TID,CL]),
+                    respFromRepl: (TID |-> (response(RID,KVV),RSET),RESPONSES), AS >
+   =>
+     < S : Server | reqConsLv: RCL,
+                    respFromRepl: (TID |-> (response(RID,KVV),RSET),RESPONSES), AS >
+     done(TID,resultForRead((response(RID,KVV),RSET)))
+     if | (response(RID,KVV),RSET) | =/= replicaFactor /\
+        | (response(RID,KVV),RSET) | == CL .  
+
+
+  rl [rcv-done-read] :
+     < O@M : Monitor | clock: GT@M, log: (TID |-> 
+        < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) > 
+     < A : Client | executing: (< TID : Txn | readSet: RS,
+                                              writeSet: WS,
+                                              version: VERSION, AS' > TXNS),
+                    committed: TXNS', 
+                    lockedKeys: (lockedKey(TID,K),LOCKS), AS >
+     done(TID,[K,V,VERSION'])
+   =>
+     < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+        < VTS1@M,insert(A,GT@M,VTS2@M),true,(RS,< K,VERSION' >),kver(WS,VERSION) >,LOG@M) >
+     < A : Client | executing: TXNS,
+                    committed: (TXNS' < TID : Txn | readSet: (RS,< K,VERSION' >),
+                                                    writeSet: WS,
+                                                    version: VERSION, AS' >), 
+                    lockedKeys: LOCKS, AS > .
+
+
+  rl [rcv-done-write] :
+     < O@M : Monitor | clock: GT@M, log: (TID |-> 
+        < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) > 
+     < A : Client | executing: (< TID : Txn | readSet: RS,
+                                              writeSet: WS,
+                                              version: VERSION, AS' > TXNS),
+                    committed: TXNS',
+                    lockedKeys: (lockedKey(TID,K),LOCKS), AS >
+     done(TID,FLAG)
+   =>
+     < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+        < VTS1@M,insert(A,GT@M,VTS2@M),true,RS,kver(WS,VERSION) >,LOG@M) >
+     < A : Client | executing: TXNS,
+                    committed: (TXNS' < TID : Txn | readSet: RS,
+                                                    writeSet: WS,
+                                                    version: VERSION, AS' >),
+                    lockedKeys: LOCKS, AS > .
+
+endm

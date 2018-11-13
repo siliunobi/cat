@@ -161,6 +161,10 @@ endm .
     
     eq getReplicaID('<_:_|_>[V,'Replica.ActorType,TL]) = V .
     eq getReplicaID('<_:_|`>[V,'Replica.ActorType]) = V .
+    eq getReplicaID('<_:_|_>[V,'Client.ActorType,TL]) = V .
+    eq getReplicaID('<_:_|`>[V,'Client.ActorType]) = V .
+    eq getReplicaID('<_:_|_>[V,'Server.ActorType,TL]) = V .
+    eq getReplicaID('<_:_|`>[V,'Server.ActorType]) = V .
     eq getReplicaID(Q[TL]) = getReplicaID(TL) [owise] .
     ceq getReplicaID((T, TL)) = getReplicaID(T), getReplicaID(TL) if TL =/= empty . 
     eq getReplicaID(C) = empty .

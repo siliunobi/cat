@@ -1,0 +1,62 @@
+load cassandra
+---load cassandra-mc
+
+mod CASSANDRA-ANALYSIS is
+    pr CASSANDRA .
+    pr APMAUDE .
+    inc MODEL-CHECKER .
+
+    subsort Config < State .
+
+    ---eq LIMIT = 1000.0 .
+
+    op initConfig : -> Config .
+    ---eq initConfig = run(initState,LIMIT) .
+
+
+    eq initConfig =
+       < 1001 : Monitor | clock: 0, log: empty >
+       < 1000 : Timer | globalTime: 0 >
+
+       < 1 : Client | coord: 10, 
+                      requestQueue: < 100 : Txn | operations: read(1),
+                                                  readSet: empty, writeSet: empty,
+                                                  version: eptVersion, consLv: quorum >,
+                      waitingList: emptyTxnList, lockedKeys: empty,
+                      executing: null, committed: null >
+
+       < 2 : Client | coord: 20, 
+                      requestQueue: < 200 : Txn | operations: write(1,"b"),
+                                                  readSet: empty, writeSet: empty,
+                                                  version: eptVersion, consLv: quorum >,
+                      waitingList: emptyTxnList, lockedKeys: empty,
+                      executing: null, committed: null >
+---(
+       < 3 : Client | coord: 30, 
+                      requestQueue: < 300 : Txn | operations: write(1,"c"),
+                                                  readSet: empty, writeSet: empty,
+                                                  version: eptVersion, consLv: one >,
+                      waitingList: emptyTxnList, lockedKeys: empty,
+                      executing: null, committed: null >
+)
+	   < 10 : Server | localRing: (([0],10),([4],20),([8],30),([12],40)), 
+                       respFromRepl: empty, reqConsLv: empty,
+                       datastore: empty > 
+	   < 20 : Server | localRing: (([0],10),([4],20),([8],30),([12],40)), 
+                       respFromRepl: empty, reqConsLv: empty,
+                       datastore: [1,"a",0] > 
+	   < 30 : Server | localRing: (([0],10),([4],20),([8],30),([12],40)), 
+                       respFromRepl: empty, reqConsLv: empty,
+                       datastore: [1,"a",0] > 
+	   < 40 : Server | localRing: (([0],10),([4],20),([8],30),([12],40)), 
+                       respFromRepl: empty, reqConsLv: empty,
+                       datastore: [1,"a",0] > .
+
+
+endm
+
+---set clear rules off .
+
+---rew initConfig .
+search initConfig =>! C:Config .
+q

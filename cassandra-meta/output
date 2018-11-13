@@ -1,0 +1,288 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	   Maude 2.7.1 built: Jun 27 2016 16:35:16
+	    Copyright 1997-2016 SRI International
+		   Tue Oct 23 11:17:19 2018
+==========================================
+search in CASSANDRA-ANALYSIS : initConfig =>! C:Config .
+
+Solution 1 (state 5823)
+states: 5876  rewrites: 193168 in 276ms cpu (278ms real) (699884
+    rewrites/second)
+C:Config --> 
+< 1 : Client | coord: 10,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 100 : Txn | operations: nil,readSet: < 1,0 >,writeSet: empty,version:
+    eptVersion,consLv: 2 > > 
+< 2 : Client | coord: 20,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 200 : Txn | operations: nil,readSet: empty,writeSet: < 1,"b" >,version: 1,
+    consLv: 2 > > 
+< 10 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (100 |-> (response(20, [1,"a",0]), response(30, [1,"a",0]),
+    response(40, [1,"a",0]))),reqConsLv: empty,datastore: empty > 
+< 20 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (200 |-> (response(20, true), response(30, true), response(
+    40, true))),reqConsLv: empty,datastore: [1,"b",1] > 
+< 30 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 40 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 1000 : Timer | globalTime: 1 > 
+< 1001 : Monitor | log: empty,clock: 0 >
+
+Solution 2 (state 5835)
+states: 5878  rewrites: 193284 in 276ms cpu (279ms real) (700304
+    rewrites/second)
+C:Config --> 
+< 1 : Client | coord: 10,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 100 : Txn | operations: nil,readSet: < 1,0 >,writeSet: empty,version:
+    eptVersion,consLv: 2 > > 
+< 2 : Client | coord: 20,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 200 : Txn | operations: nil,readSet: empty,writeSet: < 1,"b" >,version: 1,
+    consLv: 2 > > 
+< 10 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (100 |-> (response(20, [1,"a",0]), response(30, [1,"a",0]),
+    response(40, [1,"b",1]))),reqConsLv: empty,datastore: empty > 
+< 20 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (200 |-> (response(20, true), response(30, true), response(
+    40, true))),reqConsLv: empty,datastore: [1,"b",1] > 
+< 30 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 40 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 1000 : Timer | globalTime: 1 > 
+< 1001 : Monitor | log: empty,clock: 0 >
+
+Solution 3 (state 5838)
+states: 5878  rewrites: 193294 in 276ms cpu (279ms real) (700340
+    rewrites/second)
+C:Config --> 
+< 1 : Client | coord: 10,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 100 : Txn | operations: nil,readSet: < 1,1 >,writeSet: empty,version:
+    eptVersion,consLv: 2 > > 
+< 2 : Client | coord: 20,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 200 : Txn | operations: nil,readSet: empty,writeSet: < 1,"b" >,version: 1,
+    consLv: 2 > > 
+< 10 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (100 |-> (response(20, [1,"a",0]), response(30, [1,"a",0]),
+    response(40, [1,"b",1]))),reqConsLv: empty,datastore: empty > 
+< 20 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (200 |-> (response(20, true), response(30, true), response(
+    40, true))),reqConsLv: empty,datastore: [1,"b",1] > 
+< 30 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 40 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 1000 : Timer | globalTime: 1 > 
+< 1001 : Monitor | log: empty,clock: 0 >
+
+Solution 4 (state 5850)
+states: 5880  rewrites: 193410 in 276ms cpu (279ms real) (700760
+    rewrites/second)
+C:Config --> 
+< 1 : Client | coord: 10,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 100 : Txn | operations: nil,readSet: < 1,0 >,writeSet: empty,version:
+    eptVersion,consLv: 2 > > 
+< 2 : Client | coord: 20,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 200 : Txn | operations: nil,readSet: empty,writeSet: < 1,"b" >,version: 1,
+    consLv: 2 > > 
+< 10 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (100 |-> (response(20, [1,"a",0]), response(30, [1,"b",1]),
+    response(40, [1,"a",0]))),reqConsLv: empty,datastore: empty > 
+< 20 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (200 |-> (response(20, true), response(30, true), response(
+    40, true))),reqConsLv: empty,datastore: [1,"b",1] > 
+< 30 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 40 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 1000 : Timer | globalTime: 1 > 
+< 1001 : Monitor | log: empty,clock: 0 >
+
+Solution 5 (state 5853)
+states: 5880  rewrites: 193420 in 280ms cpu (279ms real) (690785
+    rewrites/second)
+C:Config --> 
+< 1 : Client | coord: 10,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 100 : Txn | operations: nil,readSet: < 1,1 >,writeSet: empty,version:
+    eptVersion,consLv: 2 > > 
+< 2 : Client | coord: 20,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 200 : Txn | operations: nil,readSet: empty,writeSet: < 1,"b" >,version: 1,
+    consLv: 2 > > 
+< 10 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (100 |-> (response(20, [1,"a",0]), response(30, [1,"b",1]),
+    response(40, [1,"a",0]))),reqConsLv: empty,datastore: empty > 
+< 20 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (200 |-> (response(20, true), response(30, true), response(
+    40, true))),reqConsLv: empty,datastore: [1,"b",1] > 
+< 30 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 40 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 1000 : Timer | globalTime: 1 > 
+< 1001 : Monitor | log: empty,clock: 0 >
+
+Solution 6 (state 5855)
+states: 5880  rewrites: 193425 in 280ms cpu (279ms real) (690803
+    rewrites/second)
+C:Config --> 
+< 1 : Client | coord: 10,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 100 : Txn | operations: nil,readSet: < 1,1 >,writeSet: empty,version:
+    eptVersion,consLv: 2 > > 
+< 2 : Client | coord: 20,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 200 : Txn | operations: nil,readSet: empty,writeSet: < 1,"b" >,version: 1,
+    consLv: 2 > > 
+< 10 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (100 |-> (response(20, [1,"a",0]), response(30, [1,"b",1]),
+    response(40, [1,"b",1]))),reqConsLv: empty,datastore: empty > 
+< 20 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (200 |-> (response(20, true), response(30, true), response(
+    40, true))),reqConsLv: empty,datastore: [1,"b",1] > 
+< 30 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 40 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 1000 : Timer | globalTime: 1 > 
+< 1001 : Monitor | log: empty,clock: 0 >
+
+Solution 7 (state 5867)
+states: 5882  rewrites: 193541 in 280ms cpu (280ms real) (691217
+    rewrites/second)
+C:Config --> 
+< 1 : Client | coord: 10,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 100 : Txn | operations: nil,readSet: < 1,0 >,writeSet: empty,version:
+    eptVersion,consLv: 2 > > 
+< 2 : Client | coord: 20,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 200 : Txn | operations: nil,readSet: empty,writeSet: < 1,"b" >,version: 1,
+    consLv: 2 > > 
+< 10 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (100 |-> (response(20, [1,"b",1]), response(30, [1,"a",0]),
+    response(40, [1,"a",0]))),reqConsLv: empty,datastore: empty > 
+< 20 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (200 |-> (response(20, true), response(30, true), response(
+    40, true))),reqConsLv: empty,datastore: [1,"b",1] > 
+< 30 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 40 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 1000 : Timer | globalTime: 1 > 
+< 1001 : Monitor | log: empty,clock: 0 >
+
+Solution 8 (state 5870)
+states: 5882  rewrites: 193551 in 280ms cpu (281ms real) (691253
+    rewrites/second)
+C:Config --> 
+< 1 : Client | coord: 10,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 100 : Txn | operations: nil,readSet: < 1,1 >,writeSet: empty,version:
+    eptVersion,consLv: 2 > > 
+< 2 : Client | coord: 20,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 200 : Txn | operations: nil,readSet: empty,writeSet: < 1,"b" >,version: 1,
+    consLv: 2 > > 
+< 10 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (100 |-> (response(20, [1,"b",1]), response(30, [1,"a",0]),
+    response(40, [1,"a",0]))),reqConsLv: empty,datastore: empty > 
+< 20 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (200 |-> (response(20, true), response(30, true), response(
+    40, true))),reqConsLv: empty,datastore: [1,"b",1] > 
+< 30 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 40 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 1000 : Timer | globalTime: 1 > 
+< 1001 : Monitor | log: empty,clock: 0 >
+
+Solution 9 (state 5872)
+states: 5882  rewrites: 193556 in 280ms cpu (282ms real) (691271
+    rewrites/second)
+C:Config --> 
+< 1 : Client | coord: 10,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 100 : Txn | operations: nil,readSet: < 1,1 >,writeSet: empty,version:
+    eptVersion,consLv: 2 > > 
+< 2 : Client | coord: 20,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 200 : Txn | operations: nil,readSet: empty,writeSet: < 1,"b" >,version: 1,
+    consLv: 2 > > 
+< 10 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (100 |-> (response(20, [1,"b",1]), response(30, [1,"a",0]),
+    response(40, [1,"b",1]))),reqConsLv: empty,datastore: empty > 
+< 20 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (200 |-> (response(20, true), response(30, true), response(
+    40, true))),reqConsLv: empty,datastore: [1,"b",1] > 
+< 30 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 40 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 1000 : Timer | globalTime: 1 > 
+< 1001 : Monitor | log: empty,clock: 0 >
+
+Solution 10 (state 5874)
+states: 5882  rewrites: 193561 in 280ms cpu (282ms real) (691289
+    rewrites/second)
+C:Config --> 
+< 1 : Client | coord: 10,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 100 : Txn | operations: nil,readSet: < 1,1 >,writeSet: empty,version:
+    eptVersion,consLv: 2 > > 
+< 2 : Client | coord: 20,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 200 : Txn | operations: nil,readSet: empty,writeSet: < 1,"b" >,version: 1,
+    consLv: 2 > > 
+< 10 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (100 |-> (response(20, [1,"b",1]), response(30, [1,"b",1]),
+    response(40, [1,"a",0]))),reqConsLv: empty,datastore: empty > 
+< 20 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (200 |-> (response(20, true), response(30, true), response(
+    40, true))),reqConsLv: empty,datastore: [1,"b",1] > 
+< 30 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 40 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 1000 : Timer | globalTime: 1 > 
+< 1001 : Monitor | log: empty,clock: 0 >
+
+Solution 11 (state 5875)
+states: 5882  rewrites: 193561 in 280ms cpu (282ms real) (691289
+    rewrites/second)
+C:Config --> 
+< 1 : Client | coord: 10,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 100 : Txn | operations: nil,readSet: < 1,1 >,writeSet: empty,version:
+    eptVersion,consLv: 2 > > 
+< 2 : Client | coord: 20,requestQueue: emptyTxnList,waitingList: emptyTxnList,
+    lockedKeys: empty,executing: null,committed: 
+< 200 : Txn | operations: nil,readSet: empty,writeSet: < 1,"b" >,version: 1,
+    consLv: 2 > > 
+< 10 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (100 |-> (response(20, [1,"b",1]), response(30, [1,"b",1]),
+    response(40, [1,"b",1]))),reqConsLv: empty,datastore: empty > 
+< 20 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: (200 |-> (response(20, true), response(30, true), response(
+    40, true))),reqConsLv: empty,datastore: [1,"b",1] > 
+< 30 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 40 : Server | localRing: (([0],10), ([4],20), ([8],30), ([12],40)),
+    respFromRepl: empty,reqConsLv: empty,datastore: [1,"b",1] > 
+< 1000 : Timer | globalTime: 1 > 
+< 1001 : Monitor | log: empty,clock: 0 >
+
+No more solutions.
+states: 5882  rewrites: 193591 in 280ms cpu (282ms real) (691396
+    rewrites/second)
+Bye.
