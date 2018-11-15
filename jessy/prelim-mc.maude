@@ -16,12 +16,13 @@ fmod TXN-SORTS is
 
   sorts Key Value Operation LocalVar Expression ConfigList AddressList AddressSet
         KeyVersion KeyValueVersion ValueVersion Lock Vote ReplicaTable Record
-        ValueVersionVector KeyValue .
+        ValueVersionVector KeyValue AddressPair AddressPairs .
   subsort Config < ConfigList .
   subsort LocalVar < Expression .
   subsort Nat < Expression .
   subsort Address < AddressList .
   subsort Address < AddressSet .
+  subsort AddressPair < AddressPairs .
 
  
 ---  op versionRead : Key Version -> KeyVersion [ctor] .
@@ -44,6 +45,10 @@ fmod TXN-SORTS is
   op <_,_> : Key Version   -> KeyVersion [ctor] .  --- 'version' is extracted from 'timestamp'
   op <_,_> : Key Value -> KeyValue [ctor] .
 
+  op [_,_] : Address Address -> AddressPair .
+  op noPair : -> AddressPairs [ctor] .
+  op _;;_ : AddressPairs AddressPairs -> AddressPairs [ctor assoc comm id: noPair] .
+  
 endfm
 view Operation from TRIV to TXN-SORTS is sort Elt to Operation . endv
 view Version from TRIV to TXN-SORTS is sort Elt to Version . endv
@@ -305,7 +310,9 @@ fmod CLIENT-REPLICA is
 
 *** NEW
   op commitSites:_ : VoteSites -> Attribute .
-  op certifying:_ : Config -> Attribute .  --- stores remote txns being submitted
+  op certifying:_ : ConfigList -> Attribute .  --- stores remote txns being submitted
+  op decided:_ : Config -> Attribute .  --- stores remote txns that have been decided
+  op proxy:_ : AddressPairs -> Attribute .  --- stores the proxies for each txn
 
 *** NEW
   op depVector:_ : DepVector -> Attribute .
@@ -327,6 +334,7 @@ fmod CLIENT-REPLICA is
 *** NEW
   op vecRead:_  : DepVector -> Attribute .
   op vecWrite:_ : DepVector -> Attribute .
+  op certified:_ : Bool -> Attribute .
  
 
   op Table : -> ActorType .

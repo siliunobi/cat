@@ -7,7 +7,7 @@ mod JESSY-ANALYSIS is
   --- Init parameters 
   eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
   eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
-  eq nbOfRwTxns = 3 .  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
+  eq nbOfRwTxns = 3 .  eq nbOfOpsPerRwTxn = 4 .  --- must be even number
   eq nbOfServs  = 2 .  eq nbOfKeys = 2 .  eq nbOfRepls = 1 .
 
 
@@ -80,14 +80,14 @@ endm
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not psi(LOG:Log) .
 
-search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
-  such that not nmsi(LOG:Log) .
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not nmsi(LOG:Log) .
 
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not us(LOG:Log) .
 
----search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
-  ---such that not ser(LOG:Log) .
+search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  such that not ser(LOG:Log) .
 
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not sser(LOG:Log) .
@@ -113,5 +113,12 @@ rew sser(
 2 . 1 |-> < 2 |-> 1,2 |-> 4,true,(< k1,< 0,0 > >, < k2,< 0,0 > >),(< k1,< 2,2 > >, < k2,< 2,2 > >) >)) .
 )
 
+---(
+rew certify((< k1,< 2,1 > > |-> (k1 |-> 1, k2 |-> 0)),
+    < 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: < k1,[2] >,
+    localVars: (k1l |-> [0]),txnSQN: 1,version: < 1,1 >,vecRead: (< k1,< 0,0 >
+    > |-> (k1 |-> 0, k2 |-> 0)),vecWrite: (< k1,< 1,1 > > |-> (k1 |-> 1, k2 |->
+    0)),certified: false >) .
+)
 q
 

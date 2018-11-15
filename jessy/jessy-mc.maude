@@ -44,6 +44,7 @@ mod JESSY is
   vars VEC VEC' : Vector .
   var RS : Set{KeyVersion} .
   var WS : Set{KeyValue} .
+  var APS : AddressPairs .
 
   var O@M : Address .  var GT@M : Nat .  var LOG@M : Log .
   vars VTS1@M VTS2@M : VectorTime . var FLAG@M : Bool . 
@@ -228,14 +229,38 @@ mod JESSY is
 
 ---??? prepare includes the Txn itself
    rl [receive-prepare] :
-      < RID : Replica | committed: C,
-                        certifying: C', AS >
+      < RID : Replica | certifying: TXNS,
+                        proxy: APS, AS >
       (msg prepare(< TID : Txn | vecWrite: VW, AS' >) from RID' to RID)
     =>
-      < RID : Replica | committed: C,
-                        certifying: (C' if RID == RID' then null
-                          else < TID : Txn | vecWrite: VW, AS' > fi), AS >
-      (msg prepare-reply(TID,certify(VW,C)) from RID to RID') .
+      if okToInsert(VW,TXNS)
+        then < RID : Replica | certifying: (TXNS ;; < TID : Txn | vecWrite: VW, AS' >),
+                        proxy: (APS ;; [TID,RID']), AS >
+        else < RID : Replica | certifying: TXNS,
+                               proxy: APS, AS >
+             (msg prepare-reply(TID,false) from RID to RID')
+      fi .
+
+  op okToInsert : DepVector ConfigList -> Bool .
+  eq okToInsert(VW,TXNS) = true [owise] .
+  eq okToInsert((< K,VERSION' > |-> VEC',VW'),
+       (TXNS ;; < TID : Txn | vecWrite: (< K,VERSION > |-> VEC,VW), AS > ;; TXNS')) 
+     = false .
+       
+
+  rl [ready-to-certify] :
+     < RID : Replica | committed: C,
+                       decided: C',
+                       proxy: (APS ;; [TID,RID']),
+                       certifying: (TXNS ;; < TID : Txn | vecWrite: VW,
+                                                          certified: false, AS' > ;; TXNS'), AS >
+   =>
+     < RID : Replica | committed: C,
+                       decided: C',
+                       proxy: (APS ;; [TID,RID']),
+                       certifying: (TXNS ;; < TID : Txn | vecWrite: VW,
+                                                          certified: true, AS' > ;; TXNS'), AS >
+      (msg prepare-reply(TID,certify(VW,C C')) from RID to RID') .
  
 
  crl [receive-prepare-reply-1] :
@@ -305,11 +330,13 @@ mod JESSY is
                        abortSites: ABORTS,
                        datastore: (DS,update(WS,VW,RID,REPLICA-TABLE)),
                        depVector: update(VW,RID,REPLICA-TABLE,DV), AS' >
-     commitTxn(TID,RIDS \ RID,RID) --- commit phase; commit locally first, and then async with remote replicas
+     commitTxn(TID,RIDS,RID) --- commit phase; commit locally first, and then async with remote replicas
      (start to RID) 
      if remove(TID,RID',VSTS)[TID] == emptyAddressSet /\
         allYes(TID,(VOTES ; vote(TID,RID',FLAG))) /\
         RIDS := allPreferredSites(WS,REPLICA-TABLE) .
+
+
 
 
  crl [receive-prepare-reply-3] :
@@ -347,7 +374,7 @@ mod JESSY is
                        abortSites: (ABORTS ; voteSites(TID,RIDS \ RID)),
                        datastore: DS,
                        depVector: DV, AS' >
-     abortTxn(TID,RIDS \ RID,RID)  --- abort locally first, and then async with remote replicas
+     abortTxn(TID,RIDS,RID)  --- abort locally first, and then async with remote replicas
      (start to RID)
      if remove(TID,RID',VSTS)[TID] == emptyAddressSet /\
         (not allYes(TID,(VOTES ; vote(TID,RID',FLAG)))) /\
@@ -368,37 +395,79 @@ mod JESSY is
   eq abortTxn(TID,emptyAddressSet,RID') = null .
      
 
-  rl [receive-commit] :
+ crl [receive-commit] :
      < O@M : Monitor | clock: GT@M, log: (TID |-> 
        < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
      < TABLE : Table | table: REPLICA-TABLE >
-     < RID : Replica | certifying: (C' < TID : Txn | writeSet: WS,
-                                                    vecWrite: VW, AS' >),
+     < RID : Replica | certifying: (TXNS ;; < TID : Txn | writeSet: WS,
+                                                  vecWrite: VW, AS' > ;; TXNS'),
                        datastore: DS,
                        depVector: DV,
-                       rmtCommitted: TIDS, AS >
+                       rmtCommitted: TIDS, 
+                       decided: C, AS >
      (msg commit(TID) from RID' to RID)
    =>
      < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
        < VTS1@M,insert(RID,GT@M,VTS2@M),FLAG@M,READS@M,WRITES@M >,LOG@M) >
      < TABLE : Table | table: REPLICA-TABLE >
-     < RID : Replica | certifying: C',
+     < RID : Replica | certifying: (TXNS ;; TXNS'),
                        datastore: (DS,update(WS,VW,RID,REPLICA-TABLE)),
                        depVector: update(VW,RID,REPLICA-TABLE,DV),
-                       rmtCommitted: (TID ; TIDS), AS >
-     (msg committed(TID) from RID to RID') .
+                       rmtCommitted: (TID ; TIDS),
+                       decided: (C < TID : Txn | writeSet: WS,
+                                                  vecWrite: VW, AS' >), AS >
+     (msg committed(TID) from RID to RID') 
+     if RID' =/= RID .
 
 
-  rl [receive-abort] :
+  rl [receive-commit-self] :
+     < RID : Replica | certifying: (TXNS ;; < TID : Txn | AS' > ;; TXNS'), AS >
+     (msg commit(TID) from RID to RID)
+   =>
+     < RID : Replica | certifying: (TXNS ;; TXNS'), AS > .
+
+
+ crl [receive-abort] :
      < O@M : Monitor | clock: GT@M, log: (TID |-> 
        < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
-     < RID : Replica | certifying: (C' < TID : Txn | AS' >), AS >
+     < RID : Replica | certifying: (TXNS ;; < TID : Txn | AS' > ;; TXNS'), AS >
      (msg abort(TID) from RID' to RID)
    =>
      < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
        < VTS1@M,insert(RID,GT@M,VTS2@M),FLAG@M,READS@M,WRITES@M >,LOG@M) >
-     < RID : Replica | certifying: C', AS >
-     (msg aborted(TID) from RID to RID') .
+     < RID : Replica | certifying: (TXNS ;; TXNS'), AS >
+     (msg aborted(TID) from RID to RID') 
+     if RID' =/= RID .
+
+ crl [receive-abort-not-present] :
+     < O@M : Monitor | clock: GT@M, log: (TID |-> 
+       < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < RID : Replica | certifying: TXNS, AS >
+     (msg abort(TID) from RID' to RID)
+   =>
+     < O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+       < VTS1@M,insert(RID,GT@M,VTS2@M),FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < RID : Replica | certifying: TXNS, AS >
+     (msg aborted(TID) from RID to RID') 
+     if RID' =/= RID /\ not (TID in TXNS) .
+
+  op _in_ : Address ConfigList -> Bool .
+  eq TID in (TXNS ;; < TID : Txn | AS > ;; TXNS') = true .
+  eq TID in TXNS = false [owise] .
+
+
+  rl [receive-abort-self] :
+     < RID : Replica | certifying: (TXNS ;; < TID : Txn | AS' > ;; TXNS'), AS >
+     (msg abort(TID) from RID to RID)
+   =>
+     < RID : Replica | certifying: (TXNS ;; TXNS'), AS > .
+
+ crl [receive-abort-self] :
+     < RID : Replica | certifying: TXNS, AS >
+     (msg abort(TID) from RID to RID)
+   =>
+     < RID : Replica | certifying: TXNS, AS >
+     if not (TID in TXNS) .
 
 
   rl [receive-committed] :

@@ -183,10 +183,11 @@ mod INITIAL-STATES is
               < s SERS : Replica | gotTxns: emptyTxnList, 
                       datastore: empty, sqn: 0, depVector: empty,
                       executing: null, submitted: null,
-                      committed: null, aborted: null, certifying: null,
+                      committed: null, aborted: null, certifying: emptyTxnList,
                       votes: noVote, voteSites: noVS,
                       commitSites: noVS, abortSites: noVS,
-                      rmtCommitted: emptyAddressSet >
+                      rmtCommitted: emptyAddressSet, 
+                      decided: null, proxy: noPair >
               (start to s SERS)) .
 
 
@@ -239,7 +240,8 @@ mod INITIAL-STATES is
                                        readSet: empty, writeSet: empty, 
                                        localVars: (VAR |-> [0]), 
                                        vecRead: empty, vecWrite: empty, 
-                                       txnSQN: 0, version: eptVersion >, AS >,C) .
+                                       txnSQN: 0, version: eptVersion,
+                                       certified: false >, AS >,C) .
 
   --- if it is NOT the first txn 
   --- it generates a pair of read-write ops on the same key
@@ -251,7 +253,8 @@ mod INITIAL-STATES is
                                       readSet: empty, writeSet: empty, 
                                       localVars: (VAR |-> [0]), 
                                       vecRead: empty, vecWrite: empty, 
-                                      txnSQN: 0, version: eptVersion >), AS >,C) .
+                                      txnSQN: 0, version: eptVersion,
+                                      certified: false >), AS >,C) .
 
 
   --- @current txn
@@ -282,7 +285,8 @@ mod INITIAL-STATES is
                                 readSet: empty, writeSet: empty, 
                                 localVars: (VAR |-> [0]), 
                                 vecRead: empty, vecWrite: empty, 
-                                txnSQN: 0, version: eptVersion >, AS >,C) .
+                                txnSQN: 0, version: eptVersion,
+                                certified: false >, AS >,C) .
 
   --- if it is NOT the first txn 
   rl $initial(s RTX,WTX,0,s ROPS,WOPS,RWOPS,0,noKeyVar,(< K,VAR > ;; KS),RF,null,
@@ -293,7 +297,8 @@ mod INITIAL-STATES is
                                       readSet: empty, writeSet: empty, 
                                       localVars: (VAR |-> [0]),
                                       vecRead: empty, vecWrite: empty, 
-                                      txnSQN: 0, version: eptVersion >), AS >,C) .
+                                      txnSQN: 0, version: eptVersion,
+                                      certified: false >), AS >,C) .
 
 
   --- @current txn
@@ -324,7 +329,8 @@ mod INITIAL-STATES is
                                 readSet: empty, writeSet: empty, 
                                 localVars: (VAR |-> [0]),
                                 vecRead: empty, vecWrite: empty, 
-                                txnSQN: 0, version: eptVersion >, AS >,C) .
+                                txnSQN: 0, version: eptVersion,
+                                certified: false >, AS >,C) .
 
   --- if it is NOT the first txn 
   rl $initial(0,s WTX,0,ROPS,s WOPS,RWOPS,0,noKeyVar,(< K,VAR > ;; KS),RF,null,
@@ -335,7 +341,8 @@ mod INITIAL-STATES is
                                       readSet: empty, writeSet: empty, 
                                       localVars: (VAR |-> [0]), 
                                       vecRead: empty, vecWrite: empty, 
-                                      txnSQN: 0, version: eptVersion >), AS >,C) .
+                                      txnSQN: 0, version: eptVersion,
+                                      certified: false >), AS >,C) .
 
   --- @current txn
   --- it generates a new write op on a key,
