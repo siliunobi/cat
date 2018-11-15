@@ -22,6 +22,7 @@ mod CONSISTENCY is
        TID2 |-> < VT3,VT4,false,RS',(< X,V >,WS') >, LOG)) = true .  
   eq abortedRead(LOG) = false [owise] .
 
+---(
   op uncommittedRead : Log -> Bool .
  ceq uncommittedRead((TID1 |-> < VT1,VT2,true,(< X,V >,RS),WS >,
       LOG)) = true if noMatch(< X,V >,LOG) .   
@@ -33,6 +34,7 @@ mod CONSISTENCY is
   eq noMatch(KVER,LOG) = true [owise] .
 --- ROLA dft version
   eq noMatch(< X,< 0,0 > >,LOG) = false .  
+)
 
   op rc : Log -> Bool .
   eq rc(LOG) = not abortedRead(LOG) and not uncommittedRead(LOG) .
@@ -159,8 +161,8 @@ mod CONSISTENCY is
       TID1 |-> < RID |-> T1,(RID |-> T1',VT),true,RS,(< X,VS >,WS) >, 
       TID2 |-> < RID' |-> T2,(RID' |-> T2',VT'),true,RS',
       (< X,VS' >,WS') >,LOG)) = true
-     if VS' =/= VS /\ not committedBetween(X,VS,VS',LOG) /\
-        rtCommittedBetween(X,T1',T2',LOG)  . 
+     if VS < VS' /\ not committedBetween(X,VS,VS',LOG) /\
+        T1' < T2' /\ rtCommittedBetween(X,T1',T2',LOG)  . 
 
 
 
@@ -172,8 +174,8 @@ mod CONSISTENCY is
         (< X,VS >,RS1),WS1 >, 
       TID2 |-> < RID2 |-> T2,(RID2 |-> T2',VT2),true,
         RS2,(< X,VS' >,WS2) >,LOG)) = true
-     if VS' =/= VS /\ not committedBetween(X,VS,VS',LOG) /\
-        rtCommittedBetween(X,T1',T2',LOG)  . 
+     if VS < VS' /\ not committedBetween(X,VS,VS',LOG) /\
+        T1' < T2' /\ rtCommittedBetween(X,T1',T2',LOG)  . 
 
 
   op sser : Log -> Bool .
