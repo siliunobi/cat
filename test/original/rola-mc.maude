@@ -123,6 +123,33 @@ mod ROLA is
      if (not write-only(OPS)) /\
         RIDS := 1stSites(OPS,RID,REPLICA-TABLE) .
 
+---(
+--- From rola-tagged.maude
+  crl 
+< M:Address : Monitor | clock: GT:Nat,log: LOG:Log >
+< O@M:Address : Monitor | clock: GT@M:Nat,log: LOG@M:Log >(start to
+    RID:Address)
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | gotTxns:(
+< TID:Address : Txn | operations: OPS:OperationList,latest: empty,
+    AS:AttributeSet > ;; TXNS:ConfigList),executing: noActor,1stGetSites:
+    1STGETS:1stGets,AS':AttributeSet >
+    => 
+< M:Address : Monitor | clock:(GT:Nat + 1),log: insert(TID:Address,<
+    RID:Address |-> GT:Nat,empty,false,empty,empty >,LOG:Log)>
+< O@M:Address : Monitor | clock:(GT@M:Nat + 1),log: insert(TID:Address,<
+    RID:Address |-> GT@M:Nat,empty,false,empty,empty >,LOG@M:Log)>
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | gotTxns: TXNS:ConfigList,executing:
+< TID:Address : Txn | operations: OPS:OperationList,latest: vl(
+    OPS:OperationList),AS:AttributeSet >,1stGetSites:(1STGETS:1stGets ; 1st(
+    TID:Address,RIDS:AddressSet)),AS':AttributeSet > genGets(OPS:OperationList,
+    RID:Address,TID:Address,REPLICA-TABLE:ReplicaTable)
+    if not write-only(OPS:OperationList)= true /\ RIDS:AddressSet := 1stSites(
+    OPS:OperationList,RID:Address,REPLICA-TABLE:ReplicaTable) [label
+    start-ro-or-rw-txn] .
+)
+
 
   ---!!! ROLA needs "txnSQN" because "sqn" could be updated by "prepare"
   ---!!! so "txnSQN" holds the sqn when the txn started executing
@@ -154,8 +181,7 @@ mod ROLA is
      if SQN' := SQN + 1 /\
         write-only(OPS) /\
         RIDS := prepareSites(OPS,RID,REPLICA-TABLE) /\
-        WS' := ws(OPS,VARS) .
-  
+        WS' := ws(OPS,VARS) .  
 
  crl [receive-prepare-wo] :
      < RID : Replica | datastore: VS,

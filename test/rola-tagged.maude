@@ -1,6 +1,6 @@
 load rola-aux-mc
 
-mod ROLA-TAGGED is
+mod ROLA is
   including BOOL .
   including CLIENT-REPLICA .
   including MESSAGE .
@@ -397,4 +397,5 @@ mod ROLA-TAGGED is
     RIDS:AddressSet := 2ndSites(VL':KeyTimestamps,RS':Set{KeyVersion},
     RID:Address,REPLICA-TABLE:ReplicaTable) [label receive-response1] .
 endm
+
 
