@@ -1,6 +1,6 @@
 load consistency
 
-mod ROLA-ANALYSIS is
+(mod ROLA-ANALYSIS is
   inc INITIAL-STATES .
   inc CONSISTENCY .
 
@@ -47,7 +47,7 @@ mod ROLA-ANALYSIS is
   )
 
 
-endm
+endm)
 
 ---rew initConfig .
 ---search initConfig =>! C:Config .
@@ -103,5 +103,5 @@ rew sser(
 2 . 1 |-> < 2 |-> 1,2 |-> 4,true,(< k1,< 0,0 > >, < k2,< 0,0 > >),(< k1,< 2,2 > >, < k2,< 2,2 > >) >)) .
 )
 
-q
+
 

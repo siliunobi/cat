@@ -1,5 +1,85 @@
-load rola-aux-mc
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	   Maude 2.7.1 built: Jun 27 2016 16:35:16
+	    Copyright 1997-2016 SRI International
+		   Fri Nov 16 11:38:55 2018
 
+	    Full Maude 2.7.1 June 30th 2016
+
+     Welcome to CAT!
+Introduced module TERM-ORDER
+
+Introduced module ADDRESS
+
+Introduced view Address
+
+Introduced module DELAY
+
+Introduced module ACTOR-MODEL
+
+Introduced view Order
+
+Introduced module SCHEDULER
+
+Introduced module APMAUDE
+
+Introduced module SOME-PARAMETERS
+
+Introduced module TXN-SORTS
+
+Introduced view Operation
+
+Introduced view Version
+
+Introduced view Key
+
+Introduced view LocalVar
+
+Introduced view Value
+
+Introduced view KeyVersion
+
+Introduced view KeyValueVersion
+
+Introduced view ValueVersion
+
+Introduced view Vote
+
+Introduced view Timestamp
+
+Introduced view Record
+
+Introduced view KeyValue
+
+Introduced module TXN-AUX1
+
+Introduced view AddressSet
+
+Introduced view ValueVersionList
+
+Introduced view AddressList
+
+Introduced module TXN-AUX2
+
+Introduced module VALUES-NAT
+
+Introduced module VERSION-ROLA
+
+Introduced module DATASTORE-ROLA
+
+Introduced module MESSAGE
+
+Introduced module CLIENT-REPLICA
+
+Introduced module REPLICA-TABLE
+
+Introduced module ROLA-AUX
+
+Introduced module ROLA
+
+Advisory: Module ROLA redefined.
+New module ROLA with monitors generated!
 mod ROLA is
   including BOOL .
   including CLIENT-REPLICA .
@@ -399,3 +479,4 @@ mod ROLA is
 endm
 
 
+Bye.

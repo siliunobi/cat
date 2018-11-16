@@ -1,5 +1,5 @@
----load rola-tagged
 load rola-mc
+---load rola-tagged
 
 mod KEY-VARS is
   inc TXN-AUX1 .
@@ -131,7 +131,6 @@ mod INIT-PARAMETERS is
 endm
 
 mod INITIAL-STATES is
----  inc ROLA-TAGGED .
   inc ROLA .
   inc APMAUDE .
   inc KEY-VARS + INIT-PARAMETERS .

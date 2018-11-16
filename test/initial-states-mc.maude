@@ -1,7 +1,7 @@
-load rola-tagged
----load rola-mc
+---load rola-tagged
+load rola-mc
 
-mod KEY-VARS is
+(mod KEY-VARS is
   inc TXN-AUX1 .
 
   ops k1l  k2l  k3l  k4l  k5l  k6l  k7l  k8l  k9l  k10l
@@ -119,20 +119,20 @@ k101l k102l k103l k104l k105l k106l k107l k108l k109l k110l k111l k112l k113l k1
 < k189, k189l > ; < k190, k190l > ; < k191, k191l > ; < k192, k192l > ;
 < k193, k193l > ; < k194, k194l > ; < k195, k195l > ; < k196, k196l > ;
 < k197, k197l > ; < k198, k198l > ; < k199, k199l > ; < k200, k200l > . 
-endm
+endm)
 
 
-mod INIT-PARAMETERS is
+(mod INIT-PARAMETERS is
   pr NAT .
 
   ops nbOfRoTxns      nbOfWoTxns      nbOfRwTxns
       nbOfOpsPerRoTxn nbOfOpsPerWoTxn nbOfOpsPerRwTxn
       nbOfServs       nbOfKeys        nbOfRepls : -> Nat .
-endm
+endm)
 
-mod INITIAL-STATES is
-  inc ROLA-TAGGED .
-  ---inc ROLA .
+(mod INITIAL-STATES is
+  ---inc ROLA-TAGGED .
+  inc ROLA .
   inc APMAUDE .
   inc KEY-VARS + INIT-PARAMETERS .
 
@@ -349,7 +349,7 @@ mod INITIAL-STATES is
   eq $initial(0,0,0,ROPS,WOPS,RWOPS,0,noKeyVar,KS,RF,null,C) 
   =  initial(0,0,0,ROPS,WOPS,RWOPS,0,0,RF,C) .
 
-endm
+endm)
 ---(
 rew init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,
       nbOfOpsPerRoTxn,nbOfOpsPerWoTxn,nbOfOpsPerRwTxn, 

@@ -409,3 +409,7 @@ load rola-aux-mc
         WS' := ws(OPS,VARS) .
 
 endm)
+
+---(monitor ROLA .)
+
+---(show module ROLA .)

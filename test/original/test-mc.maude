@@ -49,7 +49,7 @@ mod ROLA-ANALYSIS is
 
 endm
 
----rew initConfig .
+rew initConfig .
 ---search initConfig =>! C:Config .
 
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
