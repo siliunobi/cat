@@ -1,6 +1,6 @@
 load rola-aux-mc
 
-mod DSG is
+(mod DSG is
   inc ROLA-AUX .
 
   sorts Dsg Edge .
@@ -309,4 +309,4 @@ mod DSG is
   --- All txns finished
   eq dsg-update(empty,LOG,DSG) = DSG . 
 )
-endm
+endm)

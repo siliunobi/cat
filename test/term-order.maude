@@ -1,3 +1,5 @@
+---load automonitor.maude
+
 ***(
 
     This file is part of the Maude 2 interpreter.

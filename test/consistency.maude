@@ -1,7 +1,7 @@
 load initial-states-mc
 load dsg
 
-mod CONSISTENCY is
+(mod CONSISTENCY is
   inc CLIENT-REPLICA .
   inc INITIAL-STATES .
   inc DSG .
@@ -22,7 +22,7 @@ mod CONSISTENCY is
        TID2 |-> < VT3,VT4,false,RS',(< X,V >,WS') >, LOG)) = true .  
   eq abortedRead(LOG) = false [owise] .
 
----(
+---
   op uncommittedRead : Log -> Bool .
  ceq uncommittedRead((TID1 |-> < VT1,VT2,true,(< X,V >,RS),WS >,
       LOG)) = true if noMatch(< X,V >,LOG) .   
@@ -34,7 +34,7 @@ mod CONSISTENCY is
   eq noMatch(KVER,LOG) = true [owise] .
 --- ROLA dft version
   eq noMatch(< X,< 0,0 > >,LOG) = false .  
-)
+
 
   op rc : Log -> Bool .
   eq rc(LOG) = not abortedRead(LOG) and not uncommittedRead(LOG) .
@@ -182,4 +182,4 @@ mod CONSISTENCY is
   eq sser(LOG) = not notRtReadDep(LOG) and 
        not notRtWriteDep(LOG) and not notRtAntiDep(LOG) .
 
-endm
+endm)
