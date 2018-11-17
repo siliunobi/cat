@@ -529,7 +529,8 @@ ceq tagLeftRightHand(T,T',B) =
 
     
 
-    eq tagID(Q) = string2qidList(string(Q) + "-TAGGED") .
+    ---eq tagID(Q) = string2qidList(string(Q) + "-TAGGED") .
+    eq tagID(Q) = string2qidList(string(Q)) .
     
 endfm
     
@@ -596,7 +597,7 @@ mod MONITORING is
 	  input 	: nilTermList , 
           default      : 'CONVERSION ,
 	  output 	: nil >,
-	  ('\s '\s '\s '\s '\s '\g string2qidList("Welcome to CAPA!") '\o)] .
+	  ('\s '\s '\s '\s '\s '\g string2qidList("Welcome to CAT!") '\o)] .
     
     rl [input] : 	[QI QIL, 
 	  < O 			: X@Database | 
