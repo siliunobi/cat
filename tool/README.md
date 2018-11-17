@@ -9,7 +9,7 @@ The parameters for the script are (in order):
 - The consistency property to be analyzed
 - The number of each of the following parameters: read-only, write-only, and read-write transactions; operations for each type of transaction; (optional) clients; servers; keys; and replicas per key.
 
-The output will be stored in cat.out
+The output, either "No solution" or a counterexmaple, will be stored in cat.out
 
 Example:
 ```
