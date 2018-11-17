@@ -11,10 +11,11 @@ else
   exit
 fi
 
-OUT_FOLDER=`pwd`
+OUT_FOLDER=`basename $SOURCE_FOLDER`_copy
+mkdir $OUT_FOLDER
 
-CMD_FILE="_cmd_.txt"
-CMD_OUT="_cmd_.out"
+CMD_FILE=$OUT_FOLDER/"_cmd_.txt"
+CMD_OUT=$OUT_FOLDER/"_cmd_.out"
 
 java -cp cat.jar edu.uiuc.maude.CatGenerateModule $SOURCE_FOLDER $MAIN_MAUDE $OUT_FOLDER
 
@@ -22,9 +23,10 @@ maude $CMD_FILE > $CMD_OUT
 
 
 java -cp cat.jar edu.uiuc.maude.CatReplaceModule $SOURCE_FOLDER $MAIN_MAUDE $OUT_FOLDER $CMD_OUT
-#rm $CMD_FILE
-#rm $CMD_OUT
+rm $CMD_FILE
+rm $CMD_OUT
 
-java -cp cat.jar edu.uiuc.maude.CatReplaceConfig $PROPERTY $4 $5 $6 $7 $8 $9 $10 $11 $12
+cp test-mc.maude.original $OUT_FOLDER/test-mc.maude
+java -cp cat.jar edu.uiuc.maude.CatReplaceConfig $OUT_FOLDER test-mc.maude  $PROPERTY $4 $5 $6 $7 $8 $9 ${10} ${11} ${12}
 
-maude test-mc.maude > cat.out
+maude $OUT_FOLDER/test-mc.maude > $OUT_FOLDER/cat.out
