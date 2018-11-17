@@ -1,0 +1,5 @@
+load automonitor.maude
+load rola-mc.maude
+(monitor ROLA .)
+(show module ROLA .)
+quit
