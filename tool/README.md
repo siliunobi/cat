@@ -5,9 +5,9 @@ Run the script: ```run_cat.sh```
 The parameters for the script are (in order):
 
 - The folder of Maude source files that specify the distributed transaction system
-- The main Maude file that specifies the system dynamics
-- The consistency property to be analyzed<br />
-- The number of each of the following parameters: read-only, write-only, and read-write transactions; operations for each type of transaction; clients; servers; keys; and replicas per key.
+- The main Maude file that specifies the system dynamics (to which the monitor will be added)
+- The consistency property to be analyzed
+- The number of each of the following parameters: read-only, write-only, and read-write transactions; operations for each type of transaction; (optional) clients; servers; keys; and replicas per key.
 
 The output will be stored in cat.out
 
