@@ -1,0 +1,14 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	   Maude 2.7.1 built: Jun 27 2016 16:35:16
+	    Copyright 1997-2016 SRI International
+		   Sat Nov 17 14:56:31 2018
+==========================================
+search [1] in ROLA-ANALYSIS : init(0, 0, 1, 0, 0, 4, 2, 2, 1) =>! C:Config 
+< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not ra(
+    LOG:Log) = true .
+
+No solution.
+states: 1  rewrites: 126 in 0ms cpu (0ms real) (~ rewrites/second)
+Bye.

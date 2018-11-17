@@ -17,6 +17,9 @@ mkdir $OUT_FOLDER
 CMD_FILE=$OUT_FOLDER/"_cmd_.txt"
 CMD_OUT=$OUT_FOLDER/"_cmd_.out"
 
+cp automonitor.maude $OUT_FOLDER/
+cp full-maude.maude $OUT_FOLDER/
+
 java -cp cat.jar edu.uiuc.maude.CatGenerateModule $SOURCE_FOLDER $MAIN_MAUDE $OUT_FOLDER
 
 maude $CMD_FILE > $CMD_OUT
