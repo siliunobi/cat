@@ -21,3 +21,5 @@ search [1] init =>! C:Configuration < M:Oid : Monitor | log: LOG:Log clock: N:Na
 where the functions **init** and **consistency-property** are parametric, and are instantiated by the user inputs; e.g., **consistency-property** is replaced by the corresponding function rc, psi, nmsi, ... , or ser, depending on which property to analyze.
 
 CAT outputs either “No solution,” meaning that all runs from all the given initial states satisfy the desired consistency property, or a counterexample (in Maude at the moment) showing a behavior that violates the property.
+
+[Try me!](https://github.com/siliunobi/cat/blob/master/tool/README)
