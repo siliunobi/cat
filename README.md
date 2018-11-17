@@ -12,10 +12,12 @@ Given these inputs, CAT performs the following steps:
 2. generates all possible initial states with the user-provided number of the different parameters; and
 3. executes the following command to search, from all generated initial states, for one reachablefinal state where the consistency property does not hold:
 
+```
+search [1] init =>! C:Configuration < M:Oid : Monitor | log: LOG:Log clock: N:Nat >
 
-search [1] **init** =>! C:Configuration < M:Oid : Monitor | log: LOG:Log clock: N:Nat > 
-    such that not **consistency-property**(LOG:Log).
-    
-where the bold functions are parametric, and are instantiated by the user inputs; e.g., **consistency-property** is replaced by the corresponding function rc, psi, nmsi, ... , or ser, depending on which property to analyze.
+  such that not consistency-property(LOG:Log).
+```
+
+where the functions **init** and **consistency-property** are parametric, and are instantiated by the user inputs; e.g., **consistency-property** is replaced by the corresponding function rc, psi, nmsi, ... , or ser, depending on which property to analyze.
 
 CAT outputs either “No solution,” meaning that all runs from all the given initial states satisfy the desired consistency property, or a counterexample (in Maude at the moment) showing a behavior that violates the property.
