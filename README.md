@@ -4,7 +4,7 @@ We have implemented the Consistency Analysis Tool (CAT) that uses Maude's meta-p
 
 CAT takes as input:
 
-- A Maude model of the DTS specified as explained in [this paper](https://github.com/siliunobi/cat/blob/master/tacas19_tr.pdf).
+- A Maude model of the DTS specified as explained in the [technical report](https://github.com/siliunobi/cat/blob/master/tacas19_tr.pdf).
 - The number of each of the following parameters: read-only, write-only, and read-write transactions; operations for each type of transaction; clients; servers; keys; and replicas per key. The tool analyzes the desired property for all initial states with the number of each of these parameters.
 - The consistency property to be analyzed.
 
