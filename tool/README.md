@@ -11,7 +11,4 @@ The parameters for the script are (in order):
 
 The output, either "No solution" or a counterexmaple, will be stored in ```xxx_copy/cat.out```
 
-Example:
-```
-./run_cat.sh rola rola-mc.maude ra 0 0 3 0 0 2 2 2 1
-```
+Example: ```./run_cat.sh rola rola-mc.maude ra 0 0 3 0 0 2 2 2 1```
