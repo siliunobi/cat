@@ -1,7 +1,7 @@
 # CAT
 
 We have implemented the Consistency Analysis Tool (CAT) that automates the
-method in <https://github.com/siliunobi/cat/blob/master/tacas19_tr.pdf>. CAT takes as input:
+method in [1]. CAT takes as input:
 
 - A Maude model of the DTS specified as explained in Section 4.
 - The number of each of the following parameters: read-only, write-only, and
@@ -29,3 +29,5 @@ where the functions "init" and "consistency-property" are parametric, and are in
 CAT outputs either “No solution,” meaning that all runs from all the given
 initial states satisfy the desired consistency property, or a counterexample (in
 Maude at the moment) showing a behavior that violates the property.
+
+[1] : <https://github.com/siliunobi/cat/blob/master/tacas19_tr.pdf>
