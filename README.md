@@ -3,7 +3,7 @@
 We have implemented the Consistency Analysis Tool (CAT) that automates the
 method in [1]. CAT takes as input:
 
-- A Maude model of the DTS specified as explained in Section 4.
+- A Maude model of the DTS specified as explained in Section 4 [1].
 - The number of each of the following parameters: read-only, write-only, and
     read-write transactions; operations for each type of transaction; clients; servers;
     keys; and replicas per key. The tool analyzes the desired property for all ini-
@@ -23,9 +23,8 @@ search [1] init =>! C:Configuration
 < M:Oid : Monitor | log: LOG:Log clock: N:Nat >
 such that not consistency-property(LOG:Log).
 ```
-```
 where the functions "init" and "consistency-property" are parametric, and are instantiated by the user inputs; e.g.,consistency-property is replaced by the corresponding function rc, psi, nmsi, ... , or ser, depending on which property to analyze.
-```
+
 CAT outputs either “No solution,” meaning that all runs from all the given
 initial states satisfy the desired consistency property, or a counterexample (in
 Maude at the moment) showing a behavior that violates the property.
