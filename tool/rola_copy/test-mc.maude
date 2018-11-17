@@ -103,8 +103,8 @@ rew sser(
 2 . 1 |-> < 2 |-> 1,2 |-> 4,true,(< k1,< 0,0 > >, < k2,< 0,0 > >),(< k1,< 2,2 > >, < k2,< 2,2 > >) >)) .
 )
 
-search [1] init(0, 0, 1, 0, 0, 4, 2, 2, 1) =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
-  such that not ra(LOG:Log) .
+search [1] init(0, 0, 3, 0, 0, 2, 2, 2, 1) =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  such that not ua(LOG:Log) .
 
 q
 

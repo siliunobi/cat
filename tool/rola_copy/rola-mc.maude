@@ -111,6 +111,24 @@ mod ROLA is
     REPLICA-TABLE:ReplicaTable)
     = null [owise] .
   rl 
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,
+    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>,
+    LOG:Log)>
+< RID:Address : Replica | executing:
+< TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},
+    version: VERSION:Version,AS:AttributeSet >,aborted: TXNS:ConfigList,
+    voteSites: VSTS:VoteSites,AS':AttributeSet > msg prepare-reply(TID:Address,
+    false)from RID':Address to RID:Address
+    => 
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> <
+    VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),false,RS:Set{
+    KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG:Log)>
+< RID:Address : Replica | executing: noActor,aborted:(TXNS:ConfigList ;;
+< TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},
+    version: VERSION:Version,AS:AttributeSet >),voteSites: remove(TID:Address,
+    RID':Address,VSTS:VoteSites),AS':AttributeSet > start to RID:Address [label
+    receive-prepare-reply-false-executing] .
+  rl 
 < RID:Address : Replica | aborted:(TXNS:ConfigList ;;
 < TID:Address : Txn | AS:AttributeSet > ;; TXNS':ConfigList),voteSites:
     VSTS:VoteSites,AS':AttributeSet > msg prepare-reply(TID:Address,
@@ -145,18 +163,6 @@ mod ROLA is
     AS:AttributeSet >,2ndGetSites: remove(TID:Address,RID':Address,
     2NDGETS:2ndGets),AS':AttributeSet > [label receive-response2] .
   rl 
-< RID:Address : Replica | executing:
-< TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},
-    version: VERSION:Version,AS:AttributeSet >,aborted: TXNS:ConfigList,
-    voteSites: VSTS:VoteSites,AS':AttributeSet > msg prepare-reply(TID:Address,
-    false)from RID':Address to RID:Address
-    => 
-< RID:Address : Replica | executing: noActor,aborted:(TXNS:ConfigList ;;
-< TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},
-    version: VERSION:Version,AS:AttributeSet >),voteSites: remove(TID:Address,
-    RID':Address,VSTS:VoteSites),AS':AttributeSet > start to RID:Address [label
-    receive-prepare-reply-false-executing] .
-  rl 
 < RID:Address : Replica | gotTxns: emptyTxnList,AS:AttributeSet > start to
     RID:Address
     => 
@@ -171,6 +177,115 @@ mod ROLA is
     latestCommit: cmt(LC:KeyTimestamps,VS:Versions,TSSQN:TimestampSqn,
     TS:Timestamp),AS':AttributeSet > msg committed(TID:Address)from RID:Address
     to RID':Address [label receive-commit] .
+  crl 
+< M:Address : Monitor | clock: GT:Nat,log: LOG:Log >(start to RID:Address)
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | gotTxns:(
+< TID:Address : Txn | operations: OPS:OperationList,latest: empty,
+    AS:AttributeSet > ;; TXNS:ConfigList),executing: noActor,1stGetSites:
+    1STGETS:1stGets,AS':AttributeSet >
+    => 
+< M:Address : Monitor | clock:(GT:Nat + 1),log: insert(TID:Address,<
+    RID:Address |-> GT:Nat,empty,false,empty,empty >,LOG:Log)>
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | gotTxns: TXNS:ConfigList,executing:
+< TID:Address : Txn | operations: OPS:OperationList,latest: vl(
+    OPS:OperationList),AS:AttributeSet >,1stGetSites:(1STGETS:1stGets ; 1st(
+    TID:Address,RIDS:AddressSet)),AS':AttributeSet > genGets(OPS:OperationList,
+    RID:Address,TID:Address,REPLICA-TABLE:ReplicaTable)
+    if not write-only(OPS:OperationList)= true /\ RIDS:AddressSet := 1stSites(
+    OPS:OperationList,RID:Address,REPLICA-TABLE:ReplicaTable) [label
+    start-ro-or-rw-txn] .
+  crl 
+< M:Address : Monitor | clock: GT:Nat,log: LOG:Log >(start to RID:Address)
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | gotTxns:(
+< TID:Address : Txn | operations: OPS:OperationList,localVars: VARS:LocalVars,
+    txnSQN: TXNSQN:Int,writeSet: WS:Set{KeyValue},version: VERSION:Version,
+    AS:AttributeSet > ;; TXNS:ConfigList),executing: noActor,sqn: SQN:Int,
+    voteSites: VSTS:VoteSites,AS':AttributeSet >
+    => 
+< M:Address : Monitor | clock:(GT:Nat + 1),log: insert(TID:Address,<
+    RID:Address |-> GT:Nat,empty,false,empty,empty >,LOG:Log)>
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | gotTxns: TXNS:ConfigList,executing:
+< TID:Address : Txn | operations: OPS:OperationList,localVars: VARS:LocalVars,
+    txnSQN: SQN':Int,writeSet: WS':Set{KeyValue},version: < RID:Address,
+    SQN':Int >,AS:AttributeSet >,sqn: SQN':Int,voteSites:(VSTS:VoteSites ;
+    voteSites(TID:Address,RIDS:AddressSet)),AS':AttributeSet > genPuts(
+    OPS:OperationList,RID:Address,TID:Address,SQN':Int,VARS:LocalVars,
+    REPLICA-TABLE:ReplicaTable)
+    if SQN':Int := SQN:Int + 1 /\ write-only(OPS:OperationList)= true /\
+    RIDS:AddressSet := prepareSites(OPS:OperationList,RID:Address,
+    REPLICA-TABLE:ReplicaTable)/\ WS':Set{KeyValue}:= ws(OPS:OperationList,
+    VARS:LocalVars) [label start-wo-txn] .
+  crl 
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,
+    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>,
+    LOG:Log)>
+< RID:Address : Replica | executing:
+< TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},
+    version: VERSION:Version,AS:AttributeSet >,committed: TXNS:ConfigList,
+    commitSites: CMTS:VoteSites,AS':AttributeSet > msg committed(
+    TID:Address)from RID':Address to RID:Address
+    => if CMTS':VoteSites[TID:Address]==(empty).AddressSet then
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> <
+    VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{
+    KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG:Log)>
+< RID:Address : Replica | executing: noActor,committed:(TXNS:ConfigList ;;
+< TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},
+    version: VERSION:Version,AS:AttributeSet >),commitSites: CMTS':VoteSites,
+    AS':AttributeSet > start to RID:Address else
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,
+    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>,
+    LOG:Log)>
+< RID:Address : Replica | executing:
+< TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},
+    version: VERSION:Version,AS:AttributeSet >,committed: TXNS:ConfigList,
+    commitSites: CMTS':VoteSites,AS':AttributeSet > fi
+    if CMTS':VoteSites := remove(TID:Address,RID':Address,CMTS:VoteSites) [
+    label receive-committed] .
+  crl 
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,
+    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>,
+    LOG:Log)>
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations: OPS:OperationList,localVars: VARS:LocalVars,
+    readSet: RS:Set{KeyVersion},txnSQN: TXNSQN:Int,writeSet: WS:Set{KeyValue},
+    version: VERSION:Version,AS:AttributeSet >,committed: TXNS:ConfigList,
+    1stGetSites: 1STGETS:1stGets,2ndGetSites: 2NDGETS:2ndGets,sqn: SQN:Int,
+    voteSites: VSTS:VoteSites,AS':AttributeSet >
+    => 
+< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable > if read-only(
+    OPS:OperationList)then
+< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> <
+    VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{
+    KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG:Log)>
+< RID:Address : Replica | executing: noActor,committed:(TXNS:ConfigList ;;
+< TID:Address : Txn | operations: OPS:OperationList,localVars: VARS:LocalVars,
+    readSet: RS:Set{KeyVersion},txnSQN: TXNSQN:Int,writeSet: WS:Set{KeyValue},
+    version: VERSION:Version,AS:AttributeSet >),1stGetSites: delete(
+    TID:Address,1STGETS:1stGets),2ndGetSites: delete(TID:Address,
+    2NDGETS:2ndGets),sqn: SQN:Int,voteSites: VSTS:VoteSites,AS':AttributeSet >
+    start to RID:Address else
+< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,
+    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>,
+    LOG:Log)>
+< RID:Address : Replica | executing:
+< TID:Address : Txn | operations: OPS:OperationList,localVars: VARS:LocalVars,
+    readSet: RS:Set{KeyVersion},txnSQN: SQN':Int,writeSet: WS':Set{KeyValue},
+    version: < RID:Address,SQN':Int >,AS:AttributeSet >,committed:
+    TXNS:ConfigList,1stGetSites: delete(TID:Address,1STGETS:1stGets),
+    2ndGetSites: delete(TID:Address,2NDGETS:2ndGets),sqn: SQN':Int,voteSites:(
+    VSTS:VoteSites ; voteSites(TID:Address,RIDS:AddressSet)),AS':AttributeSet >
+    genPuts(OPS:OperationList,RID:Address,TID:Address,SQN':Int,VARS:LocalVars,
+    RS:Set{KeyVersion},REPLICA-TABLE:ReplicaTable)fi
+    if 1STGETS:1stGets[TID:Address]==(empty).AddressSet = true /\
+    2NDGETS:2ndGets[TID:Address]==(empty).AddressSet = true /\ SQN':Int :=
+    SQN:Int + 1 /\ RIDS:AddressSet := prepareSites(OPS:OperationList,
+    RID:Address,REPLICA-TABLE:ReplicaTable)/\ WS':Set{KeyValue}:= ws(
+    OPS:OperationList,VARS:LocalVars) [label commit-reads] .
   crl 
 < RID:Address : Replica | datastore: VS:Versions,sqn: SQN:Int,tsSqn:
     TSSQN:TimestampSqn,AS':AttributeSet > msg prepare(TID:Address,version(
@@ -197,55 +312,6 @@ mod ROLA is
     false)from RID:Address to RID':Address fi
     if SQN':Int := SQN:Int + 1 /\ VERSION:Version := latestPrepared(K:Key,
     VS:Versions) [label receive-prepare-rw] .
-  crl 
-< RID:Address : Replica | executing:
-< TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},
-    version: VERSION:Version,AS:AttributeSet >,committed: TXNS:ConfigList,
-    commitSites: CMTS:VoteSites,AS':AttributeSet > msg committed(
-    TID:Address)from RID':Address to RID:Address
-    => if CMTS':VoteSites[TID:Address]==(empty).AddressSet then
-< RID:Address : Replica | executing: noActor,committed:(TXNS:ConfigList ;;
-< TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},
-    version: VERSION:Version,AS:AttributeSet >),commitSites: CMTS':VoteSites,
-    AS':AttributeSet > start to RID:Address else
-< RID:Address : Replica | executing:
-< TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},
-    version: VERSION:Version,AS:AttributeSet >,committed: TXNS:ConfigList,
-    commitSites: CMTS':VoteSites,AS':AttributeSet > fi
-    if CMTS':VoteSites := remove(TID:Address,RID':Address,CMTS:VoteSites) [
-    label receive-committed] .
-  crl 
-< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
-< RID:Address : Replica | executing:
-< TID:Address : Txn | operations: OPS:OperationList,localVars: VARS:LocalVars,
-    readSet: RS:Set{KeyVersion},txnSQN: TXNSQN:Int,writeSet: WS:Set{KeyValue},
-    version: VERSION:Version,AS:AttributeSet >,committed: TXNS:ConfigList,
-    1stGetSites: 1STGETS:1stGets,2ndGetSites: 2NDGETS:2ndGets,sqn: SQN:Int,
-    voteSites: VSTS:VoteSites,AS':AttributeSet >
-    => 
-< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable > if read-only(
-    OPS:OperationList)then
-< RID:Address : Replica | executing: noActor,committed:(TXNS:ConfigList ;;
-< TID:Address : Txn | operations: OPS:OperationList,localVars: VARS:LocalVars,
-    readSet: RS:Set{KeyVersion},txnSQN: TXNSQN:Int,writeSet: WS:Set{KeyValue},
-    version: VERSION:Version,AS:AttributeSet >),1stGetSites: delete(
-    TID:Address,1STGETS:1stGets),2ndGetSites: delete(TID:Address,
-    2NDGETS:2ndGets),sqn: SQN:Int,voteSites: VSTS:VoteSites,AS':AttributeSet >
-    start to RID:Address else
-< RID:Address : Replica | executing:
-< TID:Address : Txn | operations: OPS:OperationList,localVars: VARS:LocalVars,
-    readSet: RS:Set{KeyVersion},txnSQN: SQN':Int,writeSet: WS':Set{KeyValue},
-    version: < RID:Address,SQN':Int >,AS:AttributeSet >,committed:
-    TXNS:ConfigList,1stGetSites: delete(TID:Address,1STGETS:1stGets),
-    2ndGetSites: delete(TID:Address,2NDGETS:2ndGets),sqn: SQN':Int,voteSites:(
-    VSTS:VoteSites ; voteSites(TID:Address,RIDS:AddressSet)),AS':AttributeSet >
-    genPuts(OPS:OperationList,RID:Address,TID:Address,SQN':Int,VARS:LocalVars,
-    RS:Set{KeyVersion},REPLICA-TABLE:ReplicaTable)fi
-    if 1STGETS:1stGets[TID:Address]==(empty).AddressSet = true /\
-    2NDGETS:2ndGets[TID:Address]==(empty).AddressSet = true /\ SQN':Int :=
-    SQN:Int + 1 /\ RIDS:AddressSet := prepareSites(OPS:OperationList,
-    RID:Address,REPLICA-TABLE:ReplicaTable)/\ WS':Set{KeyValue}:= ws(
-    OPS:OperationList,VARS:LocalVars) [label commit-reads] .
   crl 
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
 < RID:Address : Replica | executing:
@@ -299,41 +365,5 @@ mod ROLA is
     1STGETS':1stGets := remove(TID:Address,RID':Address,1STGETS:1stGets)/\
     RIDS:AddressSet := 2ndSites(VL':KeyTimestamps,RS':Set{KeyVersion},
     RID:Address,REPLICA-TABLE:ReplicaTable) [label receive-response1] .
-  crl (start to RID:Address)
-< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
-< RID:Address : Replica | gotTxns:(
-< TID:Address : Txn | operations: OPS:OperationList,latest: empty,
-    AS:AttributeSet > ;; TXNS:ConfigList),executing: noActor,1stGetSites:
-    1STGETS:1stGets,AS':AttributeSet >
-    => 
-< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
-< RID:Address : Replica | gotTxns: TXNS:ConfigList,executing:
-< TID:Address : Txn | operations: OPS:OperationList,latest: vl(
-    OPS:OperationList),AS:AttributeSet >,1stGetSites:(1STGETS:1stGets ; 1st(
-    TID:Address,RIDS:AddressSet)),AS':AttributeSet > genGets(OPS:OperationList,
-    RID:Address,TID:Address,REPLICA-TABLE:ReplicaTable)
-    if not write-only(OPS:OperationList)= true /\ RIDS:AddressSet := 1stSites(
-    OPS:OperationList,RID:Address,REPLICA-TABLE:ReplicaTable) [label
-    start-ro-or-rw-txn] .
-  crl (start to RID:Address)
-< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
-< RID:Address : Replica | gotTxns:(
-< TID:Address : Txn | operations: OPS:OperationList,localVars: VARS:LocalVars,
-    txnSQN: TXNSQN:Int,writeSet: WS:Set{KeyValue},version: VERSION:Version,
-    AS:AttributeSet > ;; TXNS:ConfigList),executing: noActor,sqn: SQN:Int,
-    voteSites: VSTS:VoteSites,AS':AttributeSet >
-    => 
-< TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
-< RID:Address : Replica | gotTxns: TXNS:ConfigList,executing:
-< TID:Address : Txn | operations: OPS:OperationList,localVars: VARS:LocalVars,
-    txnSQN: SQN':Int,writeSet: WS':Set{KeyValue},version: < RID:Address,
-    SQN':Int >,AS:AttributeSet >,sqn: SQN':Int,voteSites:(VSTS:VoteSites ;
-    voteSites(TID:Address,RIDS:AddressSet)),AS':AttributeSet > genPuts(
-    OPS:OperationList,RID:Address,TID:Address,SQN':Int,VARS:LocalVars,
-    REPLICA-TABLE:ReplicaTable)
-    if SQN':Int := SQN:Int + 1 /\ write-only(OPS:OperationList)= true /\
-    RIDS:AddressSet := prepareSites(OPS:OperationList,RID:Address,
-    REPLICA-TABLE:ReplicaTable)/\ WS':Set{KeyValue}:= ws(OPS:OperationList,
-    VARS:LocalVars) [label start-wo-txn] .
 endm
 

@@ -1,4 +1,4 @@
----set show advisories off .
+set show advisories off .
 
 load apmaude
 

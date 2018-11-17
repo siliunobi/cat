@@ -16,37 +16,6 @@ mod ROLA-ANALYSIS is
       nbOfOpsPerRoTxn,nbOfOpsPerWoTxn,nbOfOpsPerRwTxn, 
       nbOfServs,nbOfKeys,nbOfRepls) . 
 
-  ---(
-  ops x y z : -> Key .
-  ops tb r1 r2 r3 t1 t2 t3 t4 : -> Address .
-  ops xl yl zl : -> LocalVar .
-
-  eq initConfig = < tb : Table | table: [replicatingSites(x, 1) ;; replicatingSites(y, 2)] > 
-     (start to 1) (start to 2)
-     < 0 : Monitor | clock: 0, log: empty >     
-
-     < 1 : Replica | gotTxns:  (< t3 : Txn | operations: ((xl :=read x) write(x,2) (yl :=read y) write(y,3)), readSet: empty, 
-                                             latest: empty, localVars: (xl |-> [0], yl |-> [0]), txnSQN: 0,
-                                             writeSet: empty, version: eptVersion > ), 
-                      datastore: (version(x,[0],eptTS,empty)), sqn: 1, latestCommit: empty, 
-                      executing: noActor, 
-                      committed: emptyTxnList, aborted: emptyTxnList, votes: noVote,
-                      voteSites: noVS, 
-                       1stGetSites: no1st,
-                       2ndGetSites: no2nd, commitSites: noVS, tsSqn: empty > 
-
-     < 2 : Replica | gotTxns: (< t1 : Txn | operations: ((xl :=read x) write(x,1) (yl :=read y) write(y,1)), readSet: empty, 
-                                             latest: empty, localVars: (xl |-> [0], yl |-> [0]), txnSQN: 0,
-                                             writeSet: empty, version: eptVersion > ), 
-                      datastore: (version(y,[0],eptTS,empty)), sqn: 1, latestCommit: empty, 
-                      executing: noActor, 
-                      committed: emptyTxnList, aborted: emptyTxnList, votes: noVote,
-                      voteSites: noVS, 
-                       1stGetSites: no1st,
-                       2ndGetSites: no2nd, commitSites: noVS, tsSqn: empty > .
-  )
-
-
 endm
 
 ---rew initConfig .
@@ -76,8 +45,8 @@ endm
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not us(LOG:Log) .
 
----search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
-  ---such that not ser(LOG:Log) .
+search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  such that not ser(LOG:Log) .
 
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not sser(LOG:Log) .
@@ -103,5 +72,5 @@ rew sser(
 2 . 1 |-> < 2 |-> 1,2 |-> 4,true,(< k1,< 0,0 > >, < k2,< 0,0 > >),(< k1,< 2,2 > >, < k2,< 2,2 > >) >)) .
 )
 
-q
+---q
 
