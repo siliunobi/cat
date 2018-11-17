@@ -1,5 +1,5 @@
-
 The parameters to run the script are:
+
 1. the folder which contains the source code
 2. the main maude file to run
 3. the property to check
