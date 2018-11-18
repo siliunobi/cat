@@ -1,12 +1,12 @@
-load ramp-faster-aux-mc
+load faster-aux-mc
 
-mod RAMP-F is
+mod FASTER is
   including CLIENT-REPLICA .
   including MESSAGE .
   including REPLICA-TABLE .
   including VERSION-RAMP .
   including VALUES-NAT .
-  including RAMP-F-AUX .
+  including FASTER-AUX .
 
 
   vars RID TID RID' TABLE M : Address . var RIDS : AddressSet .
@@ -221,7 +221,7 @@ mod RAMP-F is
                               1stGetSites: 1STGETS',
                               2ndGetSites: 2NDGETS, AS' >  
      fi) 
-     if RS' := RS, < K,ts2Ver(TS) > /\
+     if RS' := (RS, < K,ts2Ver(TS) >) /\
         VL' := lat(VL,MD,TS) /\
         1STGETS' := remove(TID,RID',1STGETS) /\
         RIDS := 2ndSites(VL',RS',RID,REPLICA-TABLE) . 

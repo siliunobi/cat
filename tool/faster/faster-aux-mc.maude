@@ -1,6 +1,6 @@
-load replica-table
+load replica-table-mc
 
-mod RAMP-F-AUX is
+mod FASTER-AUX is
   including CLIENT-REPLICA .
   including MESSAGE .
   including REPLICA-TABLE .
@@ -254,4 +254,24 @@ mod RAMP-F-AUX is
   eq kver((< K,V >,WS),VERSION) = < K,VERSION >, kver(WS,VERSION) .
   eq kver(empty,VERSION) = empty .
    
+  --- version order
+  op _<_ : Version Version -> Bool .
+  eq < RID,SQN > < < RID',SQN' > =
+       if SQN < SQN'
+         then true
+         else if SQN == SQN' and RID < RID'
+                then true
+                else false
+              fi
+       fi .
+
+  op _in_ : Key Versions -> Bool .
+  eq K in (DS,version(K,V,TS,MD)) = true .
+  eq K in DS = false [owise] .
+
+  op _in_ : Key OperationList -> Bool .
+  eq K in (OPS (X :=read K) OPS') = true .
+  eq K in (OPS write(K,EXPR) OPS') = true .
+  eq K in OPS = false [owise] .
+
 endm

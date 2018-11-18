@@ -1,0 +1,46 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	   Maude 2.7.1 built: Jun 27 2016 16:35:16
+	    Copyright 1997-2016 SRI International
+		   Sun Nov 18 08:52:09 2018
+==========================================
+search [1] in ANALYSIS : init(0, 0, 3, 0, 0, 4, 2, 2, 1) =>! C:Config 
+< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not ser(
+    LOG:Log) = true .
+
+Solution 1 (state 38017)
+states: 38273  rewrites: 1787641 in 3012ms cpu (3026ms real) (593506
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | datastore: (version(k1, [0], eptTS, empty), version(k1, [4],
+    ts(1, 2), k2), version(k1, [4], ts(1, 3), k2), version(k1, [4], ts(2, 2),
+    k2), version(k2, [0], eptTS, empty), version(k2, [2], ts(1, 2), k1),
+    version(k2, [2], ts(1, 3), k1), version(k2, [2], ts(2, 2), k1)),sqn: 3,
+    executing: noActor,committed: (
+< 1 . 1 : Txn | operations: ((k1l :=read k1) write(k1, 4) (k2l :=read k2)
+    write(k2, 2)),localVars: (k1l |-> [0], k2l |-> [0]),latest: (k1 |-> ts(-1,
+    -1), k2 |-> ts(-1, -1)),readSet: (< k1,< 0,0 > >, < k2,< 0,0 > >),writeSet:
+    (< k1,[4] >, < k2,[2] >),version: < 1,2 > > ;; 
+< 1 . 2 : Txn | operations: ((k1l :=read k1) write(k1, 4) (k2l :=read k2)
+    write(k2, 2)),localVars: (k1l |-> [0], k2l |-> [0]),latest: (k1 |-> ts(-1,
+    -1), k2 |-> ts(-1, -1)),readSet: (< k1,< 0,0 > >, < k2,< 0,0 > >),writeSet:
+    (< k1,[4] >, < k2,[2] >),version: < 1,3 > >),gotTxns: emptyTxnList,
+    voteSites: noVS,latestCommit: empty,1stGetSites: no1st,2ndGetSites: no2nd,
+    commitSites: (voteSites(1 . 1, empty) ; voteSites(1 . 2, empty)) > 
+< 2 : Replica | datastore: empty,sqn: 2,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: ((k1l :=read k1) write(k1, 4) (k2l :=read k2)
+    write(k2, 2)),localVars: (k1l |-> [0], k2l |-> [0]),latest: (k1 |-> ts(-1,
+    -1), k2 |-> ts(-1, -1)),readSet: (< k1,< 0,0 > >, < k2,< 0,0 > >),writeSet:
+    (< k1,[4] >, < k2,[2] >),version: < 2,2 > >,gotTxns: emptyTxnList,
+    voteSites: noVS,latestCommit: empty,1stGetSites: no1st,2ndGetSites: no2nd,
+    commitSites: voteSites(2 . 1, empty) > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1) ;; replicatingSites(k2, 1)] >
+M:Address --> 0 . 2
+AS:AttributeSet --> clock: 6
+LOG:Log --> 1 . 1 |-> < 1 |-> 0,1 |-> 2,true,< k1,< 0,0 > >, < k2,< 0,0 > >,<
+    k1,< 1,2 > >, < k2,< 1,2 > > >, 1 . 2 |-> < 1 |-> 3,1 |-> 4,true,< k1,< 0,0
+    > >, < k2,< 0,0 > >,< k1,< 1,3 > >, < k2,< 1,3 > > >, 2 . 1 |-> < 2 |-> 1,2
+    |-> 5,true,< k1,< 0,0 > >, < k2,< 0,0 > >,< k1,< 2,2 > >, < k2,< 2,2 > > >
+Bye.
+Sun Nov 18 08:52:12 CST 2018
