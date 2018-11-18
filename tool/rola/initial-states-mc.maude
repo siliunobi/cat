@@ -149,7 +149,7 @@ mod INITIAL-STATES is
   op $initial : Nat Nat Nat Nat Nat Nat  
                 Nat KeyVars KeyVarSet Nat Config Config -> temp [frozen] .
 
-  vars RTX WTX RWTX ROPS WOPS RWOPS SERS KEYS RF N : Nat .
+  vars RTX WTX RWTX ROPS WOPS RWOPS SERS KEYS RF N CLS : Nat .
   vars C C' : Config .  var K : Key . vars KVARS KVARS' : KeyVars .   
   var KEYREPLICAS : KeyReplicas . var VAR : LocalVar .
   vars KS KS' : KeyVarSet .  vars RID TB TID : Address .
