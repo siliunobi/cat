@@ -8,3 +8,6 @@
 search [1] in ANALYSIS : initConfig =>! C:Config 
 < M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not ser(
     LOG:Log) = true .
+
+Bye.
+Sun Nov 18 16:38:00 CST 2018
