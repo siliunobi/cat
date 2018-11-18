@@ -306,7 +306,10 @@ mod ROLA-AUX is
   eq ts2Ver(ts(RID,SQN)) = < RID,SQN > .
 
   op ver2Ts : Version -> Timestamp .
-  eq ver2Ts(< RID,SQN >) = ts(RID,SQN) . 
+  eq ver2Ts(< RID,SQN >) = ts(RID,SQN) .
+
+  op ver2Ts : Version -> Timestamp .
+  eq ver2Ts(version(K,V,TS,MD)) = TS .  
 
   op kver : Set{KeyValue} Version -> Set{KeyVersion} . 
   eq kver((< K,V >,WS),VERSION) = < K,VERSION >, kver(WS,VERSION) .

@@ -139,7 +139,7 @@ mod RAMP-F is
         RIDS := prepareSites(OPS,RID,REPLICA-TABLE) /\
         WS' := ws(OPS,VARS) .
 
-
+---(
 ***NEW
   rl [receive-prepare] :
      < RID : Replica | datastore: VS,
@@ -295,5 +295,5 @@ mod RAMP-F is
         SQN' := SQN + 1 /\
         RIDS := prepareSites(OPS,RID,REPLICA-TABLE) /\
         WS' := ws(OPS,VARS) .
-
+)
 endm

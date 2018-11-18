@@ -4,13 +4,15 @@ mod ANALYSIS is
   inc INITIAL-STATES .
   inc CONSISTENCY .
 
+---
   --- Init parameters 
-  eq nbOfRoTxns = 0 .  
-  eq nbOfWoTxns = 0 .  
-  eq nbOfRwTxns = 3 .
-  eq nbOfOpsPerRoTxn = 0 .
-  eq nbOfOpsPerWoTxn = 0 .
-  eq nbOfOpsPerRwTxn = 4 .  --- must be even number
+  eq nbOfRoTxns = 1 .  
+  eq nbOfWoTxns = 1 .  
+  eq nbOfRwTxns = 0 .
+  eq nbOfOpsPerRoTxn = 2 .
+  eq nbOfOpsPerWoTxn = 2 .
+  eq nbOfOpsPerRwTxn = 0 .  --- must be even number
+  eq nbOfCls = 0 .
   eq nbOfServs  = 2 .  
   eq nbOfKeys = 2 .  
   eq nbOfRepls = 1 .
@@ -19,10 +21,15 @@ mod ANALYSIS is
   op initConfig : -> Config .
   eq initConfig = init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,
       nbOfOpsPerRoTxn,nbOfOpsPerWoTxn,nbOfOpsPerRwTxn, 
-      nbOfServs,nbOfKeys,nbOfRepls) . 
+      nbOfCls,nbOfServs,nbOfKeys,nbOfRepls) . 
+
 endm
 
-search [1] init(0, 0, 3, 0, 0, 4, 2, 2, 1) =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
-  such that not ser(LOG:Log) .
+
+
+search initConfig =>! C:Config .
+
+search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  such that not ra(LOG:Log) .
 
 q

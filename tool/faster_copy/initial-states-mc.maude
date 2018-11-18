@@ -126,7 +126,8 @@ mod INIT-PARAMETERS is
 
   ops nbOfRoTxns      nbOfWoTxns      nbOfRwTxns
       nbOfOpsPerRoTxn nbOfOpsPerWoTxn nbOfOpsPerRwTxn
-      nbOfServs       nbOfKeys        nbOfRepls : -> Nat .
+      nbOfCls         nbOfServs       nbOfKeys        
+      nbOfRepls : -> Nat .
 
 ---(
   --- Init parameters 
@@ -144,7 +145,6 @@ mod INITIAL-STATES is
 
 
   --- generate "all" initial states with bounded parameters
-  op initConfig : -> Config .
   op init : Nat Nat Nat Nat Nat Nat 
             Nat Nat Nat -> Config [frozen] .
 
@@ -155,7 +155,7 @@ mod INITIAL-STATES is
   op $initial : Nat Nat Nat Nat Nat Nat  
                 Nat KeyVars KeyVarSet Nat Config Config -> temp [frozen] .
 
-  vars RTX WTX RWTX ROPS WOPS RWOPS SERS KEYS RF N : Nat .
+  vars RTX WTX RWTX ROPS WOPS RWOPS SERS KEYS RF N CLS : Nat .
   vars C C' : Config .  var K : Key . vars KVARS KVARS' : KeyVars .   
   var KEYREPLICAS : KeyReplicas . var VAR : LocalVar .
   vars KS KS' : KeyVarSet .  vars RID TB TID : Address .
@@ -356,6 +356,12 @@ mod INITIAL-STATES is
   eq $initial(0,0,0,ROPS,WOPS,RWOPS,0,noKeyVar,KS,RF,null,C) 
   =  initial(0,0,0,ROPS,WOPS,RWOPS,0,0,RF,C) .
 
+
+  op init : Nat Nat Nat Nat Nat Nat 
+            Nat Nat Nat Nat -> Config [frozen] .
+
+  eq init(RTX,WTX,RWTX,ROPS,WOPS,RWOPS,CLS,SERS,KEYS,RF) =
+       init(RTX,WTX,RWTX,ROPS,WOPS,RWOPS,SERS,KEYS,RF) .
 endm
 ---(
 rew init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,

@@ -24,7 +24,7 @@ mod RAMP-F-ANALYSIS is
      (start to 1) (start to 2)
      < 0 : Monitor | clock: 0, log: empty >     
 
-     < 1 : Replica | gotTxns:  (< 1 . 1 : Txn | operations: ((xl :=read x) write(x,2) (yl :=read y) write(y,3)), readSet: empty, 
+     < 1 : Replica | gotTxns:  (< 1 . 1 : Txn | operations: (write(x,2) write(y,3)), readSet: empty, 
                                              latest: empty, localVars: (xl |-> [0], yl |-> [0]),
                                              writeSet: empty, version: eptVersion > ), 
                       datastore: (version(x,[0],eptTS,empty)), sqn: 1, latestCommit: empty, 
@@ -34,7 +34,7 @@ mod RAMP-F-ANALYSIS is
                        1stGetSites: no1st,
                        2ndGetSites: no2nd, commitSites: noVS > 
 
-     < 2 : Replica | gotTxns: (< 2 . 1 : Txn | operations: ((xl :=read x) write(x,1) (yl :=read y) write(y,1)), readSet: empty, 
+     < 2 : Replica | gotTxns: (< 2 . 1 : Txn | operations: ((xl :=read x) (yl :=read y)), readSet: empty, 
                                              latest: empty, localVars: (xl |-> [0], yl |-> [0]),
                                              writeSet: empty, version: eptVersion > ), 
                       datastore: (version(y,[0],eptTS,empty)), sqn: 1, latestCommit: empty, 
@@ -111,3 +111,4 @@ endm
 ---set clear rules off .
 ---rewrite initConfig .
 search initConfig =>! C:Config .
+
