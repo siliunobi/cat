@@ -7,10 +7,11 @@ mod ANALYSIS is
   --- Init parameters 
   eq nbOfRoTxns = 0 .  
   eq nbOfWoTxns = 0 .  
-  eq nbOfRwTxns = 3 .
+  eq nbOfRwTxns = 2 .
   eq nbOfOpsPerRoTxn = 0 .
   eq nbOfOpsPerWoTxn = 0 .
-  eq nbOfOpsPerRwTxn = 4 .  --- must be even number
+  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
+  eq nbOfCls = 2 .
   eq nbOfServs  = 2 .  
   eq nbOfKeys = 2 .  
   eq nbOfRepls = 1 .
@@ -19,10 +20,14 @@ mod ANALYSIS is
   op initConfig : -> Config .
   eq initConfig = init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,
       nbOfOpsPerRoTxn,nbOfOpsPerWoTxn,nbOfOpsPerRwTxn, 
-      nbOfServs,nbOfKeys,nbOfRepls) . 
+      nbOfCls,nbOfServs,nbOfKeys,nbOfRepls) . 
 endm
 
-search [1] init(0, 0, 3, 0, 0, 4, 2, 2, 1) =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   such that not ua(LOG:Log) .
 
+---(
+search [1] init($1, $2, $3, $4, $5, $6, $7, $8, $9) =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  such that not $0(LOG:Log) .
+)
 q

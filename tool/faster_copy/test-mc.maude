@@ -4,7 +4,6 @@ mod ANALYSIS is
   inc INITIAL-STATES .
   inc CONSISTENCY .
 
----
   --- Init parameters 
   eq nbOfRoTxns = 1 .  
   eq nbOfWoTxns = 1 .  
@@ -12,7 +11,7 @@ mod ANALYSIS is
   eq nbOfOpsPerRoTxn = 2 .
   eq nbOfOpsPerWoTxn = 2 .
   eq nbOfOpsPerRwTxn = 0 .  --- must be even number
-  eq nbOfCls = 0 .
+  eq nbOfCls = 2 .
   eq nbOfServs  = 2 .  
   eq nbOfKeys = 2 .  
   eq nbOfRepls = 1 .
@@ -22,14 +21,13 @@ mod ANALYSIS is
   eq initConfig = init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,
       nbOfOpsPerRoTxn,nbOfOpsPerWoTxn,nbOfOpsPerRwTxn, 
       nbOfCls,nbOfServs,nbOfKeys,nbOfRepls) . 
-
 endm
-
-
-
-search initConfig =>! C:Config .
 
 search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   such that not ra(LOG:Log) .
 
+---(
+search [1] init($1, $2, $3, $4, $5, $6, $7, $8, $9) =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  such that not $0(LOG:Log) .
+)
 q

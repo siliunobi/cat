@@ -3,13 +3,35 @@
 		     /||||||||||||||||||\
 	   Maude 2.7.1 built: Jun 27 2016 16:35:16
 	    Copyright 1997-2016 SRI International
-		   Sun Nov 18 10:50:37 2018
+		   Sun Nov 18 13:31:47 2018
 ==========================================
-search [1] in ANALYSIS : init(2, 2, 0, 2, 2, 0, 2, 2, 1) =>! C:Config 
+search [1] in ANALYSIS : initConfig =>! C:Config 
 < M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not ra(
     LOG:Log) = true .
 
-No solution.
-states: 1  rewrites: 122 in 0ms cpu (0ms real) (~ rewrites/second)
+Solution 1 (state 5467)
+states: 5593  rewrites: 245920 in 316ms cpu (317ms real) (778227
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | datastore: (version(k1, [0], eptTS, empty), version(k1, [2],
+    ts(2, 2), k2), version(k2, [0], eptTS, empty), version(k2, [1], ts(2, 2),
+    k1)),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: ((k1l :=read k1) (k2l :=read k2)),localVars: (k1l
+    |-> [0], k2l |-> [1]),latest: (k1 |-> ts(2, 2), k2 |-> ts(-1, -1)),readSet:
+    (< k1,< 0,0 > >, < k2,< 2,2 > >),writeSet: empty,version: eptVersion >,
+    gotTxns: emptyTxnList,voteSites: noVS,latestCommit: (k1 |-> ts(2, 2), k2
+    |-> ts(2, 2)),1stGetSites: no1st,2ndGetSites: no2nd,commitSites: noVS > 
+< 2 : Replica | datastore: empty,sqn: 2,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: (write(k1, 2) write(k2, 1)),localVars: (k1l |-> [
+    0], k2l |-> [0]),latest: empty,readSet: empty,writeSet: (< k1,[2] >, < k2,[
+    1] >),version: < 2,2 > >,gotTxns: emptyTxnList,voteSites: noVS,
+    latestCommit: empty,1stGetSites: no1st,2ndGetSites: no2nd,commitSites:
+    voteSites(2 . 1, empty) > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1) ;; replicatingSites(k2, 1)] >
+M:Address --> 0 . 2
+AS:AttributeSet --> clock: 4
+LOG:Log --> 1 . 1 |-> < 1 |-> 0,1 |-> 3,true,< k1,< 0,0 > >, < k2,< 2,2 > >,
+    empty >, 2 . 1 |-> < 2 |-> 1,2 |-> 2,true,empty,< k1,< 2,2 > >, < k2,< 2,2
+    > > >
 Bye.
-Sun Nov 18 10:50:37 CST 2018
+Sun Nov 18 13:31:47 CST 2018

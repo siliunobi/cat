@@ -7,10 +7,10 @@ mod ANALYSIS is
   --- Init parameters 
   eq nbOfRoTxns = 0 .  
   eq nbOfWoTxns = 0 .  
-  eq nbOfRwTxns = 1 .
+  eq nbOfRwTxns = 3 .
   eq nbOfOpsPerRoTxn = 0 .
   eq nbOfOpsPerWoTxn = 0 .
-  eq nbOfOpsPerRwTxn = 1 .  --- must be even number
+  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
   eq nbOfCls = 2 .
   eq nbOfServs  = 2 .  
   eq nbOfKeys = 2 .  
@@ -24,7 +24,7 @@ mod ANALYSIS is
 endm
 
 search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
-  such that not ra(LOG:Log) .
+  such that not sser(LOG:Log) .
 
 ---(
 search [1] init($1, $2, $3, $4, $5, $6, $7, $8, $9) =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
