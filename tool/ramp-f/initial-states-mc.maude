@@ -349,6 +349,10 @@ mod INITIAL-STATES is
   eq $initial(0,0,0,ROPS,WOPS,RWOPS,0,noKeyVar,KS,RF,null,C) 
   =  initial(0,0,0,ROPS,WOPS,RWOPS,0,0,RF,C) .
 
+
+  op init : Nat Nat Nat Nat Nat Nat 
+            Nat Nat Nat Nat -> Config [frozen] .
+
   eq init(RTX,WTX,RWTX,ROPS,WOPS,RWOPS,CLS,SERS,KEYS,RF) =
        init(RTX,WTX,RWTX,ROPS,WOPS,RWOPS,SERS,KEYS,RF) .
 
