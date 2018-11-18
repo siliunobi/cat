@@ -1,0 +1,480 @@
+load jessy-aux-mc
+
+mod JESSY is
+  including CLIENT-REPLICA .
+  including MESSAGE .
+  including REPLICA-TABLE .
+  including VERSION-JESSY .
+  including VALUES-NAT .
+  including JESSY-AUX .
+
+  vars AS AS' : AttributeSet .
+  vars TID RID RID' TABLE M : Address .
+  vars RIDS DSTXNS GVTXNS RIDS' TIDS : AddressSet .
+  vars TXNS TXNS' TXNS'' : ConfigList .
+  vars C C' C'' : Config .
+  var OPS : OperationList .
+  vars K K' : Key .
+  vars V V' : Value .
+  var X : LocalVar .
+  var VARS : LocalVars .
+  var REPLICA-TABLE : ReplicaTable .
+  vars VERSION VERSION' : Version .
+  vars VTS VTS' VTS'' : VectorTime .
+  vars DS DS' : Datastore .
+  vars VVS VVS' : ValueVersionList .
+  vars SQN SQN' TXNSQN N N' : Nat .
+  var EXPR : Expression .
+  vars KS KS' : KeySet .
+  var TXN : Actor .
+  var LOCKS : Locks .
+  vars VSTS VSTS' VSBS VSBS' ABORTS ABORTS' CSTS CSTS' : VoteSites .
+  vars RIDSS RIDSS' : AddressList .
+  var RT : KeyReplicas .
+  vars VOTES VOTES' : Vote .
+  var FLAG : Bool .
+  vars RECORD RECORD' : Record .
+  vars DV DV' VR VW VW' : DepVector .
+  vars VEC VEC' : Vector .
+  var RS : Set{KeyVersion} .
+  var WS : Set{KeyValue} .
+  var APS : AddressPairs .
+
+  var O@M : Address .  var GT@M : Nat .  var LOG@M : Log .
+  vars VTS1@M VTS2@M : VectorTime . var FLAG@M : Bool . 
+  vars READS@M WRITES@M : Set{KeyVersion} .
+
+
+  --- simply consume "start" if no txn needs to start
+  rl [receiving-start-when-no-txn-to-start] :
+     < RID : Replica | gotTxns: emptyTxnList, AS >
+     (start to RID)
+   =>
+     < RID : Replica | gotTxns: emptyTxnList, AS > .
+
+  --- "gotTxns" abstracts "client" away
+  rl [start-txn] :
+     (start to RID)
+     ---< O@M : Monitor | clock: GT@M, log: LOG@M >
+     < RID : Replica | gotTxns: (< TID : Txn | AS > ;; TXNS), 
+                       executing: null, AS' >
+   =>
+     ---< O@M : Monitor | clock: (GT@M + 1), log: 
+       ---insert(TID,< RID |-> GT@M,empty,false,empty,empty >,LOG@M) >
+     < RID : Replica | gotTxns: TXNS,
+                       executing: < TID : Txn | AS >, AS' > 
+     (execute to RID) .
+
+
+---??? read-own-write needs to update depVec?
+  rl [execute-read-own-write] :
+     (execute to RID)
+     < RID : Replica | executing: < TID : Txn | operations: ((X :=read K) OPS),
+                                                writeSet: (< K,V >, WS),
+                                                localVars: VARS, AS >, AS' >
+   =>
+     < RID : Replica | executing: < TID : Txn | operations: OPS,
+                                                writeSet: (< K,V >, WS),
+                                                localVars: insert(X,V,VARS), AS >, AS' >
+     (execute to RID) .
+
+
+ crl [execute-read-local] :
+     (execute to RID)
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | executing: < TID : Txn | operations: ((X :=read K) OPS),
+                                                writeSet: WS,
+                                                readSet: RS,
+                                                localVars: VARS,
+                                                vecRead: VR, AS >, 
+                       datastore: DS, 
+                       depVector: DV, AS' >
+   =>
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | executing: < TID : Txn | operations: OPS,
+                                                writeSet: WS,
+                                                readSet: (< K,VERSION >,RS),
+                                                localVars: insert(X,V,VARS),
+                                  vecRead: insert(< K,VERSION >,DV[< K,VERSION >],VR), AS >, 
+                       datastore: DS,
+                       depVector: DV, AS' >
+     (execute to RID)
+     if (not (K in WS)) /\ localReplica(K,RID,REPLICA-TABLE) /\
+        < V,VERSION > := choose(K,VR,DV,DS) .
+
+
+ crl [execute-read-remote] :
+     (execute to RID)
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | executing: < TID : Txn | operations: ((X :=read K) OPS),
+                                                writeSet: WS,
+                                                vecRead: VR, AS >, AS' >
+   =>
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | executing: < TID : Txn | operations: (waitRemote(K,X) OPS),
+                                                writeSet: WS,
+                                                vecRead: VR, AS >, AS' >
+     (msg request(K,TID,VR) from RID to RID')
+     if (not (K in WS)) /\ (not localReplica(K,RID,REPLICA-TABLE)) /\
+        RID' := preferredSite(K,REPLICA-TABLE) .  
+  ---??? returns the preferred site of K
+  ---??? or, non-deterministically chose
+  ---??? for untimed version of Jessy, it should be non-deter                                                
+  
+
+  crl [receive-remote-request] :
+      < RID : Replica | datastore: DS,
+                        depVector: DV, AS >
+      (msg request(K,TID,VR) from RID' to RID)
+    =>
+      < RID : Replica | datastore: DS,
+                        depVector: DV, AS >
+      (msg reply(TID,K,< V,VERSION >,DV[< K,VERSION >]) from RID to RID') 
+      if < V,VERSION > := choose(K,VR,DV,DS) .
+
+
+   rl [receive-remote-reply] :
+      < RID : Replica | executing: < TID : Txn | operations: (waitRemote(K,X) OPS),
+                                                 readSet: RS,
+                                                 localVars: VARS,
+                                                 vecRead: VR, AS >, AS' >
+      (msg reply(TID,K,< V,VERSION >,VEC) from RID' to RID)
+    =>
+      < RID : Replica | executing: < TID : Txn | operations: OPS,
+                                                 readSet: (< K,VERSION >,RS),
+                                                 localVars: insert(X,V,VARS),
+                                                 vecRead: insert(< K,VERSION >,VEC,VR), AS >, AS' > 
+      (execute to RID) .
+
+---??? update depVec?
+  rl [execute-write] :
+     (execute to RID)
+     < RID : Replica | executing: < TID : Txn | operations: (write(K,EXPR) OPS),
+                                                localVars: VARS,
+                                                writeSet: WS, AS >, AS' >
+   =>
+     < RID : Replica | executing: < TID : Txn | operations: OPS,
+                                                localVars: VARS,
+                                                writeSet: (< K,eval(EXPR,VARS) >,WS), AS >, AS' > 
+     (execute to RID) .   
+
+
+   rl [commit-read-only-txn] :
+      (execute to RID)
+      ---< O@M : Monitor | clock: GT@M, log: (TID |-> 
+        ---< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >     
+      < RID : Replica | executing: < TID : Txn | operations: nil, 
+                                                 writeSet: empty,
+                                                 readSet: RS,
+                                                 version: VERSION, AS >, 
+                        committed: C, AS' >
+    =>
+      ---< O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+        ---< VTS1@M,insert(RID,GT@M,VTS2@M),true,RS,kver(empty,VERSION) >,LOG@M) >
+      < RID : Replica | executing: null, 
+                        committed: (C < TID : Txn | operations: nil, 
+                                                    writeSet: empty,
+                                                    readSet: RS,
+                                                    version: VERSION, AS >), AS' > 
+      (start to RID) .
+
+
+  crl [prepare] :
+      (execute to RID)
+      < TABLE : Table | table: REPLICA-TABLE >
+      < RID : Replica | executing: < TID : Txn | operations: nil,
+                                                 writeSet: WS,
+                                                 vecRead: VR,
+                                                 vecWrite: VW,
+                                                 txnSQN: TXNSQN,
+                                                 version: VERSION, AS >,
+                        submitted: C,
+                        voteSites: VSTS,
+                        sqn: SQN, AS' >
+    =>
+      < TABLE : Table | table: REPLICA-TABLE >
+      < RID : Replica | executing: null,
+                        submitted: (C < TID : Txn | operations: nil,
+                                                 writeSet: WS,
+                                                 vecRead: VR,
+                                                 vecWrite: VW',
+                                                 txnSQN: (SQN + 1),
+                                                 version: < RID,SQN + 1 >, AS >),
+                        voteSites: (VSTS ; voteSites(TID,RIDS)),
+                        sqn: (SQN + 1), AS' >
+      prepareTxn(< TID : Txn | operations: nil, writeSet: WS,
+                               vecRead: VR, vecWrite: VW',
+                               txnSQN: (SQN + 1), version: < RID,SQN + 1 >, AS >,RIDS,RID)
+---[nd, RID <- start] --- whether or not putting it here determines when next txn starts executing
+                      --- currently, next txn starts executing once prepare phase finishes 
+      if WS =/= empty /\
+         VW' := (vw(max(VR),keys(WS),RID,SQN + 1)) /\
+         RIDS := allPreferredSites(WS,REPLICA-TABLE) /\
+         (not (TID in VSTS)) .  --- unneccessary here but required for untimed version
+
+
+  op prepareTxn : Actor AddressSet Address -> Config .
+  eq prepareTxn(TXN,(RID ; RIDS),RID') =
+       prepareTxn(TXN,RIDS,RID')
+       (msg prepare(TXN) from RID' to RID) .
+  eq prepareTxn(TXN,emptyAddressSet,RID') = null .
+
+
+
+---??? prepare includes the Txn itself
+   rl [receive-prepare] :
+      < RID : Replica | certifying: TXNS,
+                        proxy: APS, AS >
+      (msg prepare(< TID : Txn | vecWrite: VW, AS' >) from RID' to RID)
+    =>
+      (if okToInsert(VW,TXNS)
+        then < RID : Replica | certifying: (TXNS ;; < TID : Txn | vecWrite: VW, AS' >),
+                        proxy: (APS ;; [TID,RID']), AS >
+        else < RID : Replica | certifying: TXNS,
+                               proxy: APS, AS >
+             (msg prepare-reply(TID,false) from RID to RID')
+      fi) .
+
+  op okToInsert : DepVector ConfigList -> Bool .
+  eq okToInsert(VW,TXNS) = true [owise] .
+  eq okToInsert((< K,VERSION' > |-> VEC',VW'),
+       (TXNS ;; < TID : Txn | vecWrite: (< K,VERSION > |-> VEC,VW), AS > ;; TXNS')) 
+     = false .
+       
+
+  rl [ready-to-certify] :
+     < RID : Replica | committed: C,
+                       decided: C',
+                       proxy: (APS ;; [TID,RID']),
+                       certifying: (TXNS ;; < TID : Txn | vecWrite: VW,
+                                                          certified: false, AS' > ;; TXNS'), AS >
+   =>
+     < RID : Replica | committed: C,
+                       decided: C',
+                       proxy: (APS ;; [TID,RID']),
+                       certifying: (TXNS ;; < TID : Txn | vecWrite: VW,
+                                                          certified: true, AS' > ;; TXNS'), AS >
+      (msg prepare-reply(TID,certify(VW,C C')) from RID to RID') .
+ 
+
+ crl [receive-prepare-reply-1] :
+     < RID : Replica | submitted: (C < TID : Txn | operations: nil,
+                                                   writeSet: WS,
+                                                   vecWrite: VW,
+                                                   readSet: RS,
+                                                   version: VERSION, AS >),
+                       committed: C',
+                       aborted: C'',
+                       votes: VOTES,
+                       voteSites: VSTS,
+                       commitSites: CSTS,
+                       abortSites: ABORTS,
+                       datastore: DS,
+                       depVector: DV, AS' >
+     (msg prepare-reply(TID,FLAG) from RID' to RID)
+   =>
+     < RID : Replica | submitted: (C < TID : Txn | operations: nil,
+                                                   writeSet: WS, 
+                                                   vecWrite: VW, 
+                                                   readSet: RS,
+                                                   version: VERSION,AS >),
+                              committed: C',
+                              aborted: C'',
+                              votes: (VOTES ; vote(TID,RID',FLAG)),
+                              voteSites: remove(TID,RID',VSTS),
+                              commitSites: CSTS,
+                              abortSites: ABORTS,
+                              datastore: DS, 
+                              depVector: DV, AS' >
+     if remove(TID,RID',VSTS)[TID] =/= emptyAddressSet .
+
+
+ crl [receive-prepare-reply-2] :
+     ---< O@M : Monitor | clock: GT@M, log: (TID |-> 
+       ---< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | submitted: (C < TID : Txn | operations: nil,
+                                                   writeSet: WS,
+                                                   vecWrite: VW,
+                                                   readSet: RS,
+                                                   version: VERSION, AS >),
+                       committed: C',
+                       aborted: C'',
+                       votes: VOTES,
+                       voteSites: VSTS,
+                       commitSites: CSTS,
+                       abortSites: ABORTS,
+                       datastore: DS,
+                       depVector: DV, AS' >
+     (msg prepare-reply(TID,FLAG) from RID' to RID)
+   =>
+     ---< O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+       ---< VTS1@M,insert(RID,GT@M,VTS2@M),true,RS,kver(WS,VERSION) >,LOG@M) >
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | submitted: C,
+                       committed: (C' < TID : Txn | operations: nil,
+                                                    writeSet: WS,
+                                                    vecWrite: VW,
+                                                    readSet: RS,
+                                                    version: VERSION, AS >),
+                       aborted: C'',
+                       votes: (VOTES ; vote(TID,RID',FLAG)),
+                       voteSites: remove(TID,RID',VSTS), 
+                       commitSites: (CSTS ; voteSites(TID,RIDS \ RID)),
+                       abortSites: ABORTS,
+                       datastore: (DS,update(WS,VW,RID,REPLICA-TABLE)),
+                       depVector: update(VW,RID,REPLICA-TABLE,DV), AS' >
+     commitTxn(TID,RIDS,RID) --- commit phase; commit locally first, and then async with remote replicas
+     (start to RID) 
+     if remove(TID,RID',VSTS)[TID] == emptyAddressSet /\
+        allYes(TID,(VOTES ; vote(TID,RID',FLAG))) /\
+        RIDS := allPreferredSites(WS,REPLICA-TABLE) .
+
+
+
+
+ crl [receive-prepare-reply-3] :
+     ---< O@M : Monitor | clock: GT@M, log: (TID |-> 
+       ---< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | submitted: (C < TID : Txn | operations: nil,
+                                                   writeSet: WS,
+                                                   vecWrite: VW,
+                                                   readSet: RS,
+                                                   version: VERSION, AS >),
+                       committed: C',
+                       aborted: C'',
+                       votes: VOTES,
+                       voteSites: VSTS,
+                       commitSites: CSTS,
+                       abortSites: ABORTS,
+                       datastore: DS,
+                       depVector: DV, AS' >
+     (msg prepare-reply(TID,FLAG) from RID' to RID)
+   =>
+     ---< O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+       ---< VTS1@M,insert(RID,GT@M,VTS2@M),false,RS,kver(WS,VERSION) >,LOG@M) >
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | submitted: C,
+                       committed: C',
+                       aborted: (C'' < TID : Txn | operations: nil,
+                                                   writeSet: WS,
+                                                   vecWrite: VW,
+                                                   readSet: RS,
+                                                   version: VERSION, AS >),
+                       votes: (VOTES ; vote(TID,RID',FLAG)),
+                       voteSites: remove(TID,RID',VSTS),
+                       commitSites: CSTS,
+                       abortSites: (ABORTS ; voteSites(TID,RIDS \ RID)),
+                       datastore: DS,
+                       depVector: DV, AS' >
+     abortTxn(TID,RIDS,RID)  --- abort locally first, and then async with remote replicas
+     (start to RID)
+     if remove(TID,RID',VSTS)[TID] == emptyAddressSet /\
+        (not allYes(TID,(VOTES ; vote(TID,RID',FLAG)))) /\
+        RIDS := allPreferredSites(WS,REPLICA-TABLE) .
+
+
+  op commitTxn : Address AddressSet Address -> Config .
+  eq commitTxn(TID,(RID ; RIDS),RID') = 
+       commitTxn(TID,RIDS,RID') 
+       (msg commit(TID) from RID' to RID) .
+  eq commitTxn(TID,emptyAddressSet,RID') = null .
+
+
+  op abortTxn : Address AddressSet Address -> Config .
+  eq abortTxn(TID,(RID ; RIDS),RID') = 
+       abortTxn(TID,RIDS,RID') 
+       (msg abort(TID) from RID' to RID) .
+  eq abortTxn(TID,emptyAddressSet,RID') = null .
+     
+
+ crl [receive-commit] :
+     ---< O@M : Monitor | clock: GT@M, log: (TID |-> 
+       ---< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | certifying: (TXNS ;; < TID : Txn | writeSet: WS,
+                                                  vecWrite: VW, AS' > ;; TXNS'),
+                       datastore: DS,
+                       depVector: DV,
+                       rmtCommitted: TIDS, 
+                       decided: C, AS >
+     (msg commit(TID) from RID' to RID)
+   =>
+     ---< O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+       ---< VTS1@M,insert(RID,GT@M,VTS2@M),FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | certifying: (TXNS ;; TXNS'),
+                       datastore: (DS,update(WS,VW,RID,REPLICA-TABLE)),
+                       depVector: update(VW,RID,REPLICA-TABLE,DV),
+                       rmtCommitted: (TID ; TIDS),
+                       decided: (C < TID : Txn | writeSet: WS,
+                                                  vecWrite: VW, AS' >), AS >
+     (msg committed(TID) from RID to RID') 
+     if RID' =/= RID .
+
+
+  rl [receive-commit-self] :
+     < RID : Replica | certifying: (TXNS ;; < TID : Txn | AS' > ;; TXNS'), AS >
+     (msg commit(TID) from RID to RID)
+   =>
+     < RID : Replica | certifying: (TXNS ;; TXNS'), AS > .
+
+
+ crl [receive-abort] :
+     ---< O@M : Monitor | clock: GT@M, log: (TID |-> 
+       ---< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < RID : Replica | certifying: (TXNS ;; < TID : Txn | AS' > ;; TXNS'), AS >
+     (msg abort(TID) from RID' to RID)
+   =>
+     ---< O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+       ---< VTS1@M,insert(RID,GT@M,VTS2@M),FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < RID : Replica | certifying: (TXNS ;; TXNS'), AS >
+     (msg aborted(TID) from RID to RID') 
+     if RID' =/= RID .
+
+ crl [receive-abort-not-present] :
+     ---< O@M : Monitor | clock: GT@M, log: (TID |-> 
+       ---< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < RID : Replica | certifying: TXNS, AS >
+     (msg abort(TID) from RID' to RID)
+   =>
+     ---< O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
+       ---< VTS1@M,insert(RID,GT@M,VTS2@M),FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < RID : Replica | certifying: TXNS, AS >
+     (msg aborted(TID) from RID to RID') 
+     if RID' =/= RID /\ not (TID in TXNS) .
+
+  op _in_ : Address ConfigList -> Bool .
+  eq TID in (TXNS ;; < TID : Txn | AS > ;; TXNS') = true .
+  eq TID in TXNS = false [owise] .
+
+
+  rl [receive-abort-self] :
+     < RID : Replica | certifying: (TXNS ;; < TID : Txn | AS' > ;; TXNS'), AS >
+     (msg abort(TID) from RID to RID)
+   =>
+     < RID : Replica | certifying: (TXNS ;; TXNS'), AS > .
+
+ crl [receive-abort-self] :
+     < RID : Replica | certifying: TXNS, AS >
+     (msg abort(TID) from RID to RID)
+   =>
+     < RID : Replica | certifying: TXNS, AS >
+     if not (TID in TXNS) .
+
+
+  rl [receive-committed] :
+     < RID : Replica | commitSites: (CSTS ; voteSites(TID,(RID' ; RIDS))), AS >
+     (msg committed(TID) from RID' to RID)
+   =>
+     < RID : Replica | commitSites: (CSTS ; voteSites(TID,RIDS)), AS > .
+
+
+  rl [receive-aborted] :
+     < RID : Replica | abortSites: (ABORTS ; voteSites(TID,(RID' ; RIDS))), AS >
+     (msg aborted(TID) from RID' to RID)
+   =>
+     < RID : Replica | abortSites: (ABORTS ; voteSites(TID,RIDS)), AS > .
+
+endm 

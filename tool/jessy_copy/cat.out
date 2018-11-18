@@ -1,0 +1,10 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	   Maude 2.7.1 built: Jun 27 2016 16:35:16
+	    Copyright 1997-2016 SRI International
+		   Sun Nov 18 16:27:12 2018
+==========================================
+search [1] in ANALYSIS : initConfig =>! C:Config 
+< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not ser(
+    LOG:Log) = true .
