@@ -10,7 +10,6 @@ else
   echo "Usage: $0 code_folder main_file property config"
   exit
 fi
-
 OUT_FOLDER=`basename $SOURCE_FOLDER`_copy
 mkdir $OUT_FOLDER
 
@@ -30,6 +29,6 @@ rm $CMD_FILE
 rm $CMD_OUT
 
 cp test-mc.maude.original $OUT_FOLDER/test-mc.maude
-java -cp cat.jar edu.uiuc.maude.CatReplaceConfig $OUT_FOLDER test-mc.maude  $PROPERTY $4 $5 $6 $7 $8 $9 ${10} ${11} ${12}
+java -cp cat.jar edu.uiuc.maude.CatReplaceConfig $OUT_FOLDER test-mc.maude  $PROPERTY $4 $5 $6 $7 $8 $9 ${10} ${11} ${12} ${13}
 
 maude $OUT_FOLDER/test-mc.maude > $OUT_FOLDER/cat.out; date >> $OUT_FOLDER/cat.out
