@@ -5,15 +5,10 @@ mod ANALYSIS is
   inc CONSISTENCY .
 
   --- Init parameters 
-  eq nbOfRoTxns = 0 .  
-  eq nbOfWoTxns = 0 .  
-  eq nbOfRwTxns = 3 .
-  eq nbOfOpsPerRoTxn = 0 .
-  eq nbOfOpsPerWoTxn = 0 .
-  eq nbOfOpsPerRwTxn = 4 .  --- must be even number
-  eq nbOfServs  = 2 .  
-  eq nbOfKeys = 2 .  
-  eq nbOfRepls = 1 .
+  eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
+  eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
+  eq nbOfRwTxns = 3 .  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
+  eq nbOfServs  = 2 .  eq nbOfKeys = 2 .  eq nbOfRepls = 1 .
 
 
   op initConfig : -> Config .
@@ -22,7 +17,12 @@ mod ANALYSIS is
       nbOfServs,nbOfKeys,nbOfRepls) . 
 endm
 
+rew initConfig .
+
+search initConfig =>! C:Config .
+
+---
 search [1] init(0, 0, 3, 0, 0, 4, 2, 2, 1) =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
-  such that not ua(LOG:Log) .
+  such that not cs(LOG:Log) .
 
 q

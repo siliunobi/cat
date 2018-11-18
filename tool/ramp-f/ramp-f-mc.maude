@@ -155,7 +155,7 @@ mod RAMP-F is
      (msg prepare-reply(TID,FLAG) from RID' to RID)  --- FLAG is always true in RAMP
    =>
      < TABLE : Table | table: REPLICA-TABLE >
-     if VSTS'[TID] == empty  --- all votes received
+     (if VSTS'[TID] == empty  --- all votes received
        then < RID : Replica | executing: < TID : Txn | operations: OPS, AS >,
                               voteSites: VSTS',
                               sqn: SQN,
@@ -165,7 +165,7 @@ mod RAMP-F is
                               voteSites: VSTS',
                               sqn: SQN,
                               commitSites: CMTS, AS' >
-     fi 
+     fi) 
    if VSTS' := remove(TID,RID',VSTS) /\
       RIDS := prepareSites(OPS,RID,REPLICA-TABLE) .  --- as of now, commitSites == prepareSites
 
@@ -191,7 +191,7 @@ mod RAMP-F is
                        commitSites: CMTS, AS' >
      (msg committed(TID) from RID' to RID)
    =>
-     if CMTS'[TID] == empty  --- all "committed" received
+     (if CMTS'[TID] == empty  --- all "committed" received
        then ---< O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
               ---< VTS1@M,insert(RID,GT@M,VTS2@M),true,RS,kver(WS,VERSION) >,LOG@M) >
             < RID : Replica | executing: noActor,
@@ -207,7 +207,7 @@ mod RAMP-F is
                                                        version: VERSION, AS >,
                               committed: TXNS,
                               commitSites: CMTS', AS' >
-     fi
+     fi)
      if CMTS' := remove(TID,RID',CMTS) .
   
 
@@ -235,7 +235,7 @@ mod RAMP-F is
    =>
      
      < TABLE : Table | table: REPLICA-TABLE >
-     if 1STGETS'[TID] == empty
+     (if 1STGETS'[TID] == empty
        then < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
                                                        readSet: RS',
                                                        localVars: insert(X,V,VARS),  --- useless for read-only txns
@@ -250,8 +250,8 @@ mod RAMP-F is
                                                        latest: VL', AS >,
                               1stGetSites: 1STGETS',
                               2ndGetSites: 2NDGETS, AS' >  
-     fi 
-     if RS' := RS, < K,ts2Ver(TS) > /\
+     fi) 
+     if RS' := (RS, < K,ts2Ver(TS) >) /\
         VL' := lat(VL,MD,TS) /\
         1STGETS' := remove(TID,RID',1STGETS) /\
         RIDS := 2ndSites(VL',RS',RID,REPLICA-TABLE) . 
@@ -292,7 +292,7 @@ mod RAMP-F is
                        voteSites: VSTS, AS' >
    =>
      < TABLE : Table | table: REPLICA-TABLE >
-     if read-only(OPS)
+     (if read-only(OPS)
        then ---< O@M : Monitor | clock: (GT@M + 1), log: (TID |-> 
               ---< VTS1@M,insert(RID,GT@M,VTS2@M),true,RS,kver(WS,VERSION) >,LOG@M) >
             < RID : Replica | executing: noActor,
@@ -319,7 +319,7 @@ mod RAMP-F is
                               sqn: SQN',
                               voteSites: (VSTS ; voteSites(TID,RIDS)), AS' >
             genPuts(OPS,RID,TID,SQN',VARS,REPLICA-TABLE)
-     fi 
+     fi)
      if 1STGETS[TID] == empty /\
         2NDGETS[TID] == empty /\
         SQN' := SQN + 1 /\
@@ -327,3 +327,4 @@ mod RAMP-F is
         WS' := ws(OPS,VARS) .
 
 endm
+

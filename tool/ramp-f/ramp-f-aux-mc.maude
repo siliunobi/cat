@@ -122,7 +122,7 @@ mod RAMP-F-AUX is
   eq ws(nil,VARS) = empty .
 
 
-  op _[_] : VoteSites Address -> AddressSet .
+  op _`[_`] : VoteSites Address -> AddressSet .
   eq (voteSites(TID,RIDS) ; VSTS)[TID] = RIDS . 
 
   op remove : Address Address VoteSites -> VoteSites .
@@ -130,10 +130,10 @@ mod RAMP-F-AUX is
        voteSites(TID,RIDS) ; VSTS .
   eq remove(TID,RID,VSTS) = VSTS [owise] .
 
-  op _[_] : 1stGets Address -> AddressSet .
+  op _`[_`] : 1stGets Address -> AddressSet .
   eq (1st(TID,RIDS) ; 1STGETS)[TID] = RIDS . 
 
-  op _[_] : 2ndGets Address -> AddressSet .
+  op _`[_`] : 2ndGets Address -> AddressSet .
   eq (2nd(TID,RIDS) ; 2NDGETS)[TID] = RIDS . 
 
   op delete : Address 1stGets -> 1stGets .

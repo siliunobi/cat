@@ -36,6 +36,7 @@ fmod ADDRESS is
 
   eq contains(AD1,AD2) = prefix(AD2,sizeof(AD1)) == AD1 and AD1 < AD2 .
 endfm
+
 view Address from TRIV to ADDRESS is sort Elt to Address . endv
 
 fmod DELAY is
@@ -98,18 +99,20 @@ fmod ACTOR-MODEL is
   --- Messages contain an Address,Content pair
   op empty : -> Content .
   op _<-_ : Address Content -> Msg .
-  op [_,_] : Delay Msg -> ScheduleMsg .
-  op {_,_} : Float Msg -> ActiveMsg .
+  op `[_`,_`] : Delay Msg -> ScheduleMsg .
+   
+  op `{_`,_`} : Float Msg -> ActiveMsg .
   --- Location bound schedule message.
-  op [_,_] : Address ScheduleMsg -> LocScheduleMsg .
+  op `[_`,_`] : Address ScheduleMsg -> LocScheduleMsg .
   --- Location bound active message.
-  op {_,_} : Address ActiveMsg -> LocActiveMsg .
+  op `{_`,_`} : Address ActiveMsg -> LocActiveMsg .
   op content : Msg -> Content .
   op recvr   : Msg -> Address .
-
+ 
 *** New
   op msg_from_to_ : Content Address Address -> Msg .
   op _to_         : Content Address         -> Msg .
+
 
   --- Actors:
   op <_:_|_> : Address ActorType AttributeSet -> Actor [format (ni d d d d d d d)] .
@@ -117,7 +120,7 @@ fmod ACTOR-MODEL is
 
   --- Attributes can be used to add user defined data to an actor
   op mt : -> AttributeSet .
-  op _,_ : AttributeSet AttributeSet -> AttributeSet [assoc comm id: mt] .
+  op _`,_ : AttributeSet AttributeSet -> AttributeSet [assoc comm id: mt] .
 
   var A : Address .
   var T : ActorType .
@@ -132,15 +135,16 @@ fmod ACTOR-MODEL is
   eq   recvr(A <- CO) = A .
 
   --- An Actor whose subconfig is an ActorConfig is an InertActor
-  mb < A : T | config: AC, AS > : InertActor .
+  mb (< A : T | config: AC, AS >) : InertActor .
   cmb ACT : InertActor if flatActor(ACT).
-
+  
   eq flatActor(< A : T | config: C, AS >) = false .
   eq flatActor(ACT) = true [owise] .
 
-  eq < A > .new = A .
-  eq < A . N > .next = < A . (N + 1) > .
-  eq < N > .next = < (N + 1) > .
+  eq (< A > .new) = A .
+  eq (< (A . N) > .next) = < (A . (N + 1)) > .
+  eq (< N > .next) = < (N + 1) > .
+  
 endfm
 
 view Order from TRIV to ACTOR-MODEL is
@@ -160,7 +164,7 @@ mod SCHEDULER is
   op  nil : -> ScheduleList .
   op  _;_ : ScheduleList ScheduleList -> ScheduleList [assoc id: nil format(d d n d)] .
 
-  op {_|_} : Float ScheduleList -> Scheduler [format (n d d n d d)] .
+  op `{_|_`} : Float ScheduleList -> Scheduler [format (n d d n d d)] .
   op insert : Scheduler LocScheduleMsg -> Scheduler .
   op insert : ScheduleList LocScheduleMsg -> ScheduleList .
   op insertList : Scheduler ScheduleList -> Scheduler .

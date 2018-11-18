@@ -32,4 +32,4 @@ rm $CMD_OUT
 cp test-mc.maude.original $OUT_FOLDER/test-mc.maude
 java -cp cat.jar edu.uiuc.maude.CatReplaceConfig $OUT_FOLDER test-mc.maude  $PROPERTY $4 $5 $6 $7 $8 $9 ${10} ${11} ${12}
 
-maude $OUT_FOLDER/test-mc.maude > $OUT_FOLDER/cat.out
+maude $OUT_FOLDER/test-mc.maude > $OUT_FOLDER/cat.out; date >> $OUT_FOLDER/cat.out
