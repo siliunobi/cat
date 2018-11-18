@@ -24,7 +24,7 @@ mod ANALYSIS is
 endm
 
 search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
-  such that not sser(LOG:Log) .
+  such that not si(LOG:Log) .
 
 ---(
 search [1] init($1, $2, $3, $4, $5, $6, $7, $8, $9) =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 

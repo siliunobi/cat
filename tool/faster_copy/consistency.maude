@@ -13,15 +13,23 @@ mod CONSISTENCY is
   var KVER : KeyVersion .  var FLAG : Bool .  
   vars T T' T1 T2 T3 T4 T1' T2' T3' : Nat .
 
-
   **********************
   *** Read Committed ***
+  op rc : Log -> Bool .
+  eq rc((TID1 |-> < VT1,VT2,true,(< X,V >,RS),WS >,
+         TID2 |-> < VT3,VT4,false,RS',(< X,V >,WS') >, LOG)) = false .  
+ ceq rc((TID1 |-> < VT1,VT2,true,(< X,V >,RS),WS >, 
+         TID2 |-> < VT3,VT4,true,RS',(< X,V >,< X,V' >,WS') >,
+         LOG)) = false if V < V' . 
+  eq rc(LOG) = true [owise] .
 
+---(
   op abortedRead : Log -> Bool .
   eq abortedRead((TID1 |-> < VT1,VT2,true,(< X,V >,RS),WS >, 
        TID2 |-> < VT3,VT4,false,RS',(< X,V >,WS') >, LOG)) = true .  
   eq abortedRead(LOG) = false [owise] .
 
+---
   op uncommittedRead : Log -> Bool .
  ceq uncommittedRead((TID1 |-> < VT1,VT2,true,(< X,V >,RS),WS >,
       LOG)) = true if noMatch(< X,V >,LOG) .   
@@ -34,8 +42,8 @@ mod CONSISTENCY is
 --- ROLA dft version
   eq noMatch(< X,< 0,0 > >,LOG) = false .  
 
-  op rc : Log -> Bool .
   eq rc(LOG) = not abortedRead(LOG) and not uncommittedRead(LOG) .
+)
 
   **********************
   *** Read Atomicity ***

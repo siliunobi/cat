@@ -5,12 +5,12 @@ mod ANALYSIS is
   inc CONSISTENCY .
 
   --- Init parameters 
-  eq nbOfRoTxns = 1 .  
-  eq nbOfWoTxns = 1 .  
-  eq nbOfRwTxns = 0 .
-  eq nbOfOpsPerRoTxn = 2 .
-  eq nbOfOpsPerWoTxn = 2 .
-  eq nbOfOpsPerRwTxn = 0 .  --- must be even number
+  eq nbOfRoTxns = 0 .  
+  eq nbOfWoTxns = 0 .  
+  eq nbOfRwTxns = 2 .
+  eq nbOfOpsPerRoTxn = 0 .
+  eq nbOfOpsPerWoTxn = 0 .
+  eq nbOfOpsPerRwTxn = 4 .  --- must be even number
   eq nbOfCls = 2 .
   eq nbOfServs  = 2 .  
   eq nbOfKeys = 2 .  

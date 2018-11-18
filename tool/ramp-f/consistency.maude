@@ -13,15 +13,23 @@ mod CONSISTENCY is
   var KVER : KeyVersion .  var FLAG : Bool .  
   vars T T' T1 T2 T3 T4 T1' T2' T3' : Nat .
 
-
   **********************
   *** Read Committed ***
+  op rc : Log -> Bool .
+  eq rc((TID1 |-> < VT1,VT2,true,(< X,V >,RS),WS >,
+         TID2 |-> < VT3,VT4,false,RS',(< X,V >,WS') >, LOG)) = false .  
+ ceq rc((TID1 |-> < VT1,VT2,true,(< X,V >,RS),WS >, 
+         TID2 |-> < VT3,VT4,true,RS',(< X,V >,< X,V' >,WS') >,
+         LOG)) = false if V < V' . 
+  eq rc(LOG) = true [owise] .
 
+---(
   op abortedRead : Log -> Bool .
   eq abortedRead((TID1 |-> < VT1,VT2,true,(< X,V >,RS),WS >, 
        TID2 |-> < VT3,VT4,false,RS',(< X,V >,WS') >, LOG)) = true .  
   eq abortedRead(LOG) = false [owise] .
 
+---
   op uncommittedRead : Log -> Bool .
  ceq uncommittedRead((TID1 |-> < VT1,VT2,true,(< X,V >,RS),WS >,
       LOG)) = true if noMatch(< X,V >,LOG) .   
@@ -34,8 +42,8 @@ mod CONSISTENCY is
 --- ROLA dft version
   eq noMatch(< X,< 0,0 > >,LOG) = false .  
 
-  op rc : Log -> Bool .
   eq rc(LOG) = not abortedRead(LOG) and not uncommittedRead(LOG) .
+)
 
   **********************
   *** Read Atomicity ***
@@ -77,7 +85,12 @@ mod CONSISTENCY is
       TID3 |-> < RID3 |-> T3,(RID3 |-> T',VT3),true,RS3,
       (< X,V' >,WS3) >,
       LOG)) = true if V =/= V' /\ T' < T1 /\ T' > T .
+ ceq notSnapshotRead((
+       TID1 |-> < RID1 |-> T1,VT1,true,(< X,V >,RS1),WS1 >, 
+       TID2 |-> < RID2 |-> T2,(RID2 |-> T,VT2),true,RS2,(< X,V >,WS2) >,
+       LOG)) = true if T1 < T .
  eq notSnapshotRead(LOG) = false [owise] .
+
 
   op wwConflict : Log -> Bool .
  ceq wwConflict((TID1 |-> < RID |-> T1,(RID |-> T2,VT2),true,RS,
@@ -98,6 +111,10 @@ mod CONSISTENCY is
       TID2 |-> < VT3,(RID1 |-> T2,VT4),true,RS2,(< X,V >,WS2) >,
       TID3 |-> < VT5,(RID1 |-> T3,VT6),true,RS3,(< X,V' >,WS3) >, 
         LOG)) = true if V =/= V' /\ T3 < T /\ T3 > T2 .
+ ceq notSiteSnapshotRead((
+       TID1 |-> < RID1 |-> T,VT1,true,(< X,V >,RS1),WS1 >, 
+       TID2 |-> < VT,(RID1 |-> T2,VT2),true,RS2,(< X,V >,WS2) >,
+       LOG)) = true if T < T2 . 
   eq notSiteSnapshotRead(LOG) = false [owise] .
 
   op someWhereConflict : Log -> Bool .
