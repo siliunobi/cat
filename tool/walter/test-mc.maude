@@ -5,20 +5,20 @@ mod WALTER-ANALYSIS is
   inc CONSISTENCY .
 
   --- Init parameters 
-  eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
-  eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
-  eq nbOfRwTxns = 2 .  eq nbOfOpsPerRwTxn = 4 .  --- must be even number
+  eq nbOfRoTxns = 1 .  eq nbOfOpsPerRoTxn = 1 .
+  eq nbOfWoTxns = 1 .  eq nbOfOpsPerWoTxn = 1 .
+  eq nbOfRwTxns = 0 .  eq nbOfOpsPerRwTxn = 0 .  --- must be even number
   eq nbOfServs  = 2 .  eq nbOfKeys = 2 .  eq nbOfRepls = 2 .
 
 
   op initConfig : -> Config .
----(
+---
   eq initConfig = init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,
       nbOfOpsPerRoTxn,nbOfOpsPerWoTxn,nbOfOpsPerRwTxn, 
       nbOfServs,nbOfKeys,nbOfRepls) . 
-)
 
-  ---
+
+  ---(
     
   ops x y : -> Key [ctor] .
   ops xl yl : -> LocalVar [ctor] .
@@ -56,12 +56,12 @@ eq initConfig = < 0 . 1 : Table | table: [replicatingSites(x, 1 ;; 2) ;; replica
                       recDurableTxns: noDT, votes: noVote,
                       voteSites: noVS, abortSites: noVS,
                       rmtCommitted: emptyAddressSet > .
-  
+  )
 
 endm
 
-rew initConfig .
----search initConfig =>! C:Config .
+---rew initConfig .
+search initConfig =>! C:Config .
 
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not rc(LOG:Log) .

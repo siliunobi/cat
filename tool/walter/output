@@ -1,0 +1,2089 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	   Maude 2.7.1 built: Jun 27 2016 16:35:16
+	    Copyright 1997-2016 SRI International
+		   Mon Nov 19 14:51:08 2018
+==========================================
+search in WALTER-ANALYSIS : initConfig =>! C:Config .
+
+Solution 1 (state 37371)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4485ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: (
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 1 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >),aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 2, k1, 1 ; 1),vsbSites:
+    voteSites(1 . 2, 1 ; 2),dsTxns: 1 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 2, 1, empty) ; propagatedTxns(1 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 2, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 2,
+    1, empty) ; propagatedTxns(1 . 2, 1, empty)),recDurableTxns: (durableTxns(1
+    . 2) ; nonDurableTxns(1 . 2, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 2 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 2 (state 37372)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4485ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: (
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 1 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >),aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 2, k1, 1 ; 2),vsbSites:
+    voteSites(1 . 2, 1 ; 2),dsTxns: 1 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 2, 1, empty) ; propagatedTxns(1 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 2, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 2,
+    1, empty) ; propagatedTxns(1 . 2, 1, empty)),recDurableTxns: (durableTxns(1
+    . 2) ; nonDurableTxns(1 . 2, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 2 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 3 (state 37373)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4485ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: (
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 1 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >),aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 2, k1, 2 ; 2),vsbSites:
+    voteSites(1 . 2, 1 ; 2),dsTxns: 1 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 2, 1, empty) ; propagatedTxns(1 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 2, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 2,
+    1, empty) ; propagatedTxns(1 . 2, 1, empty)),recDurableTxns: (durableTxns(1
+    . 2) ; nonDurableTxns(1 . 2, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 2 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 4 (state 37374)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4485ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: (
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 1 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >),aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 2, k2, 1 ; 1),vsbSites:
+    voteSites(1 . 2, 1 ; 2),dsTxns: 1 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 2, 1, empty) ; propagatedTxns(1 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 2, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 2,
+    1, empty) ; propagatedTxns(1 . 2, 1, empty)),recDurableTxns: (durableTxns(1
+    . 2) ; nonDurableTxns(1 . 2, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 2 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 5 (state 37375)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4485ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: (
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 1 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >),aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 2, k2, 1 ; 2),vsbSites:
+    voteSites(1 . 2, 1 ; 2),dsTxns: 1 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 2, 1, empty) ; propagatedTxns(1 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 2, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 2,
+    1, empty) ; propagatedTxns(1 . 2, 1, empty)),recDurableTxns: (durableTxns(1
+    . 2) ; nonDurableTxns(1 . 2, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 2 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 6 (state 37376)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4485ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: (
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 1 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >),aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 2, k2, 2 ; 2),vsbSites:
+    voteSites(1 . 2, 1 ; 2),dsTxns: 1 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 2, 1, empty) ; propagatedTxns(1 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 2, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 2,
+    1, empty) ; propagatedTxns(1 . 2, 1, empty)),recDurableTxns: (durableTxns(1
+    . 2) ; nonDurableTxns(1 . 2, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 2 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 7 (state 37377)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4486ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k1, 1 ; 1),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 8 (state 37378)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4486ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k1, 1 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 9 (state 37379)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4486ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k1, 2 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 10 (state 37380)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4486ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k1, 1 ; 1),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 1,1 > >,writeSet: empty,
+    localVars: (k1l |-> [1]),startVTS: (1 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 11 (state 37381)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4486ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k1, 1 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 1,1 > >,writeSet: empty,
+    localVars: (k1l |-> [1]),startVTS: (1 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 12 (state 37382)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4486ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k1, 2 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 1,1 > >,writeSet: empty,
+    localVars: (k1l |-> [1]),startVTS: (1 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 13 (state 37383)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4486ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k2, 1 ; 1),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 14 (state 37384)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4486ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k2, 1 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 15 (state 37385)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4486ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k2, 2 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 16 (state 37386)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4486ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k2, 1 ; 1),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: (1 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 17 (state 37387)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4487ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k2, 1 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: (1 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 18 (state 37388)
+states: 37983  rewrites: 2149776 in 4488ms cpu (4487ms real) (479005
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k2, 2 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: (1 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 19 (state 37763)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4508ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: (
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 1 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >),aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 2, k1, 1 ; 1),vsbSites:
+    voteSites(1 . 2, 1 ; 2),dsTxns: 1 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 2, 1, empty) ; propagatedTxns(1 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 2, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 2,
+    1, empty) ; propagatedTxns(1 . 2, 1, empty)),recDurableTxns: (durableTxns(1
+    . 2) ; nonDurableTxns(1 . 2, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 2 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 20 (state 37764)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4509ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: (
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 1 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >),aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 2, k1, 1 ; 2),vsbSites:
+    voteSites(1 . 2, 1 ; 2),dsTxns: 1 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 2, 1, empty) ; propagatedTxns(1 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 2, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 2,
+    1, empty) ; propagatedTxns(1 . 2, 1, empty)),recDurableTxns: (durableTxns(1
+    . 2) ; nonDurableTxns(1 . 2, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 2 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 21 (state 37765)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4509ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: (
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 1 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >),aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 2, k1, 2 ; 2),vsbSites:
+    voteSites(1 . 2, 1 ; 2),dsTxns: 1 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 2, 1, empty) ; propagatedTxns(1 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 2, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 2,
+    1, empty) ; propagatedTxns(1 . 2, 1, empty)),recDurableTxns: (durableTxns(1
+    . 2) ; nonDurableTxns(1 . 2, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 2 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 22 (state 37766)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4509ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: (
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 1 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >),aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 2, k2, 1 ; 1),vsbSites:
+    voteSites(1 . 2, 1 ; 2),dsTxns: 1 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 2, 1, empty) ; propagatedTxns(1 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 2, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 2,
+    1, empty) ; propagatedTxns(1 . 2, 1, empty)),recDurableTxns: (durableTxns(1
+    . 2) ; nonDurableTxns(1 . 2, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 2 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 23 (state 37767)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4509ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: (
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 1 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >),aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 2, k2, 1 ; 2),vsbSites:
+    voteSites(1 . 2, 1 ; 2),dsTxns: 1 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 2, 1, empty) ; propagatedTxns(1 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 2, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 2,
+    1, empty) ; propagatedTxns(1 . 2, 1, empty)),recDurableTxns: (durableTxns(1
+    . 2) ; nonDurableTxns(1 . 2, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 2 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 24 (state 37768)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4509ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: (
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 1 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >),aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 2, k2, 2 ; 2),vsbSites:
+    voteSites(1 . 2, 1 ; 2),dsTxns: 1 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 2, 1, empty) ; propagatedTxns(1 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 2, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 2,
+    1, empty) ; propagatedTxns(1 . 2, 1, empty)),recDurableTxns: (durableTxns(1
+    . 2) ; nonDurableTxns(1 . 2, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 2 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 25 (state 37769)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4509ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k1, 1 ; 1),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 26 (state 37770)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4509ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k1, 1 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 27 (state 37771)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4509ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k1, 2 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 28 (state 37772)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4509ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k1, 1 ; 1),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: (1 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 29 (state 37773)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4509ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k1, 1 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: (1 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 30 (state 37774)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4510ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k1, 2 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 1,1 > > < [1],< 1,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: (1 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 31 (state 37775)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4510ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k2, 1 ; 1),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 32 (state 37776)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4510ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k2, 1 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 33 (state 37777)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4510ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k2, 2 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 34 (state 37778)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4510ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k2, 1 ; 1),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 1,1 > >,writeSet: empty,
+    localVars: (k2l |-> [1]),startVTS: (1 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 35 (state 37779)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4510ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k2, 1 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 1,1 > >,writeSet: empty,
+    localVars: (k2l |-> [1]),startVTS: (1 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 36 (state 37780)
+states: 38101  rewrites: 2157948 in 4512ms cpu (4510ms real) (478268
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > >),sqn: 1,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 1,1 > >,aborted:
+    emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(1 . 1, k2, 2 ; 2),vsbSites:
+    voteSites(1 . 1, 1 ; 2),dsTxns: 1 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(1 . 1, 1, empty) ; propagatedTxns(1 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(1 . 1, 1),votes: noVote,voteSites: noVS,
+    abortSites: noVS,rmtCommitted: emptyAddressSet > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 1,1 > > < [1],< 1,1 > >),sqn: 0,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 1,1 > >,writeSet: empty,
+    localVars: (k2l |-> [1]),startVTS: (1 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (1 |-> 1),gotVTS: (1 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(1 . 1,
+    1, empty) ; propagatedTxns(1 . 1, 1, empty)),recDurableTxns: (durableTxns(1
+    . 1) ; nonDurableTxns(1 . 1, 1)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 1 . 1 > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 37 (state 38141)
+states: 38177  rewrites: 2163354 in 4528ms cpu (4528ms real) (477772
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k1, 1 ; 1),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 38 (state 38142)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4528ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k1, 1 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 39 (state 38143)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4528ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k1, 2 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 40 (state 38144)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4528ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 2,1 > >,writeSet: empty,
+    localVars: (k1l |-> [1]),startVTS: (2 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k1, 1 ; 1),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 41 (state 38145)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4528ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 2,1 > >,writeSet: empty,
+    localVars: (k1l |-> [1]),startVTS: (2 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k1, 1 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 42 (state 38146)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4529ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 2,1 > >,writeSet: empty,
+    localVars: (k1l |-> [1]),startVTS: (2 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k1, 2 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 43 (state 38147)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4529ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k2, 1 ; 1),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 44 (state 38148)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4529ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k2, 1 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 45 (state 38149)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4529ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k2, 2 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 46 (state 38150)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4529ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: (2 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k2, 1 ; 1),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 47 (state 38151)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4529ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: (2 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k2, 1 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 48 (state 38152)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4530ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: (2 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k2, 2 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 49 (state 38153)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4530ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 2,
+    1, empty) ; propagatedTxns(2 . 2, 1, empty)),recDurableTxns: (durableTxns(2
+    . 2) ; nonDurableTxns(2 . 2, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 2 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: (
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 2 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >),aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 2, k1, 1 ; 1),vsbSites:
+    voteSites(2 . 2, 1 ; 2),dsTxns: 2 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 2, 1, empty) ; propagatedTxns(2 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 2, 2),votes: vote(2 . 2, 1, true),
+    voteSites: voteSites(2 . 2, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 50 (state 38154)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4530ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 2,
+    1, empty) ; propagatedTxns(2 . 2, 1, empty)),recDurableTxns: (durableTxns(2
+    . 2) ; nonDurableTxns(2 . 2, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 2 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: (
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 2 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >),aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 2, k1, 1 ; 2),vsbSites:
+    voteSites(2 . 2, 1 ; 2),dsTxns: 2 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 2, 1, empty) ; propagatedTxns(2 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 2, 2),votes: vote(2 . 2, 1, true),
+    voteSites: voteSites(2 . 2, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 51 (state 38155)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4530ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 2,
+    1, empty) ; propagatedTxns(2 . 2, 1, empty)),recDurableTxns: (durableTxns(2
+    . 2) ; nonDurableTxns(2 . 2, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 2 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: (
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 2 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >),aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 2, k1, 2 ; 2),vsbSites:
+    voteSites(2 . 2, 1 ; 2),dsTxns: 2 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 2, 1, empty) ; propagatedTxns(2 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 2, 2),votes: vote(2 . 2, 1, true),
+    voteSites: voteSites(2 . 2, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 52 (state 38156)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4530ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 2,
+    1, empty) ; propagatedTxns(2 . 2, 1, empty)),recDurableTxns: (durableTxns(2
+    . 2) ; nonDurableTxns(2 . 2, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 2 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: (
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 2 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >),aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 2, k2, 1 ; 1),vsbSites:
+    voteSites(2 . 2, 1 ; 2),dsTxns: 2 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 2, 1, empty) ; propagatedTxns(2 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 2, 2),votes: vote(2 . 2, 1, true),
+    voteSites: voteSites(2 . 2, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 53 (state 38157)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4530ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 2,
+    1, empty) ; propagatedTxns(2 . 2, 1, empty)),recDurableTxns: (durableTxns(2
+    . 2) ; nonDurableTxns(2 . 2, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 2 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: (
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 2 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >),aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 2, k2, 1 ; 2),vsbSites:
+    voteSites(2 . 2, 1 ; 2),dsTxns: 2 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 2, 1, empty) ; propagatedTxns(2 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 2, 2),votes: vote(2 . 2, 1, true),
+    voteSites: voteSites(2 . 2, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 54 (state 38158)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4530ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 2,
+    1, empty) ; propagatedTxns(2 . 2, 1, empty)),recDurableTxns: (durableTxns(2
+    . 2) ; nonDurableTxns(2 . 2, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 2 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: (
+< 2 . 1 : Txn | operations: nil,readSet: < k1,< 0,0 > >,writeSet: empty,
+    localVars: (k1l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 2 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >),aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 2, k2, 2 ; 2),vsbSites:
+    voteSites(2 . 2, 1 ; 2),dsTxns: 2 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 2, 1, empty) ; propagatedTxns(2 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 2, 2),votes: vote(2 . 2, 1, true),
+    voteSites: voteSites(2 . 2, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 55 (state 38159)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4530ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k1, 1 ; 1),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 56 (state 38160)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4530ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k1, 1 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 57 (state 38161)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4530ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k1, 2 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 58 (state 38162)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4531ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: (2 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k1, 1 ; 1),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 59 (state 38163)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4531ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: (2 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k1, 1 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 60 (state 38164)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4531ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: (2 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k1, 2 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 61 (state 38165)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4531ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k2, 1 ; 1),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 62 (state 38166)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4531ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k2, 1 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 63 (state 38167)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4531ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion >,
+    aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k2, 2 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 64 (state 38168)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4531ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 2,1 > >,writeSet: empty,
+    localVars: (k2l |-> [1]),startVTS: (2 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k2, 1 ; 1),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 65 (state 38169)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4531ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 2,1 > >,writeSet: empty,
+    localVars: (k2l |-> [1]),startVTS: (2 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k2, 1 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 66 (state 38170)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4531ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed: 
+< 1 . 1 : Txn | operations: nil,readSet: < k2,< 2,1 > >,writeSet: empty,
+    localVars: (k2l |-> [1]),startVTS: (2 |-> 1),txnSQN: 0,version: eptVersion
+    >,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked:
+    empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 1,
+    1, empty) ; propagatedTxns(2 . 1, 1, empty)),recDurableTxns: (durableTxns(2
+    . 1) ; nonDurableTxns(2 . 1, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 1 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: 
+< 2 . 1 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >,aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 1, k2, 2 ; 2),vsbSites:
+    voteSites(2 . 1, 1 ; 2),dsTxns: 2 . 1,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 1, 1, empty) ; propagatedTxns(2 . 1, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 1, 2),votes: vote(2 . 1, 1, true),
+    voteSites: voteSites(2 . 1, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 67 (state 38171)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4531ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 2,
+    1, empty) ; propagatedTxns(2 . 2, 1, empty)),recDurableTxns: (durableTxns(2
+    . 2) ; nonDurableTxns(2 . 2, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 2 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: (
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 2 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >),aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 2, k1, 1 ; 1),vsbSites:
+    voteSites(2 . 2, 1 ; 2),dsTxns: 2 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 2, 1, empty) ; propagatedTxns(2 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 2, 2),votes: vote(2 . 2, 1, true),
+    voteSites: voteSites(2 . 2, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 68 (state 38172)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4532ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 2,
+    1, empty) ; propagatedTxns(2 . 2, 1, empty)),recDurableTxns: (durableTxns(2
+    . 2) ; nonDurableTxns(2 . 2, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 2 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: (
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 2 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >),aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 2, k1, 1 ; 2),vsbSites:
+    voteSites(2 . 2, 1 ; 2),dsTxns: 2 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 2, 1, empty) ; propagatedTxns(2 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 2, 2),votes: vote(2 . 2, 1, true),
+    voteSites: voteSites(2 . 2, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 69 (state 38173)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4532ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > > < [1],< 2,1 >
+    >, k2 |-> < [0],< 0,0 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 2,
+    1, empty) ; propagatedTxns(2 . 2, 1, empty)),recDurableTxns: (durableTxns(2
+    . 2) ; nonDurableTxns(2 . 2, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 2 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > > < [1],< 2,1 > >, k2 |-> < [0],
+    < 0,0 > >),sqn: 1,executing: noActor,committed: (
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 2 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k1,[1] >,localVars:
+    (k1l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >),aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 2, k1, 2 ; 2),vsbSites:
+    voteSites(2 . 2, 1 ; 2),dsTxns: 2 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 2, 1, empty) ; propagatedTxns(2 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 2, 2),votes: vote(2 . 2, 1, true),
+    voteSites: voteSites(2 . 2, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 70 (state 38174)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4532ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 2,
+    1, empty) ; propagatedTxns(2 . 2, 1, empty)),recDurableTxns: (durableTxns(2
+    . 2) ; nonDurableTxns(2 . 2, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 2 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: (
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 2 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >),aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 2, k2, 1 ; 1),vsbSites:
+    voteSites(2 . 2, 1 ; 2),dsTxns: 2 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 2, 1, empty) ; propagatedTxns(2 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 2, 2),votes: vote(2 . 2, 1, true),
+    voteSites: voteSites(2 . 2, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 71 (state 38175)
+states: 38177  rewrites: 2163354 in 4532ms cpu (4532ms real) (477350
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 2,
+    1, empty) ; propagatedTxns(2 . 2, 1, empty)),recDurableTxns: (durableTxns(2
+    . 2) ; nonDurableTxns(2 . 2, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 2 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: (
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 2 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >),aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 2, k2, 1 ; 2),vsbSites:
+    voteSites(2 . 2, 1 ; 2),dsTxns: 2 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 2, 1, empty) ; propagatedTxns(2 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 2, 2),votes: vote(2 . 2, 1, true),
+    voteSites: voteSites(2 . 2, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+Solution 72 (state 38176)
+states: 38177  rewrites: 2163354 in 4536ms cpu (4532ms real) (476929
+    rewrites/second)
+C:Config --> 
+< 1 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > > < [1],< 2,1 > >),sqn: 0,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |->
+    1),locked: empty,gotTxns: emptyTxnList,dsSites: noPS,vsbSites: noVS,dsTxns:
+    emptyAddressSet,gvTxns: emptyAddressSet,recPropTxns: (propagatedTxns(2 . 2,
+    1, empty) ; propagatedTxns(2 . 2, 1, empty)),recDurableTxns: (durableTxns(2
+    . 2) ; nonDurableTxns(2 . 2, 2)),votes: noVote,voteSites: noVS,abortSites:
+    noVS,rmtCommitted: 2 . 2 > 
+< 2 : Replica | history: (k1 |-> < [0],< 0,0 > >, k2 |-> < [0],< 0,0 > > < [1],
+    < 2,1 > >),sqn: 1,executing: noActor,committed: (
+< 2 . 1 : Txn | operations: nil,readSet: < k2,< 0,0 > >,writeSet: empty,
+    localVars: (k2l |-> [0]),startVTS: empty,txnSQN: 0,version: eptVersion > ;;
+    
+< 2 . 2 : Txn | operations: nil,readSet: empty,writeSet: < k2,[1] >,localVars:
+    (k2l |-> [0]),startVTS: empty,txnSQN: 1,version: < 2,1 > >),aborted:
+    emptyTxnList,committedVTS: (2 |-> 1),gotVTS: (2 |-> 1),locked: empty,
+    gotTxns: emptyTxnList,dsSites: propagateSites(2 . 2, k2, 2 ; 2),vsbSites:
+    voteSites(2 . 2, 1 ; 2),dsTxns: 2 . 2,gvTxns: emptyAddressSet,recPropTxns:
+    (propagatedTxns(2 . 2, 1, empty) ; propagatedTxns(2 . 2, 1, empty)),
+    recDurableTxns: nonDurableTxns(2 . 2, 2),votes: vote(2 . 2, 1, true),
+    voteSites: voteSites(2 . 2, emptyAddressSet),abortSites: noVS,rmtCommitted:
+    emptyAddressSet > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 1 ;; 2) ;; replicatingSites(k2,
+    1 ;; 2)] > 
+< 0 . 2 : Monitor | log: empty,clock: 0 >
+
+No more solutions.
+states: 38177  rewrites: 2163354 in 4536ms cpu (4533ms real) (476929
+    rewrites/second)
+Bye.
