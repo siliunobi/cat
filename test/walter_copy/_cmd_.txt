@@ -1,0 +1,5 @@
+load automonitor.maude
+load walter-mc.maude
+(monitor WALTER .)
+(show module WALTER .)
+quit

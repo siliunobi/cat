@@ -1,0 +1,33 @@
+load consistency
+
+mod ANALYSIS is
+  inc INITIAL-STATES .
+  inc CONSISTENCY .
+
+  --- Init parameters 
+  eq nbOfRoTxns = ${1} .  
+  eq nbOfWoTxns = ${2} .  
+  eq nbOfRwTxns = ${3} .
+  eq nbOfOpsPerRoTxn = ${4} .
+  eq nbOfOpsPerWoTxn = ${5} .
+  eq nbOfOpsPerRwTxn = ${6} .  --- must be even number
+  eq nbOfCls = ${7} .
+  eq nbOfServs  = ${8} .  
+  eq nbOfKeys = ${9} .  
+  eq nbOfRepls = ${10} .
+
+
+  op initConfig : -> Config .
+  eq initConfig = init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,
+      nbOfOpsPerRoTxn,nbOfOpsPerWoTxn,nbOfOpsPerRwTxn, 
+      nbOfCls,nbOfServs,nbOfKeys,nbOfRepls) . 
+endm
+
+search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  such that not ${0}(LOG:Log) .
+
+---(
+search [1] init($1, $2, $3, $4, $5, $6, $7, $8, $9) =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  such that not $0(LOG:Log) .
+)
+q

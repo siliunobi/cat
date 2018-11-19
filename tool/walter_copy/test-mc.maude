@@ -1,0 +1,119 @@
+load consistency
+
+mod WALTER-ANALYSIS is
+  inc INITIAL-STATES .
+  inc CONSISTENCY .
+
+  --- Init parameters 
+  eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
+  eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
+  eq nbOfRwTxns = 2 .  eq nbOfOpsPerRwTxn = 4 .  --- must be even number
+  eq nbOfServs  = 2 .  eq nbOfKeys = 2 .  eq nbOfRepls = 2 .
+
+
+  op initConfig : -> Config .
+---(
+  eq initConfig = init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,
+      nbOfOpsPerRoTxn,nbOfOpsPerWoTxn,nbOfOpsPerRwTxn, 
+      nbOfServs,nbOfKeys,nbOfRepls) . 
+)
+
+  ---
+    
+  ops x y : -> Key [ctor] .
+  ops xl yl : -> LocalVar [ctor] .
+eq initConfig = < 0 . 1 : Table | table: [replicatingSites(x, 1 ;; 2) ;; replicatingSites(y, 2 ;; 1)] > 
+     (start to 1) (start to 2)
+     < 0 . 2 : Monitor | clock: 0, log: empty >     
+     < 1 : Replica | gotTxns: ( < 1 . 1 : Txn | operations: ((xl :=read x) write(x,1)), readSet: empty, 
+                                             writeSet: empty, localVars: (xl |-> [0]), 
+                                             startVTS: empty, txnSQN: 0, version: eptVersion > ;;
+                                < 1 . 2 : Txn | operations: ((xl :=read x) (yl :=read y)), readSet: empty, 
+                                             writeSet: empty, localVars: (xl |-> [0], yl |-> [0]), 
+                                             startVTS: empty, txnSQN: 0, version: eptVersion >),
+                     history: (x |-> (< [0],< 0,0 > >), y |-> (< [0],< 0,0 > >)), sqn: 0, 
+                      executing: noActor, 
+                      committed: emptyTxnList, aborted: emptyTxnList, 
+                      committedVTS: empty, gotVTS: empty,
+                      locked: empty, dsSites: noPS, vsbSites: noVS,
+                      dsTxns: emptyAddressSet, gvTxns: emptyAddressSet, recPropTxns: noPT,
+                      recDurableTxns: noDT, votes: noVote,
+                      voteSites: noVS, abortSites: noVS,
+                      rmtCommitted: emptyAddressSet > 
+   
+     < 2 : Replica | gotTxns: ( < 2 . 1 : Txn | operations: ((yl :=read y) write(y,1)), readSet: empty, 
+                                             writeSet: empty, localVars: (yl |-> [0]), 
+                                             startVTS: empty, txnSQN: 0, version: eptVersion > ;;
+                                < 2 . 2 : Txn | operations: ((xl :=read x) (yl :=read y)), readSet: empty, 
+                                             writeSet: empty, localVars: (xl |-> [0], yl |-> [0]), 
+                                             startVTS: empty, txnSQN: 0, version: eptVersion >),
+                     history: (x |-> (< [0],< 0,0 > >), y |-> (< [0],< 0,0 > >)), sqn: 0, 
+                      executing: noActor, 
+                      committed: emptyTxnList, aborted: emptyTxnList, 
+                      committedVTS: empty, gotVTS: empty,
+                      locked: empty, dsSites: noPS, vsbSites: noVS,
+                      dsTxns: emptyAddressSet, gvTxns: emptyAddressSet, recPropTxns: noPT,
+                      recDurableTxns: noDT, votes: noVote,
+                      voteSites: noVS, abortSites: noVS,
+                      rmtCommitted: emptyAddressSet > .
+  
+
+endm
+
+---rew initConfig .
+search initConfig =>! C:Config .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not rc(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not ra(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not cs(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not ua(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not si(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not psi(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not nmsi(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not us(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not ser(LOG:Log) .
+
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not sser(LOG:Log) .
+
+---(
+rew cycle(dsg(
+( 1 . 1 |-> < 1 |-> 0,1 |-> 2,false,< k1,< 0,0 > >,< k1,< 1,2 > > >,
+    1 . 2 |-> < 1 |-> 3,1 |-> 5,false,< k1,< 0,0 > >,< k1,< 1,4 > > >, 
+2 . 1 |-> < 2 |-> 1,2 |-> 4,true,< k1,< 0,0 > >,< k1,< 2,2 > > >))) .
+)
+
+---(
+rew dsg-update(
+(1 . 1 |-> < 1 |-> 0,1 |-> 2,false,(< k1,< 0,0 > >, < k2,< 0,0 > >),(< k1,< 1,2 > >, < k2,< 1,2 > >) >, 
+1 . 2 |-> < 1 |-> 3,1 |-> 5,true,(< k1,< 2,2 > >, < k2,< 2,2 > >),(< k1,< 1,5 > >, < k2,< 1,5 > >) >,
+2 . 1 |-> < 2 |-> 1,2 |-> 4,true,(< k1,< 0,0 > >, < k2,< 0,0 > >),(< k1,< 2,2 > >, < k2,< 2,2 > >) >)) .
+)
+
+---(
+rew ra(
+(2 . 1 |-> < 2 |-> 0,(1 |-> 3, 2 |-> 1),true,(< k1,< 0,0 > >, < k2,< 0,0 > >),(< k1,< 2,1 > >, < k2,< 2,1 > >) >, 
+2 . 2 |-> < 2 |-> 2,(1 |-> 5, 2 |-> 4),true,(< k1,< 0,0 > >, < k2,< 2,1 > >),(< k1,< 2,2 > >, < k2,< 2,2 > >) >)
+) .
+)
+
+
+
+
