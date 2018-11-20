@@ -334,7 +334,7 @@ endm .
 	      getReplicaID(T),'true.Bool,
         getAttr('readSet:_,T1),
         getAttr('writeSet:_,T1),
-        getAttr('version:_,T1)),T1]]
+        getAttr('version:_,T1)),T']]
       if not hasBranch(T') /\ 
         T2 := isCommitted(T,T') /\
         T2 =/= 'nil.Address /\ 
