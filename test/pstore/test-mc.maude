@@ -7,11 +7,11 @@ mod TEST-GDUR-PSTORE is
   --- Init parameters 
   eq nbOfRoTxns = 0 .  eq nbOfOpsPerRoTxn = 0 .
   eq nbOfWoTxns = 0 .  eq nbOfOpsPerWoTxn = 0 .
-  eq nbOfRwTxns = 2 .  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
-  eq nbOfCls = 2 . 
-  eq nbOfServs  = 2 .  
-  eq nbOfKeys = 2 .  
-  eq nbOfRepls = 2 .
+  eq nbOfRwTxns = 1 .  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
+  eq nbOfCls = 1 . 
+  eq nbOfServs  = 1 .  
+  eq nbOfKeys = 1 .  
+  eq nbOfRepls = 1 .
 
   op initConfig : -> Config .
   eq initConfig = init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,
@@ -178,6 +178,31 @@ mod TEST-GDUR-PSTORE is
 		      rmtCommitted: noTS > .
 )
 endm
+---(
+rew ((msg commit(1 . 1 . 1, < k1,2 >) from 2 . 1 to 2 . 1) 
+< 0 . 1 : Table | table: [replicatingSites(k1, 2 . 1) ;; replicatingSites(k2, 2
+    . 1)] > 
+< 0 . 2 : Monitor | log: (1 . 1 . 1 |-> < 2 . 1 |-> 0,2 . 1 |-> 1,false,empty,
+    empty >),clock: 2 > 
+< 0 . 3 : A-Table | am-table: [am-entry(2 . 1, certify(
+< 1 . 1 . 1 : Transaction | operations: nil,proxy: 2 . 1,readSet: < k1,1 >,
+    writeSet: < k1,[2] >,status: undecided,localVars: (k1l |-> [0]),version:
+    empty,votesRcvdFrom: emptyAddressSet,voted: false >), emptyMsgContSet)] > 
+< 1 . 1 : Client | txns: 
+< 1 . 1 . 2 : Transaction | operations: ((k1l :=read k1) write(k1, 2)),proxy: 2
+    . 1,readSet: empty,writeSet: empty,status: undecided,localVars: (k1l |-> [
+    0]),version: empty,votesRcvdFrom: emptyAddressSet,voted: false >,
+    pendingTrans: 1 . 1 . 1 > 
+< 1 . 2 : Client | txns: noTrans,pendingTrans: emptyAddressSet > 
+< 2 . 1 : Replica | datastore: (< k1,[2],2 >, < k2,[0],1 >),committed: null,
+    aborted: null,executing: null,submitted: 
+< 1 . 1 . 1 : Transaction | operations: nil,proxy: 2 . 1,readSet: < k1,1 >,
+    writeSet: < k1,[2] >,status: undecided,localVars: (k1l |-> [0]),version:
+    empty,votesRcvdFrom: emptyAddressSet,voted: false >,rmtCommitted:
+    transStatus(1 . 1 . 1, commit),certificationQueue: noTrans > 
+< 2 . 2 : Replica | datastore: empty,committed: null,aborted: null,executing:
+    null,submitted: null,rmtCommitted: noTS,certificationQueue: noTrans >) .
+)
 
 ---rew initConfig .
 search initConfig =>! C:Config .

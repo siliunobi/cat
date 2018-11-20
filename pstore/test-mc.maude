@@ -180,7 +180,7 @@ mod TEST-GDUR-PSTORE is
 endm
 
 ---rew initConfig .
----search initConfig =>! C:Config .
+search initConfig =>! C:Config .
 
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not rc(LOG:Log) .
@@ -188,8 +188,8 @@ endm
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not ra(LOG:Log) .
 
-search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
-  such that not cs(LOG:Log) .
+---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  ---such that not cs(LOG:Log) .
 
 ---search [1] initConfig =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
   ---such that not ua(LOG:Log) .

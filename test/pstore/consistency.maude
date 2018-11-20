@@ -2,7 +2,6 @@ load initial-states-mc
 load dsg
 
 mod CONSISTENCY is
-  inc CLIENT-REPLICA .
   inc INITIAL-STATES .
   inc DSG .
 

@@ -1,0 +1,5 @@
+load automonitor.maude
+load gdur-mc.maude
+(monitor GDUR .)
+(show module GDUR .)
+quit

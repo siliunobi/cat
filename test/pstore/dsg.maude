@@ -1,7 +1,8 @@
-load walter-aux-mc
+load gdur-mc
 
 mod DSG is
-  inc WALTER-AUX .
+  inc GDUR .
+
   sorts Dsg Edge .
   subsort Edge < Dsg .
 

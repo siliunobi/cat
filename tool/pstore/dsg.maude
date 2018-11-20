@@ -2,6 +2,7 @@ load gdur-mc
 
 mod DSG is
   inc GDUR .
+
   sorts Dsg Edge .
   subsort Edge < Dsg .
 

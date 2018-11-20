@@ -1,0 +1,56 @@
+(mod REPLICA-TABLE is
+  including SORTS .
+
+***NEW
+  sort ReplicaTable .
+  op Table : -> ActorType .
+  op table:_ : ReplicaTable -> Attribute .
+
+
+  *** Assigns to each key the set of replicas that replicates it.
+
+  var RT REPLICAS : KeyReplicas .
+  var K X Y : Key .
+  var KS : KeySet .
+  vars RIDS RIDS2 : AddressSet .
+  var RID : Address .
+
+  sort KeyReplicas .
+  op emptyTable : -> KeyReplicas [ctor] .
+  op replicatingSites : Key AddressSet -> KeyReplicas [ctor] .
+  op _;;_ : KeyReplicas KeyReplicas -> KeyReplicas [ctor assoc comm id: emptyTable] .
+
+  op replicas : KeySet KeyReplicas -> AddressSet .
+  eq replicas(empty, RT) = emptyAddressSet .
+  eq replicas((K , KS), replicatingSites(K, RIDS) ;; RT) =
+        RIDS ; replicas(KS, RT) .
+  eq replicas(KS, RT) = emptyAddressSet [owise] .
+
+  --- Inverse:
+  op replicatedKeys : AddressSet KeyReplicas -> KeySet .
+  eq replicatedKeys((RID ; RIDS), replicatingSites(K, (RID ; RIDS2)) ;; RT) =
+       K , replicatedKeys((RID ; RIDS), RT) .
+  eq replicatedKeys(RIDS, RT) = empty [owise] .
+
+  --- Main stuff:
+  ---sort ReplicaTable .   subsort ReplicaTable < Configuration .
+  op `[_`] : KeyReplicas -> ReplicaTable [ctor] .
+  op replicas : KeySet ReplicaTable -> AddressSet .
+  eq replicas(KS, [RT]) = replicas(KS, RT) .
+  op replicatedKeys : AddressSet ReplicaTable -> KeySet .
+  eq replicatedKeys(RIDS, [RT]) = replicatedKeys(RIDS, RT) .
+
+  op localTrans : KeySet ReplicaTable -> Bool .
+  op localTrans : KeySet KeyReplicas -> Bool .
+  eq localTrans(KS, [RT]) = localTrans(KS, RT) .
+  ceq localTrans((X , Y , KS), replicatingSites(X, (RID ; RIDS)) ;;
+                               replicatingSites(Y, RIDS2) ;; REPLICAS) = false
+      if not (RID in RIDS2) .
+   eq localTrans(KS, REPLICAS) = true [owise] .  
+
+***NEW
+  op _in_ : Address AddressSet -> Bool .
+  eq RID in (RID ; RIDS) = true .
+  eq RID in RIDS = false [owise] .
+endm)
+
