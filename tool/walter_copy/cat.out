@@ -3,13 +3,9 @@
 		     /||||||||||||||||||\
 	   Maude 2.7.1 built: Jun 27 2016 16:35:16
 	    Copyright 1997-2016 SRI International
-		   Mon Nov 19 23:03:55 2018
+		   Tue Nov 20 09:22:30 2018
 ==========================================
 search [1] in ANALYSIS : initConfig =>! C:Config 
-< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not ra(
+< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not ser(
     LOG:Log) = true .
-
-No solution.
-states: 1  rewrites: 0 in 0ms cpu (0ms real) (~ rewrites/second)
-Bye.
-Mon Nov 19 23:03:55 CST 2018
+Tue Nov 20 11:39:43 CST 2018

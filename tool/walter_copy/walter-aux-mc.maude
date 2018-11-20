@@ -14,8 +14,8 @@ mod WALTER-AUX is
   including VALUES-NAT .
 
   op f : -> Nat .  --- disaster-safe tolerance parameter
-  ---eq f = 0 .  --- no failure
-  eq f = 1 .
+  eq f = 0 .  --- no failure
+  ---eq f = 1 .
 
 
   op _in_ : Address PropagatedTxns -> Bool .
