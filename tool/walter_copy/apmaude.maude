@@ -2,7 +2,7 @@
 --- comment:  Defines actors and scheduler for apmaude.
 load term-order
 
-(fmod ADDRESS is
+fmod ADDRESS is
 ---  pr NAT .
   pr INT .
 
@@ -35,11 +35,11 @@ load term-order
   eq prefix(N . A, s(s(M))) = N . prefix(A, s(M)) .
 
   eq contains(AD1,AD2) = prefix(AD2,sizeof(AD1)) == AD1 and AD1 < AD2 .
-endfm)
+endfm
 
-(view Address from TRIV to ADDRESS is sort Elt to Address . endv)
+view Address from TRIV to ADDRESS is sort Elt to Address . endv
 
-(fmod DELAY is
+fmod DELAY is
   pr FLOAT .
   sort Delay .
   subsort Float < Delay .
@@ -56,9 +56,9 @@ endfm)
   eq F1  lt   F2  = F1 < F2 .
   eq now plus D1  = now .
   eq F1  plus F2  = F1 + F2 .
-endfm)
+endfm
 
-(fmod ACTOR-MODEL is
+fmod ACTOR-MODEL is
   pr ADDRESS .
   pr DELAY .
   pr FLOAT .
@@ -145,13 +145,13 @@ endfm)
   eq (< (A . N) > .next) = < (A . (N + 1)) > .
   eq (< N > .next) = < (N + 1) > .
   
-endfm)
+endfm
 
-(view Order from TRIV to ACTOR-MODEL is
+view Order from TRIV to ACTOR-MODEL is
   sort Elt to Msg .
-endv)
+endv
 
-(mod SCHEDULER is
+mod SCHEDULER is
   pr EXT-BOOL .
   pr META-LEVEL .
   pr ACTOR-MODEL .
@@ -248,9 +248,9 @@ endv)
       AC {gt | SL}
     fi .
   
-endm)
+endm
 
-(mod APMAUDE is
+mod APMAUDE is
   pr ACTOR-MODEL .
   pr SCHEDULER .
   pr NAT .
@@ -270,7 +270,7 @@ endm)
 
   eq tick(C) = run(C, getTime(C) + LIMIT) .
   eq getTime(C {gt | SL}) =  gt .
-endm)
+endm
 
 ---rewrite run({0.0 | [toplevel,[0.0,1 <- start]]}, LIMIT) . 
 

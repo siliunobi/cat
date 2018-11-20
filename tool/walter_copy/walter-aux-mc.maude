@@ -6,7 +6,7 @@
 
 load replica-table-mc
 
-(mod WALTER-AUX is
+mod WALTER-AUX is
   including CLIENT-REPLICA .
   including MESSAGE .
   including REPLICA-TABLE .
@@ -233,6 +233,6 @@ load replica-table-mc
   eq K in (OPS (X :=read K) OPS') = true .
   eq K in (OPS write(K,EXPR) OPS') = true .
   eq K in OPS = false [owise] .
-endm )
+endm 
 
 

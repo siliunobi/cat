@@ -2,13 +2,13 @@ set show advisories off .
 
 load apmaude
 
-(fmod SOME-PARAMETERS is
+fmod SOME-PARAMETERS is
   sort Version .  --- could be different things
-endfm)
+endfm
 --- In RAMP version is a 4-tuple (key,value,timestamp,metadata)
 --- In Walter version is a pair (site,seq#)
 
-(fmod TXN-SORTS is
+fmod TXN-SORTS is  
   including ACTOR-MODEL .
   including SOME-PARAMETERS .
 
@@ -34,21 +34,21 @@ endfm)
   op <_`,_> : Key Version   -> KeyVersion [ctor] .
   op <_`,_> : Key Value -> KeyValue [ctor] .
 
-endfm)
-(view Operation from TRIV to TXN-SORTS is sort Elt to Operation . endv)
-(view Version from TRIV to TXN-SORTS is sort Elt to Version . endv)
-(view Key from TRIV to TXN-SORTS is sort Elt to Key . endv)
-(view LocalVar from TRIV to TXN-SORTS is sort Elt to LocalVar . endv)
-(view Value from TRIV to TXN-SORTS is sort Elt to Value . endv)
-(view KeyVersion from TRIV to TXN-SORTS is sort Elt to KeyVersion . endv)
-(view KeyValueVersion from TRIV to TXN-SORTS is sort Elt to KeyValueVersion . endv)
-(view ValueVersion from TRIV to TXN-SORTS is sort Elt to ValueVersion . endv)
-(view Lock from TRIV to TXN-SORTS is sort Elt to Lock . endv)
-(view Vote from TRIV to TXN-SORTS is sort Elt to Vote . endv)
-(view Record from TRIV to TXN-SORTS is sort Elt to Record . endv)
-(view KeyValue from TRIV to TXN-SORTS is sort Elt to KeyValue . endv)
+endfm
+view Operation from TRIV to TXN-SORTS is sort Elt to Operation . endv
+view Version from TRIV to TXN-SORTS is sort Elt to Version . endv
+view Key from TRIV to TXN-SORTS is sort Elt to Key . endv
+view LocalVar from TRIV to TXN-SORTS is sort Elt to LocalVar . endv
+view Value from TRIV to TXN-SORTS is sort Elt to Value . endv
+view KeyVersion from TRIV to TXN-SORTS is sort Elt to KeyVersion . endv
+view KeyValueVersion from TRIV to TXN-SORTS is sort Elt to KeyValueVersion . endv
+view ValueVersion from TRIV to TXN-SORTS is sort Elt to ValueVersion . endv
+view Lock from TRIV to TXN-SORTS is sort Elt to Lock . endv
+view Vote from TRIV to TXN-SORTS is sort Elt to Vote . endv
+view Record from TRIV to TXN-SORTS is sort Elt to Record . endv
+view KeyValue from TRIV to TXN-SORTS is sort Elt to KeyValue . endv
 
-(fmod TXN-AUX1 is
+fmod TXN-AUX1 is
   pr LIST{Operation} * (sort List{Operation} to OperationList) .
   pr MAP{LocalVar,Value} * (sort Map{LocalVar,Value} to LocalVars) .
 ---  pr MAP{Key,Value} * (sort Map{Key,Value} to WriteSet, op undefined to undefinedWriteSet) .
@@ -113,26 +113,26 @@ endfm)
   op keys : Set{KeyValue} -> KeySet .
   eq keys(empty) = empty .
   eq keys((< K,V >,WS)) = K, keys(WS) .
-endfm)
-(view AddressSet from TRIV to TXN-AUX1 is sort Elt to AddressSet . endv)
-(view ValueVersionList from TRIV to TXN-AUX1 is sort Elt to ValueVersionList . endv)
-(view AddressList from TRIV to TXN-AUX1 is sort Elt to AddressList . endv)
+endfm
+view AddressSet from TRIV to TXN-AUX1 is sort Elt to AddressSet . endv
+view ValueVersionList from TRIV to TXN-AUX1 is sort Elt to ValueVersionList . endv
+view AddressList from TRIV to TXN-AUX1 is sort Elt to AddressList . endv
 
 ***NEW: for MC we need to change VectorTime to VectorTime
-(fmod VECTOR-TIMESTAMP is
+fmod VECTOR-TIMESTAMP is
   pr MAP{Address,Nat} * (sort Map{Address,Nat} to VectorTime,
                          op undefined to 0) .  ---??? need to define "undefined"
-endfm)
+endfm
 
 ---(
 ***NEW: used for LOG; different from the above vector-timestamp
 ***that is used for Walter itself 
-(fmod VECTOR-TIME is
+fmod VECTOR-TIME is
   pr MAP{Address,Float} * (sort Map{Address,Float} to VectorTime) .
-endfm)
+endfm
 )
 
-(fmod TXN-AUX2 is
+fmod TXN-AUX2 is
   including TXN-AUX1 .
   including VECTOR-TIMESTAMP .
 
@@ -157,9 +157,9 @@ endfm)
   op durableTxns : Address -> DurableTxns [ctor] .
   op nonDurableTxns : Address Address -> DurableTxns [ctor] .  --- TID, RID
   op _;_ : DurableTxns DurableTxns -> DurableTxns [ctor assoc comm id: noDT] .
-endfm)
+endfm
 
-(fmod VALUES-NAT is --- define the sort Value
+fmod VALUES-NAT is --- define the sort Value
   including TXN-AUX1 .
 
   op `[_`] : Nat -> Value [ctor] .     --- to avoid problems with preregularity
@@ -169,9 +169,9 @@ endfm)
   eq evalAux(X, ((X |-> [N]), VARS)) = N .
   eq evalAux(N, VARS) = N .
   eq evalAux(EXPR1 plus EXPR2, VARS) = evalAux(EXPR1, VARS) + evalAux(EXPR2, VARS) .
-endfm)
+endfm
 
-(fmod VERSION-WALTER is
+fmod VERSION-WALTER is
   including SOME-PARAMETERS + ADDRESS .
   
   --- site#, sequence#
@@ -180,19 +180,19 @@ endfm)
 *** NEW
   op <_`,_> : Address Nat -> Version .
   op eptVersion : -> Version .
-endfm)
+endfm
 
-(fmod READSET-WALTER is
+fmod READSET-WALTER is
 ---  pr SET{KeyVersion} * (sort Set{KeyVersion} to ReadSet) .
   pr SET{KeyVersion} .
-endfm)
+endfm
 
-(fmod DATASTORE-WALTER is
+fmod DATASTORE-WALTER is
 ---  pr SET{KeyValueVersion} * (sort Set{KeyValueVersion} to Datastore) .
   pr MAP{Key,ValueVersionList} * (sort Map{Key,ValueVersionList} to Datastore) .  --- History in Walter
-endfm)
+endfm
 
-(fmod MESSAGE is
+fmod MESSAGE is
   including TXN-AUX1 .
   including VECTOR-TIMESTAMP .
   
@@ -235,9 +235,9 @@ endfm)
   op visible : Address -> Content .
   op aborted : Address -> Content .
 
-endfm)
+endfm
 
-(fmod CLIENT-REPLICA is
+fmod CLIENT-REPLICA is
   including TXN-SORTS .
   including TXN-AUX2 .
   including READSET-WALTER .
@@ -313,5 +313,5 @@ endfm)
 
 *** NEW 
   op <_`,_`,_`,_`,_> : VectorTime VectorTime Bool Set{KeyVersion} Set{KeyVersion} -> Record [ctor] .
-endfm)
+endfm
 

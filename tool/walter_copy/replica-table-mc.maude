@@ -1,6 +1,6 @@
 load prelim-mc
 
-(fmod REPLICA-TABLE is
+fmod REPLICA-TABLE is
   including TXN-AUX1 .
 
   sort KeyReplicas .
@@ -92,7 +92,7 @@ load prelim-mc
                                                                       replicatingSites(k2,(rid1 rid3)) ;;
                                                                       replicatingSites(k3,(rid2 rid1))]) .
   )
-endfm)
+endfm
 
 --- rewrite flag .
 

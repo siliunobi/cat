@@ -78,9 +78,10 @@ mod JESSY is
 < M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> <
     VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{
     KeyVersion},kver(empty,VERSION:Version)>, LOG:Log)>
+< RID:Address : Replica | executing: null,committed:(C:Config
 < TID:Address : Txn | operations: nil,writeSet: empty,readSet: RS:Set{
-    KeyVersion},version: VERSION:Version,AS:AttributeSet > [label
-    commit-read-only-txn] .
+    KeyVersion},version: VERSION:Version,AS:AttributeSet >),AS':AttributeSet >
+    start to RID:Address [label commit-read-only-txn] .
   rl 
 < RID:Address : Replica | abortSites:(ABORTS:VoteSites ; voteSites(TID:Address,
     RID':Address ; RIDS:AddressSet)),AS:AttributeSet > msg aborted(
