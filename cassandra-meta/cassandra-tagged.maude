@@ -39,6 +39,7 @@ mod CASSANDRA is
 < M:Address : Monitor | clock:(GT:Nat + 1),log: insert(TID:Address,< A:Address |-> GT:Nat,empty,false,empty,empty >,LOG:Log)>
 < A:Address : Client | requestQueue: TRANSES:ConfigList,waitingList: TRANSES':ConfigList,lockedKeys:(lock(TID:Address,OP:Operation), LOCKS:Set{LockedKey}),executing:(
 < TID:Address : Txn | operations: OP:Operation,AS':AttributeSet > TXNS:Config),AS:AttributeSet > fi [label dequeue] .
+
   rl
 < M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
 < A:Address : Client | executing:(
@@ -50,6 +51,7 @@ mod CASSANDRA is
 < A:Address : Client | executing: TXNS:Config,committed:(TXNS':Config
 < TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},version: VERSION:Version,AS':AttributeSet >),lockedKeys: LOCKS:Set{LockedKey},AS:AttributeSet >
     [label rcv-done-write] .
+    
   rl
 < M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
 < A:Address : Client | executing:(
@@ -61,6 +63,7 @@ mod CASSANDRA is
 < A:Address : Client | executing: TXNS:Config,committed:(TXNS':Config
 < TID:Address : Txn | readSet:(RS:Set{KeyVersion}, < K:Key,VERSION':Version >),writeSet: WS:Set{KeyValue},version: VERSION:Version,AS':AttributeSet >),lockedKeys:
     LOCKS:Set{LockedKey},AS:AttributeSet > [label rcv-done-read] .
+
   rl
 < O:Address : Timer | globalTime: GT:Nat >
 < A:Address : Client | executing:(
