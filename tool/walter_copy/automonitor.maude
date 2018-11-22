@@ -100,49 +100,42 @@ endm .
     ops resultMonitorObjInsert : Term Term Term Term Term Term -> Term .
     *** here are the functions to generate terms for tagged monitors
     *** I try to make them as generic as possible, but some paras are fixed for the simplicity 
-    eq newMonitorObj = '<_:_|_>['M:Address,'Monitor.ActorType,'_`,_['clock:_['GT:Nat],'log:_[
-	      'LOG:Log]]] .
+    eq newMonitorObj = '<_:_|_>['M@M:Address,'Monitor.ActorType,'_`,_['clock:_['GT@M:Nat],'log:_[
+	      'LOG@M:Log]]] .
 
-    *** eq newMonitorObj = '<_:_|_>['M:Address,'Monitor.ActorType,'_`,_['clock:_['GT:Nat],'log:_[
-	***      'LOG:Log]]] .
 
     eq newMonitorObjRecord(T1) =
-	'<_:_|_>['M:Address,'Monitor.ActorType,'_`,_['clock:_['GT:Nat],'log:_[
-	      '_`,_['_|->_[T1,'<_`,_`,_`,_`,_>['_|->_['RID@M:Address,'T1:Nat],'VTS2:VectorTime,
-		    'FFLAG:Bool,'READS:Set`{KeyVersion`},'WRITES:Set`{KeyVersion`}]],'LOG:Log]]]] .
+	'<_:_|_>['M:Address,'Monitor.ActorType,'_`,_['clock:_['GT@M:Nat],'log:_[
+	      '_`,_['_|->_[T1,'<_`,_`,_`,_`,_>['_|->_['RID@M:Address,'T1@M:Nat],'VTS2@M:VectorTime,
+		    'FFLAG@M:Bool,'READS@M:Set`{KeyVersion`},'WRITES@M:Set`{KeyVersion`}]],'LOG@M:Log]]]] .
 
     eq newMonitorObjRecord2(T1) =
-    '<_:_|_>['M:Address,'Monitor.ActorType,'_`,_['clock:_['GT:Nat],'log:_[
-          '_`,_['_|->_[T1,'<_`,_`,_`,_`,_>['VTS1:VectorTime,'VTS2:VectorTime,
-            'FFLAG:Bool,'READS:Set`{KeyVersion`},'WRITES:Set`{KeyVersion`}]],'LOG:Log]]]] .
+    '<_:_|_>['M@M:Address,'Monitor.ActorType,'_`,_['clock:_['GT@M:Nat],'log:_[
+          '_`,_['_|->_[T1,'<_`,_`,_`,_`,_>['VTS1@M:VectorTime,'VTS2@M:VectorTime,
+            'FFLAG@M:Bool,'READS@M:Set`{KeyVersion`},'WRITES@M:Set`{KeyVersion`}]],'LOG@M:Log]]]] .
 
     eq resultMonitorObjInsert(T1,T2) =
-  '<_:_|_>['M:Address,'Monitor.ActorType,'_`,_['clock:_['_+_['GT:Nat,'s_[
-      '0.Zero]]],'log:_['_`,_['_|->_[T1,'<_`,_`,_`,_`,_>['VTS1:VectorTime,
-        'insert[T2,'GT:Nat,'VTS2:VectorTime],'FFLAG:Bool,'READS:Set`{KeyVersion`},'WRITES:Set`{KeyVersion`}]],'LOG:Log]]]] .
+  '<_:_|_>['M@M:Address,'Monitor.ActorType,'_`,_['clock:_['_+_['GT@M:Nat,'s_[
+      '0.Zero]]],'log:_['_`,_['_|->_[T1,'<_`,_`,_`,_`,_>['VTS1@M:VectorTime,
+        'insert[T2,'GT@M:Nat,'VTS2@M:VectorTime],'FFLAG@M:Bool,'READS@M:Set`{KeyVersion`},'WRITES@M:Set`{KeyVersion`}]],'LOG@M:Log]]]] .
 
     eq resultMonitorObjInsert(T1,T2,T3,T4,T5) =
-	'<_:_|_>['M:Address,'Monitor.ActorType,'_`,_['clock:_['_+_['GT:Nat,'s_[
-		  '0.Zero]]],'log:_['_`,_['_|->_[T1,'<_`,_`,_`,_`,_>['VTS1:VectorTime,
-		    'insert[T2,'GT:Nat,'VTS2:VectorTime],T3,T4,T5]],'LOG:Log]]]] .
+	'<_:_|_>['M@M:Address,'Monitor.ActorType,'_`,_['clock:_['_+_['GT@M:Nat,'s_[
+		  '0.Zero]]],'log:_['_`,_['_|->_[T1,'<_`,_`,_`,_`,_>['VTS1@M:VectorTime,
+		    'insert[T2,'GT@M:Nat,'VTS2@M:VectorTime],T3,T4,T5]],'LOG@M:Log]]]] .
 
 
     eq resultMonitorObjInsert(T1,T2,T3,T4,T5,T6) =
-	'<_:_|_>['M:Address,'Monitor.ActorType,'_`,_['clock:_['_+_['GT:Nat,'s_[
-		  '0.Zero]]],'log:_['_`,_['_|->_[T1,'<_`,_`,_`,_`,_>['VTS1:VectorTime,
-		    'insert[T2,'GT:Nat,'VTS2:VectorTime],T3,T4,'kver[T5,T6]]],'LOG:Log]]]] .
+	'<_:_|_>['M@M:Address,'Monitor.ActorType,'_`,_['clock:_['_+_['GT@M:Nat,'s_[
+		  '0.Zero]]],'log:_['_`,_['_|->_[T1,'<_`,_`,_`,_`,_>['VTS1@M:VectorTime,
+		    'insert[T2,'GT@M:Nat,'VTS2@M:VectorTime],T3,T4,'kver[T5,T6]]],'LOG@M:Log]]]] .
     
 
-    eq resultMonitorObj(T1,T2) = '<_:_|_>['M:Address,'Monitor.ActorType,
-            '_`,_['clock:_['_+_['GT:Nat,'s_['0.Zero]]],'log:_[
-	      'insert[T1, '<_`,_`,_`,_`,_>['_|->_[T2,'GT:Nat],'empty.VectorTime,
-          'false.Bool,'empty.Set`{KeyVersion`},'empty.Set`{KeyVersion`}],'LOG:Log]]]] .
+    eq resultMonitorObj(T1,T2) = '<_:_|_>['M@M:Address,'Monitor.ActorType,
+            '_`,_['clock:_['_+_['GT@M:Nat,'s_['0.Zero]]],'log:_[
+	      'insert[T1, '<_`,_`,_`,_`,_>['_|->_[T2,'GT@M:Nat],'empty.VectorTime,
+          'false.Bool,'empty.Set`{KeyVersion`},'empty.Set`{KeyVersion`}],'LOG@M:Log]]]] .
 
-    ***(  this equation is obsolete  
-    eq resultMonitorObj(T1,T2) = '<_:_|_>['M:Address,
-      'Monitor.ActorType,'_`,_['clock:_['_+_['GT:Nat,'s_['0.Zero]]],'log:_[
-          'insert[T1,'<_`,_`,_`,_`,_>['_|->_[T2,'GT:Nat],'empty.VectorTime,
-          'false.Bool,'empty.Set`{KeyVersion`},'empty.Set`{KeyVersion`}],'LOG:Log]]]] .)
 
 
     eq monitorRules(Rl R) = monitorRulesAux(Rl) monitorRules(R)  .
@@ -260,11 +253,6 @@ endm .
   if TL1 := getAttr('rmtCommitted:_,T)  /\
      TL2 := getAttr('rmtCommitted:_,T') /\
      T1 := diff(getTIDfromList(TL1),getTIDfromList(TL2)) .
-
-
-     ***(testing code 
-      red diff(getTIDfromList('<_:_|_>['TID:Address,'Txn.ActorType,'_`,_['readSet:_['RS:Set`{KeyVersion`}],'_`,_['writeSet:_['WS:Set`{KeyValue`}],'_`,_['AS:AttributeSet,'version:_['VERSION:Version]]]]]), getTIDfromList('noActor.Actor)) .
-     )
 
 
     ceq getTID(T) = T3
@@ -454,7 +442,7 @@ ceq tagLeftRightHand(T,T',B) =
     --- ceq tagLeftRightHand(T,T') =
      ---   '__['__[newMonitorObjRecord(getTID(T)),T],
  ---	  '__[resultMonitorObjInsert(getTID(T),
-	---      getReplicaID(T),'false.Bool,'READS:Set`{KeyVersion`},'WRITES:Set`{KeyVersion`}),T']]
+	---      getReplicaID(T),'false.Bool,'READS@M:Set`{KeyVersion`},'WRITES@M:Set`{KeyVersion`}),T']]
      --- if not hasBranch(T') /\ isAborted(T,T')  .       
     ***(
     ceq tagLeftRightHand(T,T',B) =
@@ -475,7 +463,7 @@ ceq tagLeftRightHand(T,T',B) =
     ceq tagLeftRightHand(T,T',B) =
         '__['__[newMonitorObjRecord(getPropagatedTxnsID(T)),T],
 	  '__[resultMonitorObjInsert(getPropagatedTxnsID(T),
-	      getReplicaID(T),'FFLAG:Bool,'READS:Set`{KeyVersion`},'WRITES:Set`{KeyVersion`}),T']]
+	      getReplicaID(T),'FFLAG@M:Bool,'READS@M:Set`{KeyVersion`},'WRITES@M:Set`{KeyVersion`}),T']]
       if not hasBranch(T') /\ isRmtCommitted(T,T')  .       
 
 
@@ -483,7 +471,7 @@ ceq tagLeftRightHand(T,T',B) =
    ceq tagLeftRightHand(T,T',B) =
         '__['__[newMonitorObjRecord(getPropagatedTxnsID(T)),T],
       '__[resultMonitorObjInsert(getPropagatedTxnsID(T),
-          getReplicaID(T),'FFLAG:Bool,'READS:Set`{KeyVersion`},'WRITES:Set`{KeyVersion`}),T']]
+          getReplicaID(T),'FFLAG@M:Bool,'READS@M:Set`{KeyVersion`},'WRITES@M:Set`{KeyVersion`}),T']]
       if hasBranch(T') /\ isRmtCommitted(T,T')  .   
       )
 

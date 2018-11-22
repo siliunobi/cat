@@ -43,29 +43,30 @@ mod WALTER is
     RIDS:AddressSet,RID':Address)msg propagate(TID:Address,SQN:Nat,
     VTS:VectorTime,WS:Set{KeyValue})from RID':Address to RID:Address .
   rl 
-< M:Address : Monitor | clock: GT:Nat,log: LOG:Log >(start to RID:Address)
+< M@M:Address : Monitor | clock: GT@M:Nat,log: LOG@M:Log >(start to
+    RID:Address)
 < RID:Address : Replica | gotTxns:(
 < TID:Address : Txn | startVTS: empty,AS:AttributeSet > ;; TXNS:ConfigList),
     executing: noActor,committedVTS: VTS:VectorTime,AS':AttributeSet >
     => 
-< M:Address : Monitor | clock:(GT:Nat + 1),log: insert(TID:Address,<
-    RID:Address |-> GT:Nat,empty,false,empty,empty >,LOG:Log)>
+< M@M:Address : Monitor | clock:(GT@M:Nat + 1),log: insert(TID:Address,<
+    RID:Address |-> GT@M:Nat,empty,false,empty,empty >,LOG@M:Log)>
 < RID:Address : Replica | gotTxns: TXNS:ConfigList,executing:
 < TID:Address : Txn | startVTS: VTS:VectorTime,AS:AttributeSet >,committedVTS:
     VTS:VectorTime,AS':AttributeSet > execute to RID:Address [label start-txn]
     .
   rl 
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,
-    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>,
-    LOG:Log)>(execute to RID:Address)
+< M@M:Address : Monitor | clock: GT@M:Nat,log:(TID:Address |-> <
+    VTS1@M:VectorTime,VTS2@M:VectorTime,FFLAG@M:Bool,READS@M:Set{KeyVersion},
+    WRITES@M:Set{KeyVersion}>, LOG@M:Log)>(execute to RID:Address)
 < RID:Address : Replica | executing:
 < TID:Address : Txn | operations: nil,writeSet: empty,readSet: RS:Set{
     KeyVersion},version: VERSION:Version,AS:AttributeSet >,committed:
     TXNS':ConfigList,AS':AttributeSet >
     => 
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> <
-    VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{
-    KeyVersion},kver(empty,VERSION:Version)>, LOG:Log)>
+< M@M:Address : Monitor | clock:(GT@M:Nat + 1),log:(TID:Address |-> <
+    VTS1@M:VectorTime,insert(RID:Address,GT@M:Nat,VTS2@M:VectorTime),true,
+    RS:Set{KeyVersion},kver(empty,VERSION:Version)>, LOG@M:Log)>
 < RID:Address : Replica | executing: noActor,committed:(TXNS':ConfigList ;;
 < TID:Address : Txn | operations: nil,writeSet: empty,readSet: RS:Set{
     KeyVersion},version: VERSION:Version,AS:AttributeSet >),AS':AttributeSet >
@@ -143,18 +144,18 @@ mod WALTER is
     AS:AttributeSet >,AS':AttributeSet > execute to RID:Address [label
     execute-write] .
   crl 
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,
-    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>,
-    LOG:Log)>
+< M@M:Address : Monitor | clock: GT@M:Nat,log:(TID:Address |-> <
+    VTS1@M:VectorTime,VTS2@M:VectorTime,FFLAG@M:Bool,READS@M:Set{KeyVersion},
+    WRITES@M:Set{KeyVersion}>, LOG@M:Log)>
 < RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,
     VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns:(nonDurableTxns(
     TID:Address,RID':Address); DTXNS:DurableTxns),committedVTS:
     VTS':VectorTime,locked: LOCKS:Locks,rmtCommitted: RIDS:AddressSet,
     AS':AttributeSet >
     => 
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> <
-    VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),FFLAG:Bool,
-    READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
+< M@M:Address : Monitor | clock:(GT@M:Nat + 1),log:(TID:Address |-> <
+    VTS1@M:VectorTime,insert(RID:Address,GT@M:Nat,VTS2@M:VectorTime),
+    FFLAG@M:Bool,READS@M:Set{KeyVersion},WRITES@M:Set{KeyVersion}>, LOG@M:Log)>
 < RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,
     VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns:(durableTxns(
     TID:Address); DTXNS:DurableTxns),committedVTS: insert(RID':Address,SQN:Nat,
@@ -164,9 +165,9 @@ mod WALTER is
     if VTS':VectorTime gt VTS:VectorTime = true /\ s(VTS':VectorTime[
     RID':Address])== SQN:Nat = true [label later-visible] .
   crl 
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,
-    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>,
-    LOG:Log)>
+< M@M:Address : Monitor | clock: GT@M:Nat,log:(TID:Address |-> <
+    VTS1@M:VectorTime,VTS2@M:VectorTime,FFLAG@M:Bool,READS@M:Set{KeyVersion},
+    WRITES@M:Set{KeyVersion}>, LOG@M:Log)>
 < RID:Address : Replica | executing:
 < TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS:
     VTS:VectorTime,txnSQN: TXNSQN:Nat,readSet: RS:Set{KeyVersion},version:
@@ -176,9 +177,9 @@ mod WALTER is
     dsSites: PSTS:PropagateSites,abortSites: ABORTS:VoteSites,AS':AttributeSet
     > msg prepare-reply(TID:Address,FLAG:Bool)from RID':Address to RID:Address
     => 
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> <
-    VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),false,RS:Set{
-    KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG:Log)>
+< M@M:Address : Monitor | clock:(GT@M:Nat + 1),log:(TID:Address |-> <
+    VTS1@M:VectorTime,insert(RID:Address,GT@M:Nat,VTS2@M:VectorTime),false,
+    RS:Set{KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG@M:Log)>
 < RID:Address : Replica | executing: noActor,committed: TXNS':ConfigList,
     aborted:(TXNS'':ConfigList ;;
 < TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS:
@@ -195,25 +196,25 @@ mod WALTER is
     true /\ SQN':Nat := SQN:Nat + 1 /\ VSTS':VoteSites := remove(TID:Address,
     RID':Address,VSTS:VoteSites) [label slow-commit-receive-prepare-reply-4] .
   crl 
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,
-    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>,
-    LOG:Log)>
+< M@M:Address : Monitor | clock: GT@M:Nat,log:(TID:Address |-> <
+    VTS1@M:VectorTime,VTS2@M:VectorTime,FFLAG@M:Bool,READS@M:Set{KeyVersion},
+    WRITES@M:Set{KeyVersion}>, LOG@M:Log)>
 < RID:Address : Replica | executing:
 < TID:Address : Txn | writeSet: WS:Set{KeyValue},readSet: RS:Set{KeyVersion},
     version: VERSION:Version,AS:AttributeSet >,aborted: TXNS':ConfigList,
     abortSites: ABORTS:VoteSites,AS':AttributeSet > msg aborted(
     TID:Address)from RID':Address to RID:Address
     => if ABORTS':VoteSites[TID:Address]== emptyAddressSet then
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> <
-    VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),false,RS:Set{
-    KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG:Log)>
+< M@M:Address : Monitor | clock:(GT@M:Nat + 1),log:(TID:Address |-> <
+    VTS1@M:VectorTime,insert(RID:Address,GT@M:Nat,VTS2@M:VectorTime),false,
+    RS:Set{KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG@M:Log)>
 < RID:Address : Replica | executing: noActor,aborted:(TXNS':ConfigList ;;
 < TID:Address : Txn | writeSet: WS:Set{KeyValue},readSet: RS:Set{KeyVersion},
     version: VERSION:Version,AS:AttributeSet >),abortSites: ABORTS':VoteSites,
     AS':AttributeSet > start to RID:Address else
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,
-    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>,
-    LOG:Log)>
+< M@M:Address : Monitor | clock: GT@M:Nat,log:(TID:Address |-> <
+    VTS1@M:VectorTime,VTS2@M:VectorTime,FFLAG@M:Bool,READS@M:Set{KeyVersion},
+    WRITES@M:Set{KeyVersion}>, LOG@M:Log)>
 < RID:Address : Replica | executing:
 < TID:Address : Txn | writeSet: WS:Set{KeyValue},readSet: RS:Set{KeyVersion},
     version: VERSION:Version,AS:AttributeSet >,aborted: TXNS':ConfigList,
@@ -221,18 +222,18 @@ mod WALTER is
     if ABORTS':VoteSites := remove(TID:Address,RID':Address,ABORTS:VoteSites) [
     label receive-aborted] .
   crl 
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,
-    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>,
-    LOG:Log)>
+< M@M:Address : Monitor | clock: GT@M:Nat,log:(TID:Address |-> <
+    VTS1@M:VectorTime,VTS2@M:VectorTime,FFLAG@M:Bool,READS@M:Set{KeyVersion},
+    WRITES@M:Set{KeyVersion}>, LOG@M:Log)>
 < RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,
     VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns: DTXNS:DurableTxns,
     committedVTS: VTS':VectorTime,locked: LOCKS:Locks,rmtCommitted:
     RIDS:AddressSet,AS':AttributeSet > msg ds-durable(TID:Address)from
     RID':Address to RID:Address
     => 
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> <
-    VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),FFLAG:Bool,
-    READS:Set{KeyVersion},WRITES:Set{KeyVersion}>, LOG:Log)>
+< M@M:Address : Monitor | clock:(GT@M:Nat + 1),log:(TID:Address |-> <
+    VTS1@M:VectorTime,insert(RID:Address,GT@M:Nat,VTS2@M:VectorTime),
+    FFLAG@M:Bool,READS@M:Set{KeyVersion},WRITES@M:Set{KeyVersion}>, LOG@M:Log)>
 < RID:Address : Replica | recPropTxns:(propagatedTxns(TID:Address,SQN:Nat,
     VTS:VectorTime); PTXNS:PropagatedTxns),recDurableTxns:(durableTxns(
     TID:Address); DTXNS:DurableTxns),committedVTS: insert(RID':Address,SQN:Nat,
@@ -242,9 +243,9 @@ mod WALTER is
     if VTS':VectorTime gt VTS:VectorTime = true /\ s(VTS':VectorTime[
     RID':Address])== SQN:Nat = true [label receive-ds-durable-visible] .
   crl 
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,
-    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>,
-    LOG:Log)>
+< M@M:Address : Monitor | clock: GT@M:Nat,log:(TID:Address |-> <
+    VTS1@M:VectorTime,VTS2@M:VectorTime,FFLAG@M:Bool,READS@M:Set{KeyVersion},
+    WRITES@M:Set{KeyVersion}>, LOG@M:Log)>
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
 < RID:Address : Replica | executing:
 < TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS:
@@ -255,9 +256,9 @@ mod WALTER is
     dsSites: PSTS:PropagateSites,abortSites: ABORTS:VoteSites,AS':AttributeSet
     > msg prepare-reply(TID:Address,FLAG:Bool)from RID':Address to RID:Address
     => 
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> <
-    VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{
-    KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG:Log)>
+< M@M:Address : Monitor | clock:(GT@M:Nat + 1),log:(TID:Address |-> <
+    VTS1@M:VectorTime,insert(RID:Address,GT@M:Nat,VTS2@M:VectorTime),true,
+    RS:Set{KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG@M:Log)>
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
 < RID:Address : Replica | executing: noActor,committed:(TXNS':ConfigList ;;
 < TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS:
@@ -278,9 +279,9 @@ mod WALTER is
     PSTS':PropagateSites := PSTS:PropagateSites ; txnPropagateSites(
     TID:Address,WS:Set{KeyValue}) [label slow-commit-receive-prepare-reply-2] .
   crl 
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,
-    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>,
-    LOG:Log)>(execute to RID:Address)
+< M@M:Address : Monitor | clock: GT@M:Nat,log:(TID:Address |-> <
+    VTS1@M:VectorTime,VTS2@M:VectorTime,FFLAG@M:Bool,READS@M:Set{KeyVersion},
+    WRITES@M:Set{KeyVersion}>, LOG@M:Log)>(execute to RID:Address)
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
 < RID:Address : Replica | executing:
 < TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS:
@@ -288,9 +289,9 @@ mod WALTER is
     AS:AttributeSet >,aborted: TXNS':ConfigList,history: DS:Datastore,locked:
     LOCKS:Locks,sqn: SQN:Nat,AS':AttributeSet >
     => 
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> <
-    VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),false,RS:Set{
-    KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG:Log)>
+< M@M:Address : Monitor | clock:(GT@M:Nat + 1),log:(TID:Address |-> <
+    VTS1@M:VectorTime,insert(RID:Address,GT@M:Nat,VTS2@M:VectorTime),false,
+    RS:Set{KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG@M:Log)>
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
 < RID:Address : Replica | executing: noActor,aborted:(TXNS':ConfigList ;;
 < TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS:
@@ -302,9 +303,9 @@ mod WALTER is
     WS:Set{KeyValue},VTS:VectorTime,DS:Datastore)or locked(WS:Set{KeyValue},
     LOCKS:Locks)= true [label fast-commit-failed] .
   crl 
-< M:Address : Monitor | clock: GT:Nat,log:(TID:Address |-> < VTS1:VectorTime,
-    VTS2:VectorTime,FFLAG:Bool,READS:Set{KeyVersion},WRITES:Set{KeyVersion}>,
-    LOG:Log)>(execute to RID:Address)
+< M@M:Address : Monitor | clock: GT@M:Nat,log:(TID:Address |-> <
+    VTS1@M:VectorTime,VTS2@M:VectorTime,FFLAG@M:Bool,READS@M:Set{KeyVersion},
+    WRITES@M:Set{KeyVersion}>, LOG@M:Log)>(execute to RID:Address)
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
 < RID:Address : Replica | executing:
 < TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS:
@@ -313,9 +314,9 @@ mod WALTER is
     DS:Datastore,locked: LOCKS:Locks,sqn: SQN:Nat,committedVTS:
     VTS':VectorTime,dsSites: PSTS:PropagateSites,AS':AttributeSet >
     => 
-< M:Address : Monitor | clock:(GT:Nat + 1),log:(TID:Address |-> <
-    VTS1:VectorTime,insert(RID:Address,GT:Nat,VTS2:VectorTime),true,RS:Set{
-    KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG:Log)>
+< M@M:Address : Monitor | clock:(GT@M:Nat + 1),log:(TID:Address |-> <
+    VTS1@M:VectorTime,insert(RID:Address,GT@M:Nat,VTS2@M:VectorTime),true,
+    RS:Set{KeyVersion},kver(WS:Set{KeyValue},VERSION:Version)>, LOG@M:Log)>
 < TABLE:Address : Table | table: REPLICA-TABLE:ReplicaTable >
 < RID:Address : Replica | executing: noActor,committed:(TXNS':ConfigList ;;
 < TID:Address : Txn | operations: nil,writeSet: WS:Set{KeyValue},startVTS:

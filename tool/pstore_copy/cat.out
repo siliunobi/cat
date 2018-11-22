@@ -1,0 +1,16 @@
+		     \||||||||||||||||||/
+		   --- Welcome to Maude ---
+		     /||||||||||||||||||\
+	   Maude 2.7.1 built: Jun 27 2016 16:35:16
+	    Copyright 1997-2016 SRI International
+		   Thu Nov 22 14:50:13 2018
+==========================================
+search [1] in ANALYSIS : initConfig =>! C:Config 
+< M:Address : Monitor | AS:AttributeSet,log: LOG:Log > such that not sser(
+    LOG:Log) = true .
+
+No solution.
+states: 383361  rewrites: 7648585 in 24072ms cpu (24074ms real) (317737
+    rewrites/second)
+Bye.
+Thu Nov 22 14:50:38 CST 2018
