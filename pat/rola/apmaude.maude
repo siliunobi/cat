@@ -240,14 +240,32 @@ mod SCHEDULER is
       AC {gt | SL}
     fi .
   )
-  ---
+  ---(
   eq run(AC {gt | SL}, LIMIT) =
     if (gt <= LIMIT and SL =/= nil) then
       run(step(AC {gt | SL}), LIMIT)
     else
       AC {gt | SL}
     fi .
-  
+  )
+
+ ceq run(AC {gt | SL}, LIMIT) =
+    (if (gt <= LIMIT and SL =/= nil) then
+      run(step(AC {gt | SL}), LIMIT)
+    else
+      AC {gt | SL}
+    fi)
+    if not eagerEnabled(AC) .
+
+  var enabled? : [ResultPair].
+
+  op eagerEnabled : ActorConfig -> Bool [memo] .
+ ceq eagerEnabled(AC) =
+       if enabled? :: ResultPair and getTerm(enabled?) =/= upTerm(AC)
+         then true
+         else false
+       fi 
+     if enabled? := metaRewrite(upModule('ROLA, false), upTerm(AC), 1) .
 endm
 
 mod APMAUDE is

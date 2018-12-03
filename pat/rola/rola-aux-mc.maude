@@ -1,0 +1,343 @@
+--- Issue:
+  ************************************************
+  ---??? !!! should be (RS version(K,V,TS,MD) RS')
+  ************************************************
+
+load replica-table-mc
+
+mod ROLA-AUX is
+  including CLIENT-REPLICA .
+  including MESSAGE .
+  including REPLICA-TABLE .
+  including VERSION-ROLA .
+  including VALUES-NAT .
+  including SCHEDULER .
+
+*** NEW
+  op delay : -> Delay .
+
+  vars RID TID RID' TABLE M : Address .
+  vars RIDS TIDS : AddressSet .
+  vars AS AS' : AttributeSet .
+  vars TXNS TXNS' : ConfigList .
+  vars K K' : Key .
+  var X : LocalVar .
+  var REPLICA-TABLE : ReplicaTable .
+  vars OPS OPS' OPS'' : OperationList .
+  vars V V' : Value .
+  var VARS : LocalVars .
+  vars DS DS' : Versions .
+  vars LC VL VL' : KeyTimestamps .
+  var VERSION : Version .
+  vars TS TS' : Timestamp .
+  vars MD MD' KS : KeySet .
+  vars VS VS' : Versions .
+  vars SQN SQN' TXNSQN : Int .
+  var EXPR : Expression .
+  var RT : KeyReplicas .
+  vars 1STGETS 1STGETS' : 1stGets .
+  vars 2NDGETS 2NDGETS' : 2ndGets .
+  vars VSTS CMTS VSTS' CMTS' : VoteSites .
+  vars T GT T1 : Float .
+  var FLAG : Bool .
+  var TSSQN : TimestampSqn .
+  vars VOTES VOTES' : Vote .
+  vars RECORD RECORD' : Record .
+  vars WRITES READS WRITES' : VersionSet .
+  var SL : ScheduleList .
+  var RS : Set{KeyVersion} .
+  var WS : Set{KeyValue} .
+
+  op vl : OperationList -> KeyTimestamps .
+  eq vl((write(K,EXPR) OPS)) = vl(OPS) .
+  eq vl(((X :=read K) OPS)) = K |-> ts(-1,-1), vl(OPS) .
+  eq vl(nil) = empty .
+
+---(  
+  op genGets : OperationList Address Address ReplicaTable -> Config .
+  eq genGets(((X :=read K) OPS),RID,TID,REPLICA-TABLE) = 
+       genGets(OPS,RID,TID,REPLICA-TABLE)
+       if localReplica(K,RID,REPLICA-TABLE)
+         then (msg get(TID,K,eptTS) from RID to RID)  --- eptTS denotes "empty" in line 25
+         else (msg get(TID,K,eptTS) from RID to preferredSite(K,REPLICA-TABLE))
+       fi .
+  eq genGets((write(K,EXPR) OPS),RID,TID,REPLICA-TABLE) =
+       genGets(OPS,RID,TID,REPLICA-TABLE) .
+  eq genGets(nil,RID,TID,REPLICA-TABLE) = null .
+  )
+
+  op write-only : OperationList -> Bool .
+  eq write-only((OPS (X :=read K) OPS')) = false .
+  eq write-only(OPS) = true [owise] .
+
+  op read-only : OperationList -> Bool .
+  eq read-only((OPS write(K,EXPR) OPS')) = false .
+  eq read-only(OPS) = true [owise] .
+
+  op 1stSites : OperationList Address ReplicaTable -> AddressSet .
+  eq 1stSites(((X :=read K) OPS),RID,REPLICA-TABLE) =
+       if localReplica(K,RID,REPLICA-TABLE)
+         then RID ; 1stSites(OPS,RID,REPLICA-TABLE) 
+         else preferredSite(K,REPLICA-TABLE) ; 1stSites(OPS,RID,REPLICA-TABLE)
+       fi .
+  eq 1stSites((write(K,EXPR) OPS),RID,REPLICA-TABLE) =
+       1stSites(OPS,RID,REPLICA-TABLE) .
+  eq 1stSites(nil,RID,REPLICA-TABLE) = empty .
+
+---(
+  --- deal with wo-txns in ROLA
+  op genPuts : OperationList Address Address Nat LocalVars ReplicaTable -> Config .
+  op $genPuts : OperationList Address Address Nat LocalVars ReplicaTable OperationList -> Config .
+  eq genPuts(OPS,RID,TID,SQN,VARS,REPLICA-TABLE) = $genPuts(OPS,RID,TID,SQN,VARS,REPLICA-TABLE,OPS) .
+  eq $genPuts((write(K,EXPR) OPS),RID,TID,SQN,VARS,REPLICA-TABLE,(OPS' write(K,EXPR) OPS'')) =
+       $genPuts(OPS,RID,TID,SQN,VARS,REPLICA-TABLE,(OPS' write(K,EXPR) OPS''))
+       if localReplica(K,RID,REPLICA-TABLE)
+         then (msg prepare(TID,version(K,eval(EXPR,VARS),ts(RID,SQN),md(OPS' OPS''))) from RID to RID)
+         else (msg prepare(TID,version(K,eval(EXPR,VARS),ts(RID,SQN),md(OPS' OPS''))) from RID to preferredSite(K,REPLICA-TABLE))
+       fi .
+  eq $genPuts(((X :=read K) OPS),RID,TID,SQN,VARS,REPLICA-TABLE,OPS') = 
+       $genPuts(OPS,RID,TID,SQN,VARS,REPLICA-TABLE,OPS') .  --- deal with rw-txns
+  eq $genPuts(nil,RID,TID,SQN,VARS,REPLICA-TABLE,OPS') = null .  
+  --- Note that when initializing write-only txns EXPR should be Value, e.g., [0]
+  --- That is, VARS is useless to genPuts in write-only txns
+  )
+---(
+  op ws : OperationList Address Nat LocalVars -> VersionSet .
+  op $ws : OperationList Address Nat LocalVars OperationList -> VersionSet .
+  eq ws(OPS,RID,SQN,VARS) = $ws(OPS,RID,SQN,VARS,OPS) .
+  eq $ws((write(K,EXPR) OPS),RID,SQN,VARS,(OPS' write(K,EXPR) OPS'')) = 
+       version(K,eval(EXPR,VARS),ts(RID,SQN),md(OPS' OPS'')), 
+       $ws(OPS,RID,SQN,VARS,(OPS' write(K,EXPR) OPS'')) .
+  eq $ws(((X :=read K) OPS),RID,SQN,VARS,OPS') =
+       $ws(OPS,RID,SQN,VARS,OPS') .
+  eq $ws(nil,RID,SQN,VARS,OPS') = empty .
+)
+
+  op ws : OperationList LocalVars -> Set{KeyValue} .
+  eq ws((write(K,EXPR) OPS),VARS) = < K,eval(EXPR,VARS) >, ws(OPS,VARS) . 
+  eq ws(((X :=read K) OPS),VARS) = ws(OPS,VARS) .
+  eq ws(nil,VARS) = empty .
+
+
+  op md : OperationList -> KeySet .
+  eq md((write(K,EXPR) OPS)) = K, md(OPS) .
+  eq md(((X :=read K) OPS)) = md(OPS) .
+  eq md(nil) = empty .
+
+  op prepareSites : OperationList Address ReplicaTable -> AddressSet .
+  eq prepareSites((write(K,EXPR) OPS),RID,REPLICA-TABLE) =
+       if localReplica(K,RID,REPLICA-TABLE)
+         then RID ; prepareSites(OPS,RID,REPLICA-TABLE)
+         else preferredSite(K,REPLICA-TABLE) ; prepareSites(OPS,RID,REPLICA-TABLE)
+       fi .
+  eq prepareSites(((X :=read K) OPS),RID,REPLICA-TABLE) =
+       prepareSites(OPS,RID,REPLICA-TABLE) .
+  eq prepareSites(nil,RID,REPLICA-TABLE) = empty .
+
+  op latestPrepared : Key Versions -> Version .
+  eq latestPrepared(K,(VS version(K,V,TS,MD))) = version(K,V,TS,MD) .
+ ceq latestPrepared(K,(VS version(K',V,TS,MD))) = latestPrepared(K,VS)
+     if K =/= K' .
+  eq latestPrepared(K,nil) = eptVersion .
+
+  op tstamp : Version -> Timestamp .
+  eq tstamp(version(K,V,TS,MD)) = TS .
+  eq tstamp(eptVersion) = eptTS .
+  
+  op remove : Address Address VoteSites -> VoteSites .
+  eq remove(TID,RID,(voteSites(TID,(RID ; RIDS)) ; VSTS)) =
+       voteSites(TID,RIDS) ; VSTS .
+  eq remove(TID,RID,VSTS) = VSTS [owise] .
+
+---(
+  op genCommits : Address Nat AddressSet Address -> Config .
+  eq genCommits(TID,SQN,(RID' ; RIDS),RID) =
+       genCommits(TID,SQN,RIDS,RID)
+       (msg commit(TID,ts(RID,SQN)) from RID to RID') .
+  eq genCommits(TID,SQN,empty,RID) = null .
+  )
+
+  op _`[_`] : VoteSites Address -> AddressSet .
+  eq (voteSites(TID,RIDS) ; VSTS)[TID] = RIDS . 
+
+  op cmt : KeyTimestamps Versions TimestampSqn Timestamp -> KeyTimestamps .
+  op $cmt : KeyTimestamps KeySet TimestampSqn Timestamp -> KeyTimestamps .
+  eq cmt(LC,VS,TSSQN,TS) = $cmt(LC,keyFilter(VS,TS),TSSQN,TS) .
+  eq $cmt(LC,(K,KS),TSSQN,TS) = $cmt(insert(K,maxseq(LC,K,TS,TSSQN),LC),KS,TSSQN,TS) .
+  eq $cmt(LC,empty,TSSQN,TS) = LC .
+
+  op keyFilter : Versions Timestamp -> KeySet . 
+  eq keyFilter((version(K,V,TS,MD) VS),TS') = 
+      if TS' == TS
+        then K, keyFilter(VS,TS')
+        else keyFilter(VS,TS')
+      fi .
+  eq keyFilter(nil,TS') = empty . 
+
+  op maxseq : KeyTimestamps Key Timestamp TimestampSqn -> Timestamp .
+  eq maxseq(LC,K,TS,TSSQN) = 
+       if $hasMapping(LC,K)
+         then if $hasMapping(TSSQN,LC[K])
+                then if TSSQN[TS] > TSSQN[LC[K]]
+                       then TS
+                       else LC[K]
+                     fi
+                else TS
+              fi
+         else TS
+       fi .
+
+  op vmatch : Key Versions KeyTimestamps -> Version .
+  eq vmatch(K,(VS version(K,V,TS,MD) VS'),(K |-> TS,LC)) = version(K,V,TS,MD) .
+  eq vmatch(K,VS,LC) = version(K,[0],ts(0,0),empty) [owise] .  
+  --- ??? deal with "K not in LC", namely, the first txn has reads
+
+  op vmatch : Key Versions Timestamp -> Version .
+  eq vmatch(K,(VS version(K,V,TS,MD) VS'),TS) = version(K,V,TS,MD) .
+  eq vmatch(K,VS,TS) = version(K,[0],ts(0,0),empty) [owise] .  
+  --- this should never apply since the 2nd-round read will fetch the version which has been prepared
+
+  ************************************************
+  ---??? !!! should be (RS version(K,V,TS,MD) RS')
+--- NEW: No more needed for this version
+  ************************************************
+---(
+  op gen2ndGets : Address KeyTimestamps Set{KeyVersion} Address ReplicaTable -> Config .
+  eq gen2ndGets(TID,(K |-> TS',VL),(< K,VERSION >,RS),RID,REPLICA-TABLE) = 
+       gen2ndGets(TID,(K |-> TS',VL),RS,RID,REPLICA-TABLE)
+       if ver2Ts(VERSION) less-than TS'
+         then if localReplica(K,RID,REPLICA-TABLE)
+                then (msg get(TID,K,TS') from RID to RID)
+                else (msg get(TID,K,TS') from RID to preferredSite(K,REPLICA-TABLE))
+              fi
+         else null
+       fi .
+  eq gen2ndGets(TID,VL,RS,RID,REPLICA-TABLE) = null [owise] .  --- if K is not in VL
+  eq gen2ndGets(TID,VL,empty,RID,REPLICA-TABLE) = null .
+  )
+
+  op _less-than_ : Timestamp Timestamp -> Bool .
+  eq ts(RID,SQN) less-than ts(RID',SQN') =
+       if SQN < SQN'
+         then true
+         else if SQN == SQN' and RID < RID'
+                then true
+                else false
+              fi
+       fi .
+
+  op lat : KeyTimestamps KeySet Timestamp -> KeyTimestamps .
+  eq lat(VL,(K,MD),TS) = lat(insert(K,maxts(VL,K,TS),VL),MD,TS) .
+  eq lat(VL,empty,TS) = VL .
+
+  op maxts : KeyTimestamps Key Timestamp -> Timestamp .
+  eq maxts(LC,K,TS) = if $hasMapping(LC,K)
+                        then if LC[K] less-than TS
+                               then TS
+                               else LC[K]
+                             fi
+                        else TS
+                      fi .
+
+  op 2ndSites : KeyTimestamps Set{KeyVersion} Address ReplicaTable -> AddressSet .
+  eq 2ndSites((K |-> TS',VL),(< K,VERSION >,RS),RID,REPLICA-TABLE) =
+       2ndSites((K |-> TS',VL),RS,RID,REPLICA-TABLE) ;
+       (if ver2Ts(VERSION) less-than TS'
+          then if localReplica(K,RID,REPLICA-TABLE)
+                 then RID
+                 else preferredSite(K,REPLICA-TABLE)
+               fi
+          else empty
+        fi) .
+  eq 2ndSites(VL,RS,RID,REPLICA-TABLE) = empty [owise] .  --- if K is not in VL
+  eq 2ndSites(VL,empty,RID,REPLICA-TABLE) = empty . 
+
+  op _`[_`] : 1stGets Address -> AddressSet .
+  eq (1st(TID,RIDS) ; 1STGETS)[TID] = RIDS . 
+
+  op _`[_`] : 2ndGets Address -> AddressSet .
+  eq (2nd(TID,RIDS) ; 2NDGETS)[TID] = RIDS . 
+
+*** NEW
+  op _in_ : Address 1stGets -> Bool .
+  eq TID in (1st(TID,RIDS) ; 1STGETS) = true .
+  eq TID in 1STGETS = false [owise] .
+
+  op _in_ : Address 2ndGets -> Bool .
+  eq TID in (2nd(TID,RIDS) ; 2NDGETS) = true .
+  eq TID in 2NDGETS	= false [owise] .
+
+
+  op delete : Address 1stGets -> 1stGets .
+  eq delete(TID,(1st(TID,RIDS) ; 1STGETS)) = 1STGETS .
+  eq delete(TID,1STGETS) = 1STGETS [owise] .
+
+  op delete : Address 2ndGets -> 2ndGets .
+  eq delete(TID,(2nd(TID,RIDS) ; 2NDGETS)) = 2NDGETS .
+  eq delete(TID,2NDGETS) = 2NDGETS [owise] .
+
+
+  op remove : Address Address 1stGets -> 1stGets .
+  eq remove(TID,RID,(1st(TID,(RID ; RIDS)) ; 1STGETS)) =
+       1st(TID,RIDS) ; 1STGETS .
+  eq remove(TID,RID,1STGETS) = 1STGETS [owise] .
+
+  op remove : Address Address 2ndGets -> 2ndGets .
+  eq remove(TID,RID,(2nd(TID,(RID ; RIDS)) ; 2NDGETS)) =
+       2nd(TID,RIDS) ; 2NDGETS .
+  eq remove(TID,RID,2NDGETS) = 2NDGETS [owise] .
+
+---(
+  --- deal with rw-txns in ROLA
+  op genPuts : OperationList Address Address Nat LocalVars Set{KeyVersion} ReplicaTable -> Config .
+  op $genPuts : OperationList Address Address Nat LocalVars Set{KeyVersion} ReplicaTable OperationList -> Config .
+  eq genPuts(OPS,RID,TID,SQN,VARS,RS,REPLICA-TABLE) = $genPuts(OPS,RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS) .
+  eq $genPuts((write(K,EXPR) OPS),RID,TID,SQN,VARS,(RS,< K,VERSION >),REPLICA-TABLE,(OPS' write(K,EXPR) OPS'')) =
+       $genPuts(OPS,RID,TID,SQN,VARS,(RS,< K,VERSION >),REPLICA-TABLE,(OPS' write(K,EXPR) OPS''))
+       if localReplica(K,RID,REPLICA-TABLE)
+         then (msg prepare(TID,version(K,eval(EXPR,VARS),ts(RID,SQN),md(OPS' OPS'')),ver2Ts(VERSION)) from RID to RID)
+         else (msg prepare(TID,version(K,eval(EXPR,VARS),ts(RID,SQN),md(OPS' OPS'')),ver2Ts(VERSION)) from RID to preferredSite(K,REPLICA-TABLE))
+       fi .
+  eq $genPuts(((X :=read K) OPS),RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS') = 
+       $genPuts(OPS,RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS') . 
+  eq $genPuts(nil,RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS') = null . 
+  )
+
+*** NEW
+  op ts2Ver : Timestamp -> Version .
+  eq ts2Ver(ts(RID,SQN)) = < RID,SQN > .
+
+  op ver2Ts : Version -> Timestamp .
+  eq ver2Ts(< RID,SQN >) = ts(RID,SQN) .
+
+  op ver2Ts : Version -> Timestamp .
+  eq ver2Ts(version(K,V,TS,MD)) = TS .  
+
+  op kver : Set{KeyValue} Version -> Set{KeyVersion} . 
+  eq kver((< K,V >,WS),VERSION) = < K,VERSION >, kver(WS,VERSION) .
+  eq kver(empty,VERSION) = empty .
+
+  op _in_ : Key Versions -> Bool .
+  eq K in (DS version(K,V,TS,MD) DS') = true .
+  eq K in DS = false [owise] .
+
+  op _in_ : Key OperationList -> Bool .
+  eq K in (OPS (X :=read K) OPS') = true .
+  eq K in (OPS write(K,EXPR) OPS') = true .
+  eq K in OPS = false [owise] .
+
+  --- version order
+  op _<_ : Version Version -> Bool .
+  eq < RID,SQN > < < RID',SQN' > =
+       if SQN < SQN'
+         then true
+         else if SQN == SQN' and RID < RID'
+                then true
+                else false
+              fi
+       fi .
+
+  op _in_ : Address AddressSet -> Bool .
+  eq TID in (TID ; TIDS) = true .
+  eq TID in TIDS = false [owise] .
+endm
