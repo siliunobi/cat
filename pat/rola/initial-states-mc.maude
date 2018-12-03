@@ -239,8 +239,14 @@ mod INITIAL-STATES is
 
   op rm : Address AddressList -> AddressList .
   eq rm(RID,RIDS ;; RID ;; RIDS') = RIDS ;; RIDS' .
-  eq rm(RID,RIDS) = RIDS [owise] .
-  
+  eq rm(RID,RIDS) = RIDS [owise] .  
+
+  op lvars : OperationList -> LocalVars .
+  op $lvars : OperationList LocalVars -> LocalVars .
+  eq lvars(OPS) = $lvars(OPS,empty) .
+  eq $lvars(((VAR :=read K) OPS),VARS) = $lvars(OPS,insert(VAR,[0],VARS)) .
+  eq $lvars((write(K,EXPR) OPS),VARS) = $lvars(OPS,VARS) .
+  eq $lvars(nil,VARS) = VARS .
 
   --- generate txns
   --- all 3 remaining
@@ -348,14 +354,6 @@ mod INITIAL-STATES is
   --- we probabilistically generate a written value: in this case, uniformly sampled on [1,1000]
   eq $$addRWrites(ROPS,KVARS,KAD,OPS,< K,VAR >) = $addRWrites(ROPS,delete(< K,VAR >,KVARS),KAD,(OPS (VAR :=read K) write(K,(floor(rrand * 1000) + 1)))) .
   eq $addRWrites(0,KVARS,KAD,OPS) = OPS .
-
-
-  op lvars : OperationList -> LocalVars .
-  op $lvars : OperationList LocalVars -> LocalVars .
-  eq lvars(OPS) = $lvars(OPS,empty) .
-  eq $lvars(((VAR :=read K) OPS),VARS) = $lvars(OPS,insert(VAR,[0],VARS)) .
-  eq $lvars((write(K,EXPR) OPS),VARS) = $lvars(OPS,VARS) .
-  eq $lvars(nil,VARS) = VARS .
 
 
   --- if this is the first ro-txn to generate
