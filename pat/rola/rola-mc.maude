@@ -26,12 +26,13 @@ mod ROLA is
   vars WRITES READS WRITES' : VersionSet .  var SL : ScheduleList .
   vars WS WS' : Set{KeyValue} .  vars RS RS' : Set{KeyVersion} .
 
-  var O@M : Address .  var GT : Float .  var LOG@M : Log .
+  var O@M : Address .  var GT : Float .  var LOG@M : Log .  --- GT is of float 
   vars VTS1@M VTS2@M : VectorTime . var FLAG@M : Bool . 
   vars READS@M WRITES@M : Set{KeyVersion} .
 
 ***NEW: assume all delays are the same as 'delay'
   --- Aux functions
+  --- this equation should be transformed during monitor 
   op genGets : OperationList Address Address ReplicaTable -> Config .
   eq genGets(((X :=read K) OPS),RID,TID,REPLICA-TABLE) = 
        genGets(OPS,RID,TID,REPLICA-TABLE)
@@ -107,20 +108,20 @@ mod ROLA is
   --- we consider one-shot reads that can be issued in a single parallel batch
  crl [start-ro-or-rw-txn] :
      < O@M : Monitor | log: LOG@M >
-     {GT, start to RID}  ---??? "start"
+     {GT, start to RID}  ---??? "start" 
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | gotTxns: (< TID : Txn | operations: OPS,
                                                latest: empty, AS > ;; TXNS),
                        executing: noActor,
                        1stGetSites: 1STGETS, AS' >
-   =>
+   => --- no clock in monitor, GT in the log is from message 
      < O@M : Monitor | log: insert(TID,< RID |-> GT,empty,false,empty,empty >,LOG@M) >
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | gotTxns: TXNS,
                        executing: < TID : Txn | operations: OPS,
                                                 latest: vl(OPS), AS >,  --- initialize "v_latest"
                        1stGetSites: (1STGETS ; 1st(TID,RIDS)), AS' >
-     genGets(OPS,RID,TID,REPLICA-TABLE) 
+     genGets(OPS,RID,TID,REPLICA-TABLE)  --- 
      if (not write-only(OPS)) /\
         RIDS := 1stSites(OPS,RID,REPLICA-TABLE) .
 
@@ -161,7 +162,7 @@ mod ROLA is
      < RID : Replica | datastore: VS,
                        sqn: SQN,
                        tsSqn: TSSQN, AS' >
-     {GT, msg prepare(TID,version(K,V,TS,MD)) from RID' to RID}
+     {GT, msg prepare(TID,version(K,V,TS,MD)) from RID' to RID} --- form is fixed {GT, msg}
    =>
      < RID : Replica | datastore: (VS version(K,V,TS,MD)),
                        sqn: SQN',
