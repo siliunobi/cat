@@ -1,0 +1,72 @@
+load consistency
+
+mod PERFORMANCE is
+  inc CLIENT-REPLICA .
+  inc APMAUDE .
+
+  vars T T' T1 T2 NUMBER : Float .
+  var C : Config .
+  vars M TID RID : Address .
+  var FLAG : Bool .
+  var LOG : Log .
+  vars VT VT1 VT2 : VectorTime .
+  vars RS WS : Set{KeyVersion} .
+
+  --- Throughput
+  op totalRunTime : Log -> Float .
+  op trt : Log Float -> Float .
+  eq totalRunTime(LOG) = trt(LOG,0.0) .
+  eq trt((TID |-> < VT1 ; VT2 ; FLAG ; RS ; WS >, LOG),T) =
+       trt(LOG,max(max(VT2),T)) .
+  eq trt(empty,T) = T .
+         
+  op throughput : Config -> Float .
+  eq throughput(< M : Monitor | log: LOG > C) = committedNumber(LOG) / totalRunTime(LOG) .
+
+  op max : VectorTime -> Float .
+  op $max : VectorTime Float -> Float .
+  eq max(VT) = $max(VT,0.0) .
+  eq $max((RID |-> T',VT),T) = $max(VT,max(T',T)) .
+  eq $max(empty,T) = T .
+
+  op committedNumber : Log -> Float .
+  op $committedNumber : Log Float -> Float .
+  eq committedNumber(LOG) = $committedNumber(LOG,0.0) .
+  eq $committedNumber((TID |-> < VT1 ; VT2 ; true ; RS ; WS >, LOG),NUMBER) = 
+       $committedNumber(LOG,NUMBER + 1.0) .
+  eq $committedNumber((TID |-> < VT1 ; VT2 ; false ; RS ; WS >, LOG),NUMBER) = 
+       $committedNumber(LOG,NUMBER) .
+  eq $committedNumber(empty,NUMBER) = NUMBER .
+
+
+  --- Commit Rate
+  op commitRate : Config -> Float .
+  eq commitRate(< M : Monitor | log: LOG > C) = committedNumber(LOG) / totalNumber(LOG) .
+
+  op totalNumber : Log -> Float .
+  op $totalNumber : Log Float -> Float .
+  eq totalNumber(LOG) = $totalNumber(LOG,0.0) .
+  eq $totalNumber((TID |-> < VT1 ; VT2 ; FLAG ; RS ; WS >, LOG),NUMBER) = 
+       $totalNumber(LOG,NUMBER + 1.0) .
+  eq $totalNumber(empty,NUMBER) = NUMBER .  
+
+
+  --- Avg Latency
+  op avgLatency : Config -> Float .
+  eq avgLatency(< M : Monitor | log: LOG > C) = totalLatency(LOG) / committedNumber(LOG) .
+  
+  op totalLatency : Log -> Float .
+  op $totalLatency : Log Float -> Float .
+  eq totalLatency(LOG) = $totalLatency(LOG,0.0) .
+  eq $totalLatency((TID |-> < RID |-> T ; VT2 ; true ; RS ; WS >, LOG),NUMBER) =
+       $totalLatency(LOG,NUMBER + max(VT2) - T) .
+  eq $totalLatency((TID |-> < VT1 ; VT2 ; false ; RS ; WS >, LOG),NUMBER) = 
+       $totalLatency(LOG,NUMBER) .
+  eq $totalLatency(empty,NUMBER) = NUMBER .
+
+  --- PVESTA interfaces
+  eq val(0,C) = throughput(C) .
+  eq val(1,C) = avgLatency(C) .
+  eq val(2,C) = commitRate(C) .
+
+endm

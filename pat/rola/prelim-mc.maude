@@ -239,7 +239,7 @@ fmod CLIENT-REPLICA is
   op clock:_ : Nat -> Attribute .
 
 *** NEW 
-  op <_`,_`,_`,_`,_> : VectorTime VectorTime Bool Set{KeyVersion} Set{KeyVersion} -> Record [ctor] .
+  op <_;_;_;_;_> : VectorTime VectorTime Bool Set{KeyVersion} Set{KeyVersion} -> Record [ctor] .
 
 endfm
 
