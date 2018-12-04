@@ -1,38 +1,47 @@
-load consistency
+load performance
+load model-checker
 
 mod ANALYSIS is
   inc INITIAL-STATES .
   inc CONSISTENCY .
+  inc MODEL-CHECKER .
+  inc PERFORMANCE .
+
+  subsort Config < State .
 
   eq LIMIT = 10000000.0 .
 
   op initConfig : -> Config .
   eq initConfig = run(initState,LIMIT) .
 
+
+
+---
   eq initState = init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,
       nbOfCls,nbOfServs,nbOfKeys,nbOfRepls,
       nbOfOpsPerRoTxn,nbOfOpsPerWoTxn,nbOfOpsPerRwTxn,kad) . 
 
 
   --- Init parameters 
-  eq nbOfRoTxns = 0 .  
+  eq nbOfRoTxns = 2 .  
   eq nbOfWoTxns = 0 .  
-  eq nbOfRwTxns = 2 .
-  eq nbOfOpsPerRoTxn = 0 .
+  eq nbOfRwTxns = 0 .
+  eq nbOfOpsPerRoTxn = 2 .
   eq nbOfOpsPerWoTxn = 0 .
-  eq nbOfOpsPerRwTxn = 4 .  --- must be even number
+  eq nbOfOpsPerRwTxn = 0 .  --- must be even number
   eq nbOfCls = 2 .
   eq nbOfServs  = 2 .  
   eq nbOfKeys = 2 .  
   eq nbOfRepls = 1 .
-  eq kad = zipf .
-  eq delay = sampleLogNormal(3.0,2.0) .
+  eq kad = uniform .
+ --- eq delay = sampleLogNormal(3.0,2.0) .
 
 endm
 
 
-set clear rules off .
-rewrite initConfig .
+---set clear rules off .
+---rewrite initConfig .
+
 
 
 ---(

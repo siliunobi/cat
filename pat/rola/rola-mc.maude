@@ -11,6 +11,9 @@ mod ROLA is
   including SCHEDULER .
   including ROLA-AUX .
 
+  eq delay = sampleLogNormal(3.0,2.0) .
+
+
   vars RID TID RID' TABLE : Address .  var RIDS : AddressSet .
   vars AS AS' : AttributeSet .  vars TXNS TXNS' : ConfigList .
   vars K K' : Key .  var X : LocalVar .
