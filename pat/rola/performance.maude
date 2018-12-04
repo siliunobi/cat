@@ -16,7 +16,7 @@ mod PERFORMANCE is
   op totalRunTime : Log -> Float .
   op trt : Log Float -> Float .
   eq totalRunTime(LOG) = trt(LOG,0.0) .
-  eq trt((TID |-> < VT1,VT2,FLAG,RS,WS >, LOG),T) =
+  eq trt((TID |-> < VT1 ; VT2 ; FLAG ; RS ; WS >, LOG),T) =
        trt(LOG,max(max(VT2),T)) .
   eq trt(empty,T) = T .
          
@@ -32,9 +32,9 @@ mod PERFORMANCE is
   op committedNumber : Log -> Float .
   op $committedNumber : Log Float -> Float .
   eq committedNumber(LOG) = $committedNumber(LOG,0.0) .
-  eq $committedNumber((TID |-> < VT1,VT2,true,RS,WS >, LOG),NUMBER) = 
+  eq $committedNumber((TID |-> < VT1 ; VT2 ; true ; RS ; WS >, LOG),NUMBER) = 
        $committedNumber(LOG,NUMBER + 1.0) .
-  eq $committedNumber((TID |-> < VT1,VT2,false,RS,WS >, LOG),NUMBER) = 
+  eq $committedNumber((TID |-> < VT1 ; VT2 ; false ; RS ; WS >, LOG),NUMBER) = 
        $committedNumber(LOG,NUMBER) .
   eq $committedNumber(empty,NUMBER) = NUMBER .
 
@@ -46,7 +46,7 @@ mod PERFORMANCE is
   op totalNumber : Log -> Float .
   op $totalNumber : Log Float -> Float .
   eq totalNumber(LOG) = $totalNumber(LOG,0.0) .
-  eq $totalNumber((TID |-> < VT1,VT2,FLAG,RS,WS >, LOG),NUMBER) = 
+  eq $totalNumber((TID |-> < VT1 ; VT2 ; FLAG ; RS ; WS >, LOG),NUMBER) = 
        $totalNumber(LOG,NUMBER + 1.0) .
   eq $totalNumber(empty,NUMBER) = NUMBER .  
 
@@ -58,9 +58,9 @@ mod PERFORMANCE is
   op totalLatency : Log -> Float .
   op $totalLatency : Log Float -> Float .
   eq totalLatency(LOG) = $totalLatency(LOG,0.0) .
-  eq $totalLatency((TID |-> < RID |-> T,VT2,true,RS,WS >, LOG),NUMBER) =
+  eq $totalLatency((TID |-> < RID |-> T ; VT2 ; true ; RS ; WS >, LOG),NUMBER) =
        $totalLatency(LOG,NUMBER + max(VT2) - T) .
-  eq $totalLatency((TID |-> < VT1,VT2,false,RS,WS >, LOG),NUMBER) = 
+  eq $totalLatency((TID |-> < VT1 ; VT2 ; false ; RS ; WS >, LOG),NUMBER) = 
        $totalLatency(LOG,NUMBER) .
   eq $totalLatency(empty,NUMBER) = NUMBER .
 

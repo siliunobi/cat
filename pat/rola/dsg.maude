@@ -38,10 +38,10 @@ mod DSG is
         (TID' |-> < VT3,VT4,true,RS',(< X,VS >,WS') >,LOG),
           (DSG ; < TID' ; TID >)) .  
   )
- ceq dsg((TID |-> < VT1,VT2,true,(< X,VS >,RS),WS >,LOG'),
-        (TID' |-> < VT3,VT4,true,RS',(< X,VS >,WS') >,LOG),DSG)
-   = dsg((TID |-> < VT1,VT2,true,RS,WS >,LOG'),
-        (TID' |-> < VT3,VT4,true,RS',(< X,VS >,WS') >,LOG),
+ ceq dsg((TID |-> < VT1 ; VT2 ; true ; (< X,VS >,RS) ; WS >,LOG'),
+        (TID' |-> < VT3 ; VT4 ; true ; RS' ; (< X,VS >,WS') >,LOG),DSG)
+   = dsg((TID |-> < VT1 ; VT2 ; true ; RS ; WS >,LOG'),
+        (TID' |-> < VT3 ; VT4 ; true ; RS' ; (< X,VS >,WS') >,LOG),
           (DSG ; < TID' ; TID >)) 
      if TID =/= TID' . 
 
@@ -73,24 +73,24 @@ mod DSG is
     if VS =/= VS' /\ not committedBetween(X,VS,VS',LOG) .
   )
 
- ceq dsg((TID |-> < VT1,VT2,true,(< X,VS >,RS),WS >,LOG'),
-       (TID' |-> < VT3,VT4,true,RS',(< X,VS' >,WS') >,LOG),DSG)
-   = dsg((TID |-> < VT1,VT2,true,RS,WS >,LOG'),
-       (TID' |-> < VT3,VT4,true,RS',(< X,VS' >,WS') >,LOG),
+ ceq dsg((TID |-> < VT1 ; VT2 ; true ; (< X,VS >,RS) ; WS >,LOG'),
+       (TID' |-> < VT3 ; VT4 ; true ; RS' ; (< X,VS' >,WS') >,LOG),DSG)
+   = dsg((TID |-> < VT1 ; VT2 ; true ; RS ; WS >,LOG'),
+       (TID' |-> < VT3 ; VT4 ; true ; RS' ; (< X,VS' >,WS') >,LOG),
             (DSG ; < TID ; TID' >)) 
     if VS < VS' /\ not committedBetween(X,VS,VS',LOG) /\
        TID =/= TID' .
 
 
   op committedBetween : Key Version Version Log -> Bool .
- ceq committedBetween(X,VS,VS',(TID |-> < VT,VT',true,RS,
+ ceq committedBetween(X,VS,VS',(TID |-> < VT ; VT' ; true ; RS ;
        (< X,VS'' >,WS) >,LOG)) = true if VS'' < VS' /\ VS < VS'' .
   eq committedBetween(X,VS,VS',LOG) = false [owise] .
 
 
   --- Move to next version read             
-  eq dsg((TID |-> < VT1,VT2,true,(< X,VS >,RS),WS >,LOG'),LOG,DSG)
-       = dsg((TID |-> < VT1,VT2,true,RS,WS >,LOG'),LOG,DSG) [owise] .
+  eq dsg((TID |-> < VT1 ; VT2 ; true ; (< X,VS >,RS) ; WS >,LOG'),LOG,DSG)
+       = dsg((TID |-> < VT1 ; VT2 ; true ; RS ; WS >,LOG'),LOG,DSG) [owise] .
 
 
 
@@ -119,10 +119,10 @@ mod DSG is
      if VS' =/= VS /\ not committedBetween(X,VS,VS',LOG) . 
   )
 
- ceq dsg((TID |-> < VT1,VT2,true,empty,(< X,VS >,WS) >,LOG'),
-       (TID' |-> < VT3,VT4,true,RS',(< X,VS' >,WS') >,LOG),DSG)
-   = dsg((TID |-> < VT1,VT2,true,empty,WS >,LOG'),
-       (TID' |-> < VT3,VT4,true,RS',(< X,VS' >,WS') >,LOG),
+ ceq dsg((TID |-> < VT1 ; VT2 ; true ; empty ; (< X,VS >,WS) >,LOG'),
+       (TID' |-> < VT3 ; VT4 ; true ; RS' ; (< X,VS' >,WS') >,LOG),DSG)
+   = dsg((TID |-> < VT1 ; VT2 ; true ; empty ; WS >,LOG'),
+       (TID' |-> < VT3 ; VT4 ; true ; RS' ; (< X,VS' >,WS') >,LOG),
           (DSG ; < TID ; TID' >)) 
      if VS < VS' /\ not committedBetween(X,VS,VS',LOG) /\
         TID =/= TID' . 
@@ -156,26 +156,26 @@ mod DSG is
      if VS' =/= VS /\ not committedBetween(X,VS',VS,LOG) .  
   )
 
- ceq dsg((TID |-> < VT1,VT2,true,empty,(< X,VS >,WS) >,LOG'),
-        (TID' |-> < VT3,VT4,true,(< X,VS' >,RS'),WS' >,LOG),DSG)
-   = dsg((TID |-> < VT1,VT2,true,empty,WS >,LOG'),
-        (TID' |-> < VT3,VT4,true,(< X,VS' >,RS'),WS' >,LOG),
+ ceq dsg((TID |-> < VT1 ; VT2 ; true ; empty ; (< X,VS >,WS) >,LOG'),
+        (TID' |-> < VT3 ; VT4 ; true ; (< X,VS' >,RS') ; WS' >,LOG),DSG)
+   = dsg((TID |-> < VT1 ; VT2 ; true ; empty ; WS >,LOG'),
+        (TID' |-> < VT3 ; VT4 ; true ; (< X,VS' >,RS') ; WS' >,LOG),
            (DSG ; < TID' ; TID >)) 
      if VS' < VS /\ not committedBetween(X,VS',VS,LOG) /\
         TID =/= TID' .  
 
   --- Move to next version written             
-  eq dsg((TID |-> < VT1,VT2,true,empty,(< X,VS >,WS) >,LOG'),LOG,DSG)
-       = dsg((TID |-> < VT1,VT2,true,empty,WS >,LOG'),LOG,DSG) [owise] .
+  eq dsg((TID |-> < VT1 ; VT2 ; true ; empty ; (< X,VS >,WS) >,LOG'),LOG,DSG)
+       = dsg((TID |-> < VT1 ; VT2 ; true ; empty ; WS >,LOG'),LOG,DSG) [owise] .
  
 
   --- Thirdly, move to next txn (with read set and write set empty)
   --- as all dependencies of txn TID have been built up
-  eq dsg((TID |-> < VT,VT',true,empty,empty >,LOG'),LOG,DSG)
+  eq dsg((TID |-> < VT ; VT' ; true ; empty ; empty >,LOG'),LOG,DSG)
         = dsg(LOG',LOG,DSG) .
        
   --- A DSG considers only committed txns
-  eq dsg((TID |-> < VT,VT',false,RS,WS >,LOG'),LOG,DSG) 
+  eq dsg((TID |-> < VT ; VT' ; false ; RS ; WS >,LOG'),LOG,DSG) 
         = dsg(LOG',LOG,DSG) .  
        
   --- All txns finished
@@ -216,10 +216,10 @@ mod DSG is
 
   *** Update txns for US
   op updateTxn : Log -> Log .
-  eq updateTxn((TID |-> < VT1,VT2,FLAG,RS,empty >,LOG)) 
+  eq updateTxn((TID |-> < VT1 ; VT2 ; FLAG ; RS ; empty >,LOG)) 
        = updateTxn(LOG) .
-  eq updateTxn((TID |-> < VT1,VT2,FLAG,RS,WS >,LOG)) 
-       = (TID |-> < VT1,VT2,FLAG,RS,WS >), updateTxn(LOG) [owise] .
+  eq updateTxn((TID |-> < VT1 ; VT2 ; FLAG ; RS ; WS >,LOG)) 
+       = (TID |-> < VT1 ; VT2 ; FLAG ; RS ; WS >), updateTxn(LOG) [owise] .
   eq updateTxn(empty) = empty .
 
 

@@ -17,10 +17,10 @@ mod CONSISTENCY is
   **********************
   *** Read Committed ***
   op rc : Log -> Bool .
-  eq rc((TID1 |-> < VT1,VT2,true,(< X,V >,RS),WS >,
-         TID2 |-> < VT3,VT4,false,RS',(< X,V >,WS') >, LOG)) = false .  
- ceq rc((TID1 |-> < VT1,VT2,true,(< X,V >,RS),WS >, 
-         TID2 |-> < VT3,VT4,true,RS',(< X,V >,< X,V' >,WS') >,
+  eq rc((TID1 |-> < VT1 ; VT2 ; true ; (< X,V >,RS) ; WS >,
+         TID2 |-> < VT3 ; VT4 ; false ; RS' ; (< X,V >,WS') >, LOG)) = false .  
+ ceq rc((TID1 |-> < VT1 ; VT2 ; true ; (< X,V >,RS) ; WS >, 
+         TID2 |-> < VT3 ; VT4 ; true ; RS' ; (< X,V >,< X,V' >,WS') >,
          LOG)) = false if V < V' . 
   eq rc(LOG) = true [owise] .
 
@@ -50,8 +50,8 @@ mod CONSISTENCY is
   *** Read Atomicity ***
 
   op fracRead : Log -> Bool .
- ceq fracRead((TID1 |-> < VT1,VT2,true,(< X,VX >,< Y,VY' >,RS),WS >,
-       TID2 |-> < VT3,VT4,true,RS',(< X,VX >,< Y,VY >,WS') >, LOG))
+ ceq fracRead((TID1 |-> < VT1 ; VT2 ; true ; (< X,VX >,< Y,VY' >,RS) ; WS >,
+       TID2 |-> < VT3 ; VT4 ; true ; RS' ; (< X,VX >,< Y,VY >,WS') >, LOG))
 --- < is system-specific; defined in aux file
        = true if VY' < VY .
   eq fracRead(LOG) = false [owise] .
@@ -63,8 +63,8 @@ mod CONSISTENCY is
   *** Cursor Stability ***
 
   op lu : Log -> Bool .
-  eq lu((TID1 |-> < VT1,VT2,true,(< X,V >,RS),(< X,VX >,WS) >,
-       TID2 |-> < VT3,VT4,true,(< X,V >,RS'),(< X,VX' >,WS') >,
+  eq lu((TID1 |-> < VT1 ; VT2 ; true ; (< X,V >,RS) ; (< X,VX >,WS) >,
+       TID2 |-> < VT3 ; VT4 ; true ; (< X,V >,RS') ; (< X,VX' >,WS') >,
        LOG)) = true .
   eq lu(LOG) = false [owise] .
 
@@ -79,24 +79,24 @@ mod CONSISTENCY is
   **************************
   *** Snapshot Isolation ***
   op notSnapshotRead : Log -> Bool .
- ceq notSnapshotRead((TID1 |-> < RID1 |-> T1,VT1,true,
-      (< X,V >,RS1),WS1 >, 
-      TID2 |-> < RID2 |-> T2,(RID2 |-> T,VT2),true,RS2,
+ ceq notSnapshotRead((TID1 |-> < RID1 |-> T1 ; VT1 ; true ; 
+      (< X,V >,RS1) ; WS1 >, 
+      TID2 |-> < RID2 |-> T2 ; (RID2 |-> T,VT2) ; true ; RS2 ; 
       (< X,V >,WS2) >,
-      TID3 |-> < RID3 |-> T3,(RID3 |-> T',VT3),true,RS3,
+      TID3 |-> < RID3 |-> T3 ; (RID3 |-> T',VT3) ; true ; RS3 ;
       (< X,V' >,WS3) >,
       LOG)) = true if V =/= V' /\ T' < T1 /\ T' > T .
  ceq notSnapshotRead((
-       TID1 |-> < RID1 |-> T1,VT1,true,(< X,V >,RS1),WS1 >, 
-       TID2 |-> < RID2 |-> T2,(RID2 |-> T,VT2),true,RS2,(< X,V >,WS2) >,
+       TID1 |-> < RID1 |-> T1 ; VT1 ; true ; (< X,V >,RS1) ; WS1 >, 
+       TID2 |-> < RID2 |-> T2 ; (RID2 |-> T,VT2) ; true ; RS2 ; (< X,V >,WS2) >,
        LOG)) = true if T1 < T .
  eq notSnapshotRead(LOG) = false [owise] .
 
 
   op wwConflict : Log -> Bool .
- ceq wwConflict((TID1 |-> < RID |-> T1,(RID |-> T2,VT2),true,RS,
+ ceq wwConflict((TID1 |-> < RID |-> T1 ; (RID |-> T2,VT2) ; true ; RS ;
        (< X,V >,WS) >, 
-       TID2 |-> < RID' |-> T3,(RID' |-> T,VT4),true,RS',
+       TID2 |-> < RID' |-> T3 ; (RID' |-> T,VT4) ; true ; RS' ;
        (< X,V' >,WS') >, 
        LOG)) = true if T > T1 /\ T < T2 .
   eq wwConflict(LOG) = false [owise] .
@@ -107,28 +107,28 @@ mod CONSISTENCY is
   ***********************************
   *** Parallel Snapshot Isolation ***
   op notSiteSnapshotRead : Log -> Bool .
- ceq notSiteSnapshotRead((TID1 |-> < RID1 |-> T,VT2,true,
-      (< X,V >,RS1),WS1 >, 
-      TID2 |-> < VT3,(RID1 |-> T2,VT4),true,RS2,(< X,V >,WS2) >,
-      TID3 |-> < VT5,(RID1 |-> T3,VT6),true,RS3,(< X,V' >,WS3) >, 
+ ceq notSiteSnapshotRead((TID1 |-> < RID1 |-> T ; VT2 ; true ; 
+      (< X,V >,RS1) ; WS1 >, 
+      TID2 |-> < VT3 ; (RID1 |-> T2,VT4) ; true ; RS2 ; (< X,V >,WS2) >,
+      TID3 |-> < VT5 ; (RID1 |-> T3,VT6) ; true ; RS3 ; (< X,V' >,WS3) >, 
         LOG)) = true if V =/= V' /\ T3 < T /\ T3 > T2 .
  ceq notSiteSnapshotRead((
-       TID1 |-> < RID1 |-> T,VT1,true,(< X,V >,RS1),WS1 >, 
-       TID2 |-> < VT,(RID1 |-> T2,VT2),true,RS2,(< X,V >,WS2) >,
+       TID1 |-> < RID1 |-> T ; VT1 ; true ; (< X,V >,RS1) ; WS1 >, 
+       TID2 |-> < VT ; (RID1 |-> T2,VT2) ; true ; RS2 ; (< X,V >,WS2) >,
        LOG)) = true if T < T2 . 
   eq notSiteSnapshotRead(LOG) = false [owise] .
 
   op someWhereConflict : Log -> Bool .
  ceq someWhereConflict((
-      TID1 |-> < RID1 |-> T,(RID1 |-> T1,VT2),true,RS,(< X,V >,WS) >, 
-      TID2 |-> < VT3,(RID1 |-> T2,VT4),true,RS',(< X,V' >,WS') >,
+      TID1 |-> < RID1 |-> T ; (RID1 |-> T1,VT2) ; true ; RS ; (< X,V >,WS) >, 
+      TID2 |-> < VT3 ; (RID1 |-> T2,VT4) ; true ; RS' ; (< X,V' >,WS') >,
         LOG)) = true if T2 > T /\ T2 < T1 .
   eq someWhereConflict(LOG) = false [owise] .
 
   op notCausality : Log -> Bool .
  ceq notCausality((
-      TID1 |-> < VT1,(RID2 |-> T1,RID |-> T3,VT2),true,RS,WS >, 
-      TID2 |-> < RID2 |-> T2,(RID |-> T4,VT4),true,RS',WS' >, 
+      TID1 |-> < VT1 ; (RID2 |-> T1,RID |-> T3,VT2) ; true ; RS ; WS >, 
+      TID2 |-> < RID2 |-> T2 ; (RID |-> T4,VT4) ; true ; RS' ; WS' >, 
         LOG)) = true if T1 < T2 /\ T3 > T4 .
   eq notCausality(LOG) = false [owise] .
 
@@ -157,14 +157,14 @@ mod CONSISTENCY is
   --- Read dependency violates real-time order
   --- TID1 reads stale version
   op notRtReadDep : Log -> Bool .
- ceq notRtReadDep((TID1 |-> < RID |-> T,VT,true,(< X,VS >,RS),WS >, 
-      TID2 |-> < RID' |-> T1,(RID' |-> T2,VT'),true,RS',
+ ceq notRtReadDep((TID1 |-> < RID |-> T ; VT ; true ; (< X,VS >,RS) ; WS >, 
+      TID2 |-> < RID' |-> T1 ; (RID' |-> T2,VT') ; true ; RS' ; 
         (< X,VS >,WS') >,LOG)) = true
      if T2 < T /\ rtCommittedBetween(X,T2,T,LOG) .
 
   op rtCommittedBetween : Key Float Float Log -> Bool .
  ceq rtCommittedBetween(X,T1,T2,
-     (TID |-> < RID |-> T,(RID |-> T',VT),true,RS,(< X,V >,WS) >,LOG))
+     (TID |-> < RID |-> T ; (RID |-> T',VT) ; true ; RS ; (< X,V >,WS) >,LOG))
    = true if T1 < T' /\ T' < T2 .
   eq rtCommittedBetween(X,T1,T2,LOG) = false [owise] .
 
@@ -174,8 +174,8 @@ mod CONSISTENCY is
   --- TID2 writes the next version, but TID1 should have done that
   op notRtWriteDep : Log -> Bool .
  ceq notRtWriteDep((
-      TID1 |-> < RID |-> T1,(RID |-> T1',VT),true,RS,(< X,VS >,WS) >, 
-      TID2 |-> < RID' |-> T2,(RID' |-> T2',VT'),true,RS',
+      TID1 |-> < RID |-> T1 ; (RID |-> T1',VT) ; true ; RS ; (< X,VS >,WS) >, 
+      TID2 |-> < RID' |-> T2 ; (RID' |-> T2',VT') ; true ; RS' ; 
       (< X,VS' >,WS') >,LOG)) = true
      if VS < VS' /\ not committedBetween(X,VS,VS',LOG) /\
         T1' < T2' /\ rtCommittedBetween(X,T1',T2',LOG)  . 
@@ -186,10 +186,10 @@ mod CONSISTENCY is
   --- TID2 writes the next version, but TID1 should have done that
   op notRtAntiDep : Log -> Bool .
  ceq notRtAntiDep((
-      TID1 |-> < RID1 |-> T1,(RID1 |-> T1',VT1),true,
-        (< X,VS >,RS1),WS1 >, 
-      TID2 |-> < RID2 |-> T2,(RID2 |-> T2',VT2),true,
-        RS2,(< X,VS' >,WS2) >,LOG)) = true
+      TID1 |-> < RID1 |-> T1 ; (RID1 |-> T1',VT1) ; true ;
+        (< X,VS >,RS1) ; WS1 >, 
+      TID2 |-> < RID2 |-> T2 ; (RID2 |-> T2',VT2) ; true ;
+        RS2 ; (< X,VS' >,WS2) >,LOG)) = true
      if VS < VS' /\ not committedBetween(X,VS,VS',LOG) /\
         T1' < T2' /\ rtCommittedBetween(X,T1',T2',LOG)  . 
 

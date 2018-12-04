@@ -11,8 +11,6 @@ mod ROLA is
   including SCHEDULER .
   including ROLA-AUX .
 
-  eq delay = sampleLogNormal(3.0,2.0) .
-
 
   vars RID TID RID' TABLE : Address .  var RIDS : AddressSet .
   vars AS AS' : AttributeSet .  vars TXNS TXNS' : ConfigList .
@@ -117,7 +115,7 @@ mod ROLA is
                        executing: noActor,
                        1stGetSites: 1STGETS, AS' >
    =>
-     < O@M : Monitor | log: insert(TID,< RID |-> GT,empty,false,empty,empty >,LOG@M) >
+     < O@M : Monitor | log: insert(TID,< RID |-> GT ; empty ; false ; empty ; empty >,LOG@M) >
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | gotTxns: TXNS,
                        executing: < TID : Txn | operations: OPS,
@@ -143,7 +141,7 @@ mod ROLA is
                        sqn: SQN,
                        voteSites: VSTS, AS' >
    =>
-     < O@M : Monitor | log: insert(TID,< RID |-> GT,empty,false,empty,empty >,LOG@M) >
+     < O@M : Monitor | log: insert(TID,< RID |-> GT ; empty ; false ; empty ; empty >,LOG@M) >
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | gotTxns: TXNS,
                        executing: < TID : Txn | operations: OPS,
@@ -198,7 +196,7 @@ mod ROLA is
   --- either nondeterministically, or after receiving all votes (as Walter does)  
   rl [receive-prepare-reply-false-executing] :
      < O@M : Monitor | log: (TID |->
-       < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+       < VTS1@M ; VTS2@M ; FLAG@M ; READS@M ; WRITES@M >,LOG@M) >
      < RID : Replica | executing: < TID : Txn | readSet: RS,
                                                 writeSet: WS,
                                                 version: VERSION, AS >,
@@ -207,7 +205,7 @@ mod ROLA is
      {GT, msg prepare-reply(TID,false) from RID' to RID}
    =>
      < O@M : Monitor | log: (TID |-> 
-       < VTS1@M,insert(RID,GT,VTS2@M),false,RS,kver(WS,VERSION) >,LOG@M) >
+       < VTS1@M ; insert(RID,GT,VTS2@M) ; false ; RS ; kver(WS,VERSION) >,LOG@M) >
      < RID : Replica | executing: noActor,
                        aborted: (TXNS ;; < TID : Txn | readSet: RS,
                                                        writeSet: WS,
@@ -269,7 +267,7 @@ mod ROLA is
 
  crl [receive-committed] :
      < O@M : Monitor | log: (TID |-> 
-       < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+       < VTS1@M ; VTS2@M ; FLAG@M ; READS@M ; WRITES@M >,LOG@M) >
      < RID : Replica | executing: < TID : Txn | readSet: RS,
                                                 writeSet: WS,
                                                 version: VERSION, AS >,
@@ -279,7 +277,7 @@ mod ROLA is
    =>
      (if CMTS'[TID] == empty  --- all "committed" received
        then < O@M : Monitor | log: (TID |-> 
-              < VTS1@M,insert(RID,GT,VTS2@M),true,RS,kver(WS,VERSION) >,LOG@M) > 
+              < VTS1@M ; insert(RID,GT,VTS2@M) ; true ; RS ; kver(WS,VERSION) >,LOG@M) > 
             < RID : Replica | executing: noActor,
                               committed: (TXNS ;; < TID : Txn | readSet: RS,
                                                                 writeSet: WS,
@@ -287,7 +285,7 @@ mod ROLA is
                               commitSites: CMTS', AS' >
             [delay, start to RID]  ---??? "start"
        else < O@M : Monitor | log: (TID |-> 
-              < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) > 
+              < VTS1@M ; VTS2@M ; FLAG@M ; READS@M ; WRITES@M >,LOG@M) > 
             < RID : Replica | executing: < TID : Txn | readSet: RS,
                                                        writeSet: WS,
                                                        version: VERSION, AS >,
@@ -363,7 +361,7 @@ mod ROLA is
   --- so "writeSet" not needed: no read-your-write-in-the-same-txn
  crl [commit-reads] :
      < O@M : Monitor | log: (TID |-> 
-       < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+       < VTS1@M ; VTS2@M ; FLAG@M ; READS@M ; WRITES@M >,LOG@M) >
      {GT, commit-reads(TID) to RID}
      < TABLE : Table | table: REPLICA-TABLE >
      < RID : Replica | executing: < TID : Txn | operations: OPS,
@@ -381,7 +379,7 @@ mod ROLA is
      < TABLE : Table | table: REPLICA-TABLE >
      (if read-only(OPS)
        then < O@M : Monitor | log: (TID |-> 
-              < VTS1@M,insert(RID,GT,VTS2@M),true,RS,kver(WS,VERSION) >,LOG@M) >
+              < VTS1@M ; insert(RID,GT,VTS2@M) ; true ; RS ; kver(WS,VERSION) >,LOG@M) >
             < RID : Replica | executing: noActor,
                               committed: (TXNS ;; < TID : Txn | operations: OPS,
                                                                 localVars: VARS,
@@ -395,7 +393,7 @@ mod ROLA is
                               voteSites: VSTS, AS' >
             [delay, start to RID]  ---??? "start"
        else < O@M : Monitor | log: (TID |-> 
-              < VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+              < VTS1@M ; VTS2@M ; FLAG@M ; READS@M ; WRITES@M >,LOG@M) >
             < RID : Replica | executing: < TID : Txn | operations: OPS,
                                                        localVars: VARS,
                                                        readSet: RS,
