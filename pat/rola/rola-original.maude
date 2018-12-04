@@ -1,0 +1,439 @@
+load rola-aux-mc
+load sampler
+
+mod ROLA is
+  including CLIENT-REPLICA .
+  including MESSAGE .
+  including REPLICA-TABLE .
+  including SAMPLER .
+  including VERSION-ROLA .
+  including VALUES-NAT .
+  including SCHEDULER .
+  including ROLA-AUX .
+
+  vars RID TID RID' TABLE : Address .  var RIDS : AddressSet .
+  vars AS AS' : AttributeSet .  vars TXNS TXNS' : ConfigList .
+  vars K K' : Key .  var X : LocalVar .
+  var REPLICA-TABLE : ReplicaTable .  vars OPS OPS' OPS'' : OperationList .
+  vars V V' : Value .  var VARS : LocalVars .  var DS : Versions .
+  vars LC VL VL' : KeyTimestamps .  vars VER VERSION : Version .
+  vars TS TS' : Timestamp .  vars MD MD' KS : KeySet .  vars VS VS' : Versions .
+  vars SQN SQN' TXNSQN : Int .  var EXPR : Expression .
+  var RT : KeyReplicas .  vars 1STGETS 1STGETS' : 1stGets .
+  vars 2NDGETS 2NDGETS' : 2ndGets .  vars VSTS CMTS VSTS' CMTS' : VoteSites .
+  vars T T1 : Float .  var FLAG : Bool .  var TSSQN : TimestampSqn .
+  vars VOTES VOTES' : Vote .  vars RECORD RECORD' : Record .
+  vars WRITES READS WRITES' : VersionSet .  var SL : ScheduleList .
+  vars WS WS' : Set{KeyValue} .  vars RS RS' : Set{KeyVersion} .
+
+  var O@M : Address .  var GT : Float .  var LOG@M : Log .
+  vars VTS1@M VTS2@M : VectorTime . var FLAG@M : Bool . 
+  vars READS@M WRITES@M : Set{KeyVersion} .
+
+***NEW: assume all delays are the same as 'delay'
+  --- Aux functions
+  op genGets : OperationList Address Address ReplicaTable -> Config .
+  eq genGets(((X :=read K) OPS),RID,TID,REPLICA-TABLE) = 
+       genGets(OPS,RID,TID,REPLICA-TABLE)
+       (if localReplica(K,RID,REPLICA-TABLE)
+         then msg get(TID,K,eptTS) from RID to RID  --- eptTS denotes "empty" in line 25
+         else msg get(TID,K,eptTS) from RID to preferredSite(K,REPLICA-TABLE)
+       fi) .
+  eq genGets((write(K,EXPR) OPS),RID,TID,REPLICA-TABLE) =
+       genGets(OPS,RID,TID,REPLICA-TABLE) .
+  eq genGets(nil,RID,TID,REPLICA-TABLE) = null .
+
+  --- deal with wo-txns in ROLA
+  op genPuts : OperationList Address Address Nat LocalVars ReplicaTable -> Config .
+  op $genPuts : OperationList Address Address Nat LocalVars ReplicaTable OperationList -> Config .
+  eq genPuts(OPS,RID,TID,SQN,VARS,REPLICA-TABLE) = $genPuts(OPS,RID,TID,SQN,VARS,REPLICA-TABLE,OPS) .
+  eq $genPuts((write(K,EXPR) OPS),RID,TID,SQN,VARS,REPLICA-TABLE,(OPS' write(K,EXPR) OPS'')) =
+       $genPuts(OPS,RID,TID,SQN,VARS,REPLICA-TABLE,(OPS' write(K,EXPR) OPS''))
+       (if localReplica(K,RID,REPLICA-TABLE)
+         then msg prepare(TID,version(K,eval(EXPR,VARS),ts(RID,SQN),md(OPS' OPS''))) from RID to RID
+         else msg prepare(TID,version(K,eval(EXPR,VARS),ts(RID,SQN),md(OPS' OPS''))) from RID to preferredSite(K,REPLICA-TABLE)
+       fi) .
+  eq $genPuts(((X :=read K) OPS),RID,TID,SQN,VARS,REPLICA-TABLE,OPS') = 
+       $genPuts(OPS,RID,TID,SQN,VARS,REPLICA-TABLE,OPS') .  --- deal with rw-txns
+  eq $genPuts(nil,RID,TID,SQN,VARS,REPLICA-TABLE,OPS') = null .  
+  --- Note that when initializing write-only txns EXPR should be Value, e.g., [0]
+  --- That is, VARS is useless to genPuts in write-only txns
+
+  op genCommits : Address Nat AddressSet Address -> Config .
+  eq genCommits(TID,SQN,(RID' ; RIDS),RID) =
+       genCommits(TID,SQN,RIDS,RID)
+       msg commit(TID,ts(RID,SQN)) from RID to RID' .
+  eq genCommits(TID,SQN,empty,RID) = null .
+  
+  op gen2ndGets : Address KeyTimestamps Set{KeyVersion} Address ReplicaTable -> Config .
+  eq gen2ndGets(TID,(K |-> TS',VL),(< K,VERSION >,RS),RID,REPLICA-TABLE) = 
+       gen2ndGets(TID,(K |-> TS',VL),RS,RID,REPLICA-TABLE)
+       (if ver2Ts(VERSION) less-than TS'
+         then if localReplica(K,RID,REPLICA-TABLE)
+                then msg get(TID,K,TS') from RID to RID
+                else msg get(TID,K,TS') from RID to preferredSite(K,REPLICA-TABLE)
+              fi
+         else null
+       fi) .
+  eq gen2ndGets(TID,VL,RS,RID,REPLICA-TABLE) = null [owise] .  --- if K is not in VL
+  eq gen2ndGets(TID,VL,empty,RID,REPLICA-TABLE) = null .
+
+  --- deal with rw-txns in ROLA
+  op genPuts : OperationList Address Address Nat LocalVars Set{KeyVersion} ReplicaTable -> Config .
+  op $genPuts : OperationList Address Address Nat LocalVars Set{KeyVersion} ReplicaTable OperationList -> Config .
+  eq genPuts(OPS,RID,TID,SQN,VARS,RS,REPLICA-TABLE) = $genPuts(OPS,RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS) .
+  eq $genPuts((write(K,EXPR) OPS),RID,TID,SQN,VARS,(RS,< K,VERSION >),REPLICA-TABLE,(OPS' write(K,EXPR) OPS'')) =
+       $genPuts(OPS,RID,TID,SQN,VARS,(RS,< K,VERSION >),REPLICA-TABLE,(OPS' write(K,EXPR) OPS''))
+       (if localReplica(K,RID,REPLICA-TABLE)
+         then msg prepare(TID,version(K,eval(EXPR,VARS),ts(RID,SQN),md(OPS' OPS'')),ver2Ts(VERSION)) from RID to RID
+         else msg prepare(TID,version(K,eval(EXPR,VARS),ts(RID,SQN),md(OPS' OPS'')),ver2Ts(VERSION)) from RID to preferredSite(K,REPLICA-TABLE)
+       fi) .
+  eq $genPuts(((X :=read K) OPS),RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS') = 
+       $genPuts(OPS,RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS') . 
+  eq $genPuts(nil,RID,TID,SQN,VARS,RS,REPLICA-TABLE,OPS') = null . 
+
+
+  *** ROLA Dynamics ***
+
+  ---??? simply consume "start" if no txn needs to start
+  rl [receiving-start-when-no-txn-to-start] :
+     < RID : Replica | gotTxns: emptyTxnList, AS >
+     (start to RID)
+   =>
+     < RID : Replica | gotTxns: emptyTxnList, AS > .
+
+
+  --- "gotTxns" abstracts "client" away
+  --- we consider one-shot reads that can be issued in a single parallel batch
+ crl [start-ro-or-rw-txn] :
+     ---< O@M : Monitor | log: LOG@M >
+     (start to RID)  
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | gotTxns: (< TID : Txn | operations: OPS,
+                                               latest: empty, AS > ;; TXNS),
+                       executing: noActor,
+                       1stGetSites: 1STGETS, AS' >
+   =>
+     ---< O@M : Monitor | log: insert(TID,< RID |-> GT,empty,false,empty,empty >,LOG@M) >
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | gotTxns: TXNS,
+                       executing: < TID : Txn | operations: OPS,
+                                                latest: vl(OPS), AS >,  --- initialize "v_latest"
+                       1stGetSites: (1STGETS ; 1st(TID,RIDS)), AS' >
+     genGets(OPS,RID,TID,REPLICA-TABLE) 
+     if (not write-only(OPS)) /\
+        RIDS := 1stSites(OPS,RID,REPLICA-TABLE) .
+
+
+  ---!!! ROLA needs "txnSQN" because "sqn" could be updated by "prepare"
+  ---!!! so "txnSQN" holds the sqn when the txn started executing
+ crl [start-wo-txn] : 
+     ---< O@M : Monitor | log: LOG@M >
+     (start to RID)  ---??? "start"
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | gotTxns: (< TID : Txn | operations: OPS,
+                                               localVars: VARS,
+                                               txnSQN: TXNSQN,
+                                               writeSet: WS,
+                                               version: VERSION, AS > ;; TXNS),
+                       executing: noActor,
+                       sqn: SQN,
+                       voteSites: VSTS, AS' >
+   =>
+     ---< O@M : Monitor | log: insert(TID,< RID |-> GT,empty,false,empty,empty >,LOG@M) >
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | gotTxns: TXNS,
+                       executing: < TID : Txn | operations: OPS,
+                                                localVars: VARS,
+                                                txnSQN: SQN',
+                                                writeSet: WS',
+                                                version: < RID,SQN' >, AS >,
+                       sqn: SQN',
+                       voteSites: (VSTS ; voteSites(TID,RIDS)), AS' >
+     genPuts(OPS,RID,TID,SQN',VARS,REPLICA-TABLE)
+     if SQN' := SQN + 1 /\
+        write-only(OPS) /\
+        RIDS := prepareSites(OPS,RID,REPLICA-TABLE) /\
+        WS' := ws(OPS,VARS) .
+  
+
+ crl [receive-prepare-wo] :
+     < RID : Replica | datastore: VS,
+                       sqn: SQN,
+                       tsSqn: TSSQN, AS' >
+     (msg prepare(TID,version(K,V,TS,MD)) from RID' to RID)
+   =>
+     < RID : Replica | datastore: (VS version(K,V,TS,MD)),
+                       sqn: SQN',
+                       tsSqn: insert(TS,SQN',TSSQN), AS' >
+     msg prepare-reply(TID,true) from RID to RID'  --- always "true" in RAMP
+     if SQN' := SQN + 1 .
+
+
+ crl [receive-prepare-rw] :
+     < RID : Replica | datastore: VS,
+                       sqn: SQN,
+                       tsSqn: TSSQN, AS' >
+     (msg prepare(TID,version(K,V,TS,MD),TS') from RID' to RID)
+   =>
+     (if tstamp(VERSION) == eptTS or tstamp(VERSION) == TS'
+       then < RID : Replica | datastore: (VS version(K,V,TS,MD)),
+                              sqn: SQN',
+                              tsSqn: insert(TS,SQN',TSSQN), AS' >
+            (msg prepare-reply(TID,true) from RID to RID')
+       else < RID : Replica | datastore: VS,
+                              sqn: SQN,
+                              tsSqn: TSSQN, AS' >
+            (msg prepare-reply(TID,false) from RID to RID')
+     fi)
+     if SQN' := SQN + 1 /\
+        VERSION := latestPrepared(K,VS) .
+
+
+  --- as of now, upon receiving "false" vote, the txn is aborted immediately
+  --- we could instead store the received vote, and abort the txn 
+  --- either nondeterministically, or after receiving all votes (as Walter does)  
+  rl [receive-prepare-reply-false-executing] :
+     ---< O@M : Monitor | log: (TID |->
+       ---< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < RID : Replica | executing: < TID : Txn | readSet: RS,
+                                                writeSet: WS,
+                                                version: VERSION, AS >,
+                       aborted: TXNS,
+                       voteSites: VSTS, AS' >
+     (msg prepare-reply(TID,false) from RID' to RID)
+   =>
+     ---< O@M : Monitor | log: (TID |-> 
+       ---< VTS1@M,insert(RID,GT,VTS2@M),false,RS,kver(WS,VERSION) >,LOG@M) >
+     < RID : Replica | executing: noActor,
+                       aborted: (TXNS ;; < TID : Txn | readSet: RS,
+                                                       writeSet: WS,
+                                                       version: VERSION, AS >),
+                       voteSites: remove(TID,RID',VSTS), AS' >
+     (start to RID) .  ---??? "start"
+
+
+
+  rl [receive-prepare-reply-aborted] :
+     < RID : Replica | aborted: (TXNS ;; < TID : Txn | AS > ;; TXNS'),
+                       voteSites: VSTS, AS' >
+     (msg prepare-reply(TID,FLAG) from RID' to RID)  --- no matter what FLAG is
+   =>
+     < RID : Replica | aborted: (TXNS ;; < TID : Txn | AS > ;; TXNS'),
+                       voteSites: remove(TID,RID',VSTS), AS' > .
+
+
+
+ crl [receive-prepare-reply-true-executing] :
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | executing: < TID : Txn | operations: OPS,
+                                                txnSQN: TXNSQN, AS >,
+                       voteSites: VSTS,
+                       sqn: SQN,
+                       commitSites: CMTS, AS' >
+     (msg prepare-reply(TID,true) from RID' to RID)
+   =>
+     < TABLE : Table | table: REPLICA-TABLE >
+     (if VSTS'[TID] == empty  --- all votes received and all yes!
+       then < RID : Replica | executing: < TID : Txn | operations: OPS,
+                                                       txnSQN: TXNSQN, AS >,
+                              voteSites: VSTS',
+                              sqn: SQN,
+                              commitSites: (CMTS ; voteSites(TID,RIDS)), AS' >
+            genCommits(TID,TXNSQN,RIDS,RID)
+       else < RID : Replica | executing: < TID : Txn | operations: OPS,
+                                                       txnSQN: TXNSQN, AS >,
+                              voteSites: VSTS',
+                              sqn: SQN,
+                              commitSites: CMTS, AS' >
+     fi)
+     if VSTS' := remove(TID,RID',VSTS) /\
+        RIDS := prepareSites(OPS,RID,REPLICA-TABLE) .  --- as of now, commitSites == prepareSites .
+
+
+
+  rl [receive-commit] :
+     < RID : Replica | tsSqn: TSSQN,
+                       datastore: VS, 
+                       latestCommit: LC, AS' >
+     (msg commit(TID,TS) from RID' to RID)
+   =>
+     < RID : Replica | tsSqn: TSSQN,
+                       datastore: VS,
+                       latestCommit: cmt(LC,VS,TSSQN,TS), AS' >  --- cmt different from RAMP
+     (msg committed(TID) from RID to RID') .
+
+
+ crl [receive-committed] :
+     ---< O@M : Monitor | log: (TID |-> 
+       ---< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     < RID : Replica | executing: < TID : Txn | readSet: RS,
+                                                writeSet: WS,
+                                                version: VERSION, AS >,
+                       committed: TXNS,
+                       commitSites: CMTS, AS' >
+     (msg committed(TID) from RID' to RID)
+   =>
+     (if CMTS'[TID] == empty  --- all "committed" received
+       then ---< O@M : Monitor | log: (TID |-> 
+              ---< VTS1@M,insert(RID,GT,VTS2@M),true,RS,kver(WS,VERSION) >,LOG@M) > 
+            < RID : Replica | executing: noActor,
+                              committed: (TXNS ;; < TID : Txn | readSet: RS,
+                                                                writeSet: WS,
+                                                                version: VERSION, AS >),
+                              commitSites: CMTS', AS' >
+            (start to RID)  ---??? "start"
+       else ---< O@M : Monitor | log: (TID |-> 
+              ---< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) > 
+            < RID : Replica | executing: < TID : Txn | readSet: RS,
+                                                       writeSet: WS,
+                                                       version: VERSION, AS >,
+                              committed: TXNS,
+                              commitSites: CMTS', AS' >
+     fi)
+     if CMTS' := remove(TID,RID',CMTS) .
+  
+
+  rl [receive-get] :
+     < RID : Replica | datastore: VS,
+                       latestCommit: LC, AS' >
+     (msg get(TID,K,TS) from RID' to RID)
+   =>
+     < RID : Replica | datastore: VS,
+                       latestCommit: LC, AS' >
+     (msg (if TS == eptTS then response1(TID,vmatch(K,VS,LC)) 
+       else response2(TID,vmatch(K,VS,TS)) fi) from RID to RID') .
+
+
+ crl [receive-response1] :
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
+                                                readSet: RS,
+                                                localVars: VARS,
+                                                latest: VL, AS >,
+                       1stGetSites: 1STGETS,
+                       2ndGetSites: 2NDGETS, AS' >
+     (msg response1(TID,version(K,V,TS,MD)) from RID' to RID)
+   =>
+     < TABLE : Table | table: REPLICA-TABLE >
+     (if 1STGETS'[TID] == empty
+       then < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
+                                                       readSet: RS',
+                                                       localVars: insert(X,V,VARS),  --- useless for read-only txns
+                                                       latest: VL', AS >,
+                              1stGetSites: 1STGETS',
+                              2ndGetSites: (2NDGETS ; 2nd(TID,RIDS)), AS' >
+            gen2ndGets(TID,VL',RS',RID,REPLICA-TABLE)
+--- ???!!!
+            (commit-reads(TID) to RID)
+
+       else < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
+                                                       readSet: RS',
+                                                       localVars: insert(X,V,VARS),  --- useless for read-only txns
+                                                       latest: VL', AS >,
+                              1stGetSites: 1STGETS',
+                              2ndGetSites: 2NDGETS, AS' >  
+     fi) 
+     if RS' := (RS, < K,ts2Ver(TS) >) /\
+        VL' := lat(VL,MD,TS) /\
+        1STGETS' := remove(TID,RID',1STGETS) /\
+        RIDS := 2ndSites(VL',RS',RID,REPLICA-TABLE) . 
+  
+
+  rl [receive-response2] :
+     < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
+                                                readSet: (RS,< K,VER >),
+                                                localVars: VARS, AS >,
+                       2ndGetSites: 2NDGETS, AS' >
+     (msg response2(TID,version(K,V,TS,MD)) from RID' to RID)
+   => 
+     < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
+                                                readSet: (RS,< K,ts2Ver(TS) >),
+                                                localVars: insert(X,V,VARS), AS >,
+                       2ndGetSites: remove(TID,RID',2NDGETS), AS' >
+---??? !!!
+     (commit-reads(TID) to RID) .
+
+
+  --- Similar to RAMP, ROLA deals with rw-txns in a different way than Walter, 
+  --- that is, all reads are sent out at the beginning of the txn
+  --- so "writeSet" not needed: no read-your-write-in-the-same-txn
+ crl [commit-reads] :
+     ---< O@M : Monitor | log: (TID |-> 
+       ---< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+     (commit-reads(TID) to RID)
+     < TABLE : Table | table: REPLICA-TABLE >
+     < RID : Replica | executing: < TID : Txn | operations: OPS,
+                                                localVars: VARS,
+                                                readSet: RS,
+                                                txnSQN: TXNSQN,
+                                                writeSet: WS,
+                                                version: VERSION, AS >,
+                       committed: TXNS,
+                       1stGetSites: 1STGETS,
+                       2ndGetSites: 2NDGETS,
+                       sqn: SQN,
+                       voteSites: VSTS, AS' >
+   =>
+     < TABLE : Table | table: REPLICA-TABLE >
+     (if read-only(OPS)
+       then ---< O@M : Monitor | log: (TID |-> 
+              ---< VTS1@M,insert(RID,GT,VTS2@M),true,RS,kver(WS,VERSION) >,LOG@M) >
+            < RID : Replica | executing: noActor,
+                              committed: (TXNS ;; < TID : Txn | operations: OPS,
+                                                                localVars: VARS,
+                                                                readSet: RS,
+                                                                txnSQN: TXNSQN,
+                                                                writeSet: WS,
+                                                                version: VERSION, AS >),
+                              1stGetSites: delete(TID,1STGETS),
+                              2ndGetSites: delete(TID,2NDGETS),
+                              sqn: SQN,
+                              voteSites: VSTS, AS' >
+            (start to RID)  ---??? "start"
+       else ---< O@M : Monitor | log: (TID |-> 
+              ---< VTS1@M,VTS2@M,FLAG@M,READS@M,WRITES@M >,LOG@M) >
+            < RID : Replica | executing: < TID : Txn | operations: OPS,
+                                                       localVars: VARS,
+                                                       readSet: RS,
+                                                       txnSQN: SQN',
+                                                       writeSet: WS',
+                                                       version: < RID,SQN' >, AS >,
+                              committed: TXNS,
+                              1stGetSites: delete(TID,1STGETS),
+                              2ndGetSites: delete(TID,2NDGETS),
+                              sqn: SQN',
+                              voteSites: (VSTS ; voteSites(TID,RIDS)), AS' >
+            genPuts(OPS,RID,TID,SQN',VARS,RS,REPLICA-TABLE)
+     fi)
+     if 1STGETS[TID] == empty /\
+        2NDGETS[TID] == empty /\
+        SQN' := SQN + 1 /\
+        RIDS := prepareSites(OPS,RID,REPLICA-TABLE) /\
+        WS' := ws(OPS,VARS) .
+
+
+ crl [not-ready-to-commit-reads] :
+     (commit-reads(TID) to RID)
+     < RID : Replica | executing: < TID : Txn | AS >,
+                       1stGetSites: 1STGETS,
+                       2ndGetSites: 2NDGETS, AS' >
+  =>
+    < RID : Replica | executing: < TID : Txn | AS >,
+                      1stGetSites: 1STGETS,
+                      2ndGetSites: 2NDGETS, AS' >
+    if 1STGETS[TID] =/= empty or
+        2NDGETS[TID] =/= empty .
+
+*** NEW
+ crl [already-committed-reads] :
+     (commit-reads(TID) to RID)
+     < RID : Replica | 1stGetSites: 1STGETS,
+                       2ndGetSites: 2NDGETS, AS' >
+  =>
+     < RID : Replica | 1stGetSites: 1STGETS,
+                       2ndGetSites: 2NDGETS, AS' >
+    if (not TID in 1STGETS) /\
+       (not TID in 2NDGETS) .
+
+endm
