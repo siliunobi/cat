@@ -1,0 +1,312 @@
+load rola-aux-mc
+
+mod DSG is
+  inc ROLA-AUX .
+
+  sorts Dsg Edge .
+  subsort Edge < Dsg .
+
+  --- A dependency edge links two txns, 
+  --- with the second one depending on the first one 
+  op <_;_> : Address Address -> Edge [ctor] . 
+
+  var E : Edge .
+  op emptyDsg : -> Dsg [ctor] .
+  op _;_ : Dsg Dsg -> Dsg [ctor assoc comm id: emptyDsg] .
+  eq E ; E = E .
+
+  op dsg : Log -> Dsg .
+  op dsg : Log Log Dsg -> Dsg .
+
+  vars TID TID' TID'' RID RID' RID'' TID1 TID2 TID3 RID1 RID2 RID3 : Address . 
+  vars TIDS TIDS' : AddressSet .  var FLAG : Bool .
+  vars VT VT' VT1 VT2 VT3 VT4 VT5 VT6 : VectorTime .
+  vars RS RS' RS'' WS WS' WS'' RS1 RS2 RS3 WS1 WS2 WS3 : Set{KeyVersion} .  
+  vars LOG LOG' : Log . 
+  var DSG : Dsg . var X : Key . vars VS VS' VS'' VX VY VX' : Version .
+  vars T T' T1 T2 T3 T4 T5 T6 T1' T2' T3' : Float .
+
+
+
+  eq dsg(LOG) = dsg(LOG,LOG,emptyDsg) .
+  --- Firstly, work on versions read
+  --- Read dependency
+  ---(
+  eq dsg((TID |-> < VT1,VT2,true,(< X,VS >,RS),WS >,LOG'),
+        (TID' |-> < VT3,VT4,true,RS',(< X,VS >,WS') >,LOG),DSG)
+   = dsg((TID |-> < VT1,VT2,true,RS,WS >,LOG'),
+        (TID' |-> < VT3,VT4,true,RS',(< X,VS >,WS') >,LOG),
+          (DSG ; < TID' ; TID >)) .  
+  )
+ ceq dsg((TID |-> < VT1,VT2,true,(< X,VS >,RS),WS >,LOG'),
+        (TID' |-> < VT3,VT4,true,RS',(< X,VS >,WS') >,LOG),DSG)
+   = dsg((TID |-> < VT1,VT2,true,RS,WS >,LOG'),
+        (TID' |-> < VT3,VT4,true,RS',(< X,VS >,WS') >,LOG),
+          (DSG ; < TID' ; TID >)) 
+     if TID =/= TID' . 
+
+
+  --- Antidependency
+  --- VS' is the next version of VS for X
+  ---(
+ ceq dsg((TID |-> < RID |-> T1,(RID |-> T2,VT2),true,
+        (< X,VS >,RS),WS >,LOG'),
+      (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,RS',
+        (< X,VS' >,WS') >, 
+      TID'' |-> < RID'' |-> T5,(RID'' |-> T6,VT6),true,RS'',
+        (< X,VS >,WS'') >,LOG),DSG)
+   = dsg((TID |-> < RID |-> T1,(RID |-> T2,VT2),true,RS,WS >,LOG'),
+      (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,RS',
+        (< X,VS' >,WS') >, 
+      TID'' |-> < RID'' |-> T5,(RID'' |-> T6,VT6),true,RS'',
+        (< X,VS >,WS'') >,LOG),
+          (DSG ; < TID ; TID' >)) 
+     if VS' =/= VS /\ T6 < T4 /\ 
+        noCommittedBetween(X,T6,T4,LOG) .
+  )
+  ---(
+ ceq dsg((TID |-> < VT1,VT2,true,(< X,VS >,RS),WS >,LOG'),
+       (TID' |-> < VT3,VT4,true,RS',(< X,VS' >,WS') >,LOG),DSG)
+   = dsg((TID |-> < VT1,VT2,true,RS,WS >,LOG'),
+       (TID' |-> < VT3,VT4,true,RS',(< X,VS' >,WS') >,LOG),
+            (DSG ; < TID ; TID' >)) 
+    if VS =/= VS' /\ not committedBetween(X,VS,VS',LOG) .
+  )
+
+ ceq dsg((TID |-> < VT1,VT2,true,(< X,VS >,RS),WS >,LOG'),
+       (TID' |-> < VT3,VT4,true,RS',(< X,VS' >,WS') >,LOG),DSG)
+   = dsg((TID |-> < VT1,VT2,true,RS,WS >,LOG'),
+       (TID' |-> < VT3,VT4,true,RS',(< X,VS' >,WS') >,LOG),
+            (DSG ; < TID ; TID' >)) 
+    if VS < VS' /\ not committedBetween(X,VS,VS',LOG) /\
+       TID =/= TID' .
+
+
+  op committedBetween : Key Version Version Log -> Bool .
+ ceq committedBetween(X,VS,VS',(TID |-> < VT,VT',true,RS,
+       (< X,VS'' >,WS) >,LOG)) = true if VS'' < VS' /\ VS < VS'' .
+  eq committedBetween(X,VS,VS',LOG) = false [owise] .
+
+
+  --- Move to next version read             
+  eq dsg((TID |-> < VT1,VT2,true,(< X,VS >,RS),WS >,LOG'),LOG,DSG)
+       = dsg((TID |-> < VT1,VT2,true,RS,WS >,LOG'),LOG,DSG) [owise] .
+
+
+
+  --- Secondly, work on versions written (with read set empty)
+  --- Write dependency
+  --- VS' is the next version of VS for X
+  ---(
+ ceq dsg((TID |-> < RID |-> T1,(RID |-> T2,VT2),true,
+         empty,(< X,VS >,WS) >,LOG'),
+       (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,RS',
+        (< X,VS' >,WS') >,LOG),DSG)
+   = dsg((TID |-> < RID |-> T1,(RID |-> T2,VT2),true,
+         empty,WS >,LOG'),
+       (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,RS',
+         (< X,VS' >,WS') >,LOG),
+           (DSG ; < TID ; TID' >)) 
+     if VS' =/= VS /\ T2 < T4 /\ 
+        noCommittedBetween(X,T2,T4,LOG) .
+  )
+  ---(
+ ceq dsg((TID |-> < VT1,VT2,true,empty,(< X,VS >,WS) >,LOG'),
+       (TID' |-> < VT3,VT4,true,RS',(< X,VS' >,WS') >,LOG),DSG)
+   = dsg((TID |-> < VT1,VT2,true,empty,WS >,LOG'),
+       (TID' |-> < VT3,VT4,true,RS',(< X,VS' >,WS') >,LOG),
+          (DSG ; < TID ; TID' >)) 
+     if VS' =/= VS /\ not committedBetween(X,VS,VS',LOG) . 
+  )
+
+ ceq dsg((TID |-> < VT1,VT2,true,empty,(< X,VS >,WS) >,LOG'),
+       (TID' |-> < VT3,VT4,true,RS',(< X,VS' >,WS') >,LOG),DSG)
+   = dsg((TID |-> < VT1,VT2,true,empty,WS >,LOG'),
+       (TID' |-> < VT3,VT4,true,RS',(< X,VS' >,WS') >,LOG),
+          (DSG ; < TID ; TID' >)) 
+     if VS < VS' /\ not committedBetween(X,VS,VS',LOG) /\
+        TID =/= TID' . 
+
+  --- Antidependency
+  --- VS is the next version of VS' for X
+  ---(
+ ceq dsg((TID |-> < RID |-> T1,(RID |-> T2,VT2),true,
+         empty,(< X,VS >,WS) >,LOG'),
+       (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,
+         (< X,VS' >,RS'),WS' >,
+       TID'' |-> < RID'' |-> T5,(RID'' |-> T6,VT6),true,RS'',
+         (< X,VS' >,WS'') >,LOG),DSG)
+   = dsg((TID |-> < RID |-> T1,(RID |-> T2,VT2),true,empty,WS >,LOG'),
+       (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,
+         (< X,VS' >,RS'),WS' >,
+       TID'' |-> < RID'' |-> T5,(RID'' |-> T6,VT6),true,RS'',
+         (< X,VS' >,WS'') >,LOG),
+           (DSG ; < TID' ; TID >)) 
+     if VS' =/= VS /\ T6 < T2 /\ 
+        noCommittedBetween(X,T6,T2,
+          (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,
+             (< X,VS' >,RS'),WS' >,LOG)) . 
+  )
+  ---(
+ ceq dsg((TID |-> < VT1,VT2,true,empty,(< X,VS >,WS) >,LOG'),
+        (TID' |-> < VT3,VT4,true,(< X,VS' >,RS'),WS' >,LOG),DSG)
+   = dsg((TID |-> < VT1,VT2,true,empty,WS >,LOG'),
+        (TID' |-> < VT3,VT4,true,(< X,VS' >,RS'),WS' >,LOG),
+           (DSG ; < TID' ; TID >)) 
+     if VS' =/= VS /\ not committedBetween(X,VS',VS,LOG) .  
+  )
+
+ ceq dsg((TID |-> < VT1,VT2,true,empty,(< X,VS >,WS) >,LOG'),
+        (TID' |-> < VT3,VT4,true,(< X,VS' >,RS'),WS' >,LOG),DSG)
+   = dsg((TID |-> < VT1,VT2,true,empty,WS >,LOG'),
+        (TID' |-> < VT3,VT4,true,(< X,VS' >,RS'),WS' >,LOG),
+           (DSG ; < TID' ; TID >)) 
+     if VS' < VS /\ not committedBetween(X,VS',VS,LOG) /\
+        TID =/= TID' .  
+
+  --- Move to next version written             
+  eq dsg((TID |-> < VT1,VT2,true,empty,(< X,VS >,WS) >,LOG'),LOG,DSG)
+       = dsg((TID |-> < VT1,VT2,true,empty,WS >,LOG'),LOG,DSG) [owise] .
+ 
+
+  --- Thirdly, move to next txn (with read set and write set empty)
+  --- as all dependencies of txn TID have been built up
+  eq dsg((TID |-> < VT,VT',true,empty,empty >,LOG'),LOG,DSG)
+        = dsg(LOG',LOG,DSG) .
+       
+  --- A DSG considers only committed txns
+  eq dsg((TID |-> < VT,VT',false,RS,WS >,LOG'),LOG,DSG) 
+        = dsg(LOG',LOG,DSG) .  
+       
+  --- All txns finished
+  eq dsg(empty,LOG,DSG) = DSG . 
+
+
+  sort Addresses .
+  subsort Address < Addresses .
+  op emptyAddrs : -> Addresses [ctor] .
+  op _::_ : Addresses Addresses -> Addresses [ctor assoc comm id: emptyAddrs] .
+
+  vars ADDR ADDR' : Address . vars ADDRS ADDRS' : Addresses . 
+  eq ADDR :: ADDR = ADDR .
+
+  op cycle : Dsg -> Bool .
+  eq cycle(DSG) = cycle(txnIds(DSG),DSG,emptyAddrs) .  --- initialized
+
+  op cycle : Addresses Dsg Addresses -> Bool .
+ ceq cycle((ADDR :: ADDRS),DSG,ADDRS') = true if ADDR in ADDRS' .
+ ceq cycle((ADDR :: ADDRS),DSG,ADDRS') =
+       cycle(destNodes(ADDR,DSG),DSG,(ADDRS' :: ADDR))
+         or cycle(ADDRS,DSG,ADDRS') if not (ADDR in ADDRS') .
+  eq cycle(emptyAddrs,DSG,ADDRS') = false .
+
+  op _in_ : Address Addresses -> Bool .
+  eq ADDR in (ADDR :: ADDRS) = true .
+  eq ADDR in ADDRS = false [owise] .
+
+
+  op txnIds : Dsg -> Addresses .
+  eq txnIds(DSG ; < ADDR ; ADDR' >) = ADDR :: ADDR' :: txnIds(DSG) .
+  eq txnIds(emptyDsg) = emptyAddrs .
+
+  op destNodes : Address Dsg -> Addresses .
+  eq destNodes(ADDR,(< ADDR ; ADDR' > ; DSG)) = ADDR' :: destNodes(ADDR,DSG) .
+  eq destNodes(ADDR,DSG) = emptyAddrs [owise] .
+
+
+  *** Update txns for US
+  op updateTxn : Log -> Log .
+  eq updateTxn((TID |-> < VT1,VT2,FLAG,RS,empty >,LOG)) 
+       = updateTxn(LOG) .
+  eq updateTxn((TID |-> < VT1,VT2,FLAG,RS,WS >,LOG)) 
+       = (TID |-> < VT1,VT2,FLAG,RS,WS >), updateTxn(LOG) [owise] .
+  eq updateTxn(empty) = empty .
+
+
+---(
+  op dsg-update : Log -> Dsg .
+  op dsg-update : Log Log Dsg -> Dsg .
+
+  eq dsg-update(LOG) = dsg-update(LOG,LOG,emptyDsg) .
+
+  --- Firstly, work on versions read
+  --- Do NOT consider Read dependency
+ 
+  --- Antidependency (only)
+  --- VS' is the next version of VS for X
+ ceq dsg-update((TID |-> < RID |-> T1,(RID |-> T2,VT2),true,
+        (< X,VS >,RS),WS >,LOG'),
+      (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,RS',
+        (< X,VS' >,WS') >, 
+      TID'' |-> < RID'' |-> T5,(RID'' |-> T6,VT6),true,RS'',
+        (< X,VS >,WS'') >,LOG),DSG)
+   = dsg-update((TID |-> < RID |-> T1,(RID |-> T2,VT2),true,RS,WS >,LOG'),
+      (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,RS',
+        (< X,VS' >,WS') >, 
+      TID'' |-> < RID'' |-> T5,(RID'' |-> T6,VT6),true,RS'',
+        (< X,VS >,WS'') >,LOG),
+          (DSG ; < TID ; TID' >)) 
+     if noCommittedBetween(X,T6,T4,LOG) .
+
+  op noCommittedBetween : Key Nat Nat Log -> Bool .
+ ceq noCommittedBetween(X,T,T',
+       (TID |-> < RID |-> T1,(RID |-> T2,VT),true,RS,(< X,VS >,WS) >,LOG))
+     = false if T2 > T /\ T2 < T' .
+  eq noCommittedBetween(X,T,T',LOG) = true [owise] .
+ 
+
+  --- Move to next version read             
+  eq dsg-update((TID |-> < VT1,VT2,true,(< X,VS >,RS),WS >,LOG'),LOG,DSG)
+       = dsg-update((TID |-> < VT1,VT2,true,RS,WS >,LOG'),LOG,DSG) [owise] .
+
+
+  --- Secondly, work on versions written (with read set empty)
+  --- Write dependency
+  --- VS' is the next version of VS for X
+ ceq dsg-update((TID |-> < RID |-> T1,(RID |-> T2,VT2),true,
+         empty,(< X,VS >,WS) >,LOG'),
+       (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,RS',
+        (< X,VS' >,WS') >,LOG),DSG)
+   = dsg-update((TID |-> < RID |-> T1,(RID |-> T2,VT2),true,
+         empty,WS >,LOG'),
+       (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,RS',
+         (< X,VS' >,WS') >,LOG),
+           (DSG ; < TID ; TID' >)) 
+     if noCommittedBetween(X,T2,T4,LOG) .
+
+  --- Antidependency
+  --- VS is the next version of VS' for X
+ ceq dsg-update((TID |-> < RID |-> T1,(RID |-> T2,VT2),true,
+         empty,(< X,VS >,WS) >,LOG'),
+       (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,
+         (< X,VS' >,RS'),WS' >,
+       TID'' |-> < RID'' |-> T5,(RID'' |-> T6,VT6),true,RS'',
+         (< X,VS' >,WS'') >,LOG),DSG)
+   = dsg-update((TID |-> < RID |-> T1,(RID |-> T2,VT2),true,empty,WS >,LOG'),
+       (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,
+         (< X,VS' >,RS'),WS' >,
+       TID'' |-> < RID'' |-> T5,(RID'' |-> T6,VT6),true,RS'',
+         (< X,VS' >,WS'') >,LOG),
+           (DSG ; < TID' ; TID >)) 
+     if noCommittedBetween(X,T6,T2,
+          (TID' |-> < RID' |-> T3,(RID' |-> T4,VT4),true,
+             (< X,VS' >,RS'),WS' >,LOG)) . 
+
+  --- Move to next version written             
+  eq dsg-update((TID |-> < VT1,VT2,true,empty,(< X,VS >,WS) >,LOG'),LOG,DSG)
+       = dsg-update((TID |-> < VT1,VT2,true,empty,WS >,LOG'),LOG,DSG) [owise] .
+ 
+
+  --- Thirdly, move to next txn (with read set and write set empty)
+  --- as all dependencies of txn TID have been built up
+  eq dsg-update((TID |-> < VT,VT',true,empty,empty >,LOG'),LOG,DSG)
+        = dsg-update(LOG',LOG,DSG) .
+       
+  --- A DSG considers only committed txns
+  eq dsg-update((TID |-> < VT,VT',false,RS,WS >,LOG'),LOG,DSG) 
+        = dsg-update(LOG',LOG,DSG) .  
+       
+  --- All txns finished
+  eq dsg-update(empty,LOG,DSG) = DSG . 
+)
+endm

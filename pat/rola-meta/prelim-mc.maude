@@ -1,0 +1,245 @@
+set show advisories off .
+
+load apmaude
+
+(fmod SOME-PARAMETERS is
+  sort Version .  --- In ROLA version is a 4-tuple (key,value,timestamp,metadata)
+endfm)
+
+(fmod TXN-SORTS is  
+  including ACTOR-MODEL .
+  including SOME-PARAMETERS .
+
+  sorts Key Value Operation LocalVar Expression ConfigList AddressList AddressSet
+        KeyVersion KeyValueVersion ValueVersion Vote Timestamp ReplicaTable Record 
+        KeyValue TxnStatus TxnStatusSet .
+  subsort Actor < ConfigList .
+  subsort Address < AddressList .
+  subsort Address < AddressSet .
+  subsort LocalVar < Expression .
+  subsort Nat < Expression .
+  subsort TxnStatus < TxnStatusSet .
+
+  --- RID, SQN
+  --- ??? initial value: ts(0,0) or eptTS???
+  op ts : Address Int -> Timestamp [ctor] .  --- v_latest default value is -1  
+  op eptTS : -> Timestamp [ctor] .
+
+  op noVote : -> Vote [ctor] .
+  op vote : Address Address Bool -> Vote [ctor] .  --- TID,RID,yes/no
+  op _;_ : Vote Vote -> Vote [ctor assoc comm id: noVote] .  
+
+*** NEW
+---  op <_,_> : Key Timestamp -> KeyVersion [ctor] .  --- Timestamp is 'version' in ROLA
+  op <_`,_> : Key Version   -> KeyVersion [ctor] .  --- 'version' is extracted from 'timestamp'
+  op <_`,_> : Key Value -> KeyValue [ctor] .
+
+endfm)
+
+(view Operation from TRIV to TXN-SORTS is sort Elt to Operation . endv)
+(view Version from TRIV to TXN-SORTS is sort Elt to Version . endv)
+(view Key from TRIV to TXN-SORTS is sort Elt to Key . endv)
+(view LocalVar from TRIV to TXN-SORTS is sort Elt to LocalVar . endv)
+(view Value from TRIV to TXN-SORTS is sort Elt to Value . endv)
+(view KeyVersion from TRIV to TXN-SORTS is sort Elt to KeyVersion . endv)
+(view KeyValueVersion from TRIV to TXN-SORTS is sort Elt to KeyValueVersion . endv)
+(view ValueVersion from TRIV to TXN-SORTS is sort Elt to ValueVersion . endv)
+(view Vote from TRIV to TXN-SORTS is sort Elt to Vote . endv)
+(view Timestamp from TRIV to TXN-SORTS is sort Elt to Timestamp . endv)
+(view Record from TRIV to TXN-SORTS is sort Elt to Record . endv)
+(view KeyValue from TRIV to TXN-SORTS is sort Elt to KeyValue . endv)
+
+(fmod TXN-AUX1 is
+  pr LIST{Operation} * (sort List{Operation} to OperationList) .
+  pr MAP{LocalVar,Value} * (sort Map{LocalVar,Value} to LocalVars) .
+  pr MAP{Key,Value} * (sort Map{Key,Value} to WriteSet, op undefined to undefinedWriteSet) .  --- no need for RAMP
+--- ???  pr LIST{Address} * (sort List{Address} to AddressList) .
+  pr LIST{ValueVersion} * (sort List{ValueVersion} to ValueVersionList) .  --- no need for RAMP
+  pr SET{Key} * (sort Set{Key} to KeySet) .
+  pr MAP{Key,Timestamp} * (sort Map{Key,Timestamp} to KeyTimestamps) .
+  pr MAP{Timestamp,Nat} * (sort Map{Timestamp,Nat} to TimestampSqn) .
+  pr LIST{Key} * (sort List{Key} to KeyList) .
+
+  op write : Key Expression -> Operation [ctor] .
+  op _:=read_ : LocalVar Key -> Operation [ctor] .
+  op waitRemote : Key LocalVar -> Operation [ctor] .  --- "internal" state, no need for RAMP
+
+  op _plus_ : Expression Expression -> Expression [ctor] .
+  op eval : Expression LocalVars -> Value .
+
+  op emptyTxnList : -> ConfigList [ctor] .
+  op _;;_ : ConfigList ConfigList -> ConfigList [ctor assoc id: emptyTxnList] .
+
+  op emptyAddrList : -> AddressList [ctor] .
+  op _;;_ : AddressList AddressList -> AddressList [ctor assoc id: emptyAddrList] .
+
+  op empty : -> AddressSet [ctor] .
+  op _;_ : AddressSet AddressSet -> AddressSet [ctor assoc comm id: empty] .
+
+  var A : Address .
+  var AS : AddressSet .  
+
+  ---eq A ; A = A .
+
+  op delete : Address AddressSet -> AddressSet .
+  op delete1 : Address AddressSet -> AddressSet .
+  eq delete(A, A ; AS) = delete(A, AS) .
+  eq delete(A, AS) = AS [owise] .
+  eq delete1(A, A ; AS) = AS .
+  eq delete1(A, AS) = AS [owise] .
+
+  var K : Key .
+  var V : Value .
+  var WS : WriteSet .
+
+  op keys : WriteSet -> KeySet .
+  eq keys(empty) = empty .
+  eq keys((K |-> V,WS)) = K, keys(WS) .
+
+  op `[_`,_`] : Address Bool -> TxnStatus .
+  op noTS : -> TxnStatusSet .
+  op _;_ : TxnStatusSet TxnStatusSet -> TxnStatusSet [ctor assoc comm id: noTS] .
+endfm)
+(view AddressSet from TRIV to TXN-AUX1 is sort Elt to AddressSet . endv)
+(view ValueVersionList from TRIV to TXN-AUX1 is sort Elt to ValueVersionList . endv)
+(view AddressList from TRIV to TXN-AUX1 is sort Elt to AddressList . endv)
+
+(fmod TXN-AUX2 is
+  including TXN-AUX1 .
+
+  sort VoteSites .  
+  op noVS : -> VoteSites [ctor] .
+  op voteSites : Address AddressSet -> VoteSites [ctor] .  --- TID, Set{RID}
+  op _;_ : VoteSites VoteSites -> VoteSites [ctor assoc comm id: noVS] .
+
+  sort 1stGets .
+  op no1st : -> 1stGets [ctor] .
+  op 1st : Address AddressSet -> 1stGets [ctor] .
+  op _;_ : 1stGets 1stGets -> 1stGets [ctor assoc comm id: no1st] .
+
+  sort 2ndGets .
+  op no2nd : -> 2ndGets [ctor] .
+  op 2nd : Address AddressSet -> 2ndGets [ctor] .
+  op _;_ : 2ndGets 2ndGets -> 2ndGets [ctor assoc comm id: no2nd] .
+
+endfm)
+
+(fmod VALUES-NAT is --- define the sort Value
+  including TXN-AUX1 .
+
+  op `[_`] : Nat -> Value [ctor] .     --- to avoid problems with preregularity
+  var X : LocalVar .  var VARS : LocalVars .  var N : Nat . vars EXPR1 EXPR2 : Expression .
+  op evalAux : Expression LocalVars -> Nat .
+  eq eval(EXPR1, VARS) = [evalAux(EXPR1, VARS)] .
+  eq evalAux(X, ((X |-> [N]), VARS)) = N .
+  eq evalAux(N, VARS) = N .
+  eq evalAux(EXPR1 plus EXPR2, VARS) = evalAux(EXPR1, VARS) + evalAux(EXPR2, VARS) .
+endfm)
+
+(fmod VERSION-ROLA is
+  including SOME-PARAMETERS + TXN-SORTS + TXN-AUX1 .
+  op version : Key Value Timestamp KeySet -> Version .  --- KeySet concerns MD
+  op eptVersion : -> Version .
+
+*** NEW
+  op <_`,_> : Address Int -> Version .
+endfm)
+
+---(fmod READSET-ROLA is
+  --- ROLA's readSet is Versions; same as RAMP
+---endfm)
+
+(fmod DATASTORE-ROLA is
+  pr LIST{Version} * (sort List{Version} to Versions) .  --- different from RAMP
+endfm)
+
+(fmod MESSAGE is
+  including TXN-AUX1 .
+  ---(
+  op prepare-reply : Address Bool Address -> Content . --- TID, yes/no, RID
+  op get : Address Key Timestamp Address -> Content .
+  op prepare : Address Version Address -> Content .
+  op commit : Address Timestamp Address -> Content .
+  op committed : Address Address -> Content .
+  op response1 : Address Version Address -> Content .
+  op response2 : Address Version Address -> Content .
+  op prepare : Address Version Timestamp Address -> Content .  --- ROLA rw-txn's prepare
+  )
+*** New 
+  op prepare-reply : Address Bool -> Content . --- TID, yes/no, RID
+  op get : Address Key Timestamp -> Content .
+  op prepare : Address Version -> Content .
+  op commit : Address Timestamp -> Content .
+  op committed : Address -> Content .
+  op response1 : Address Version -> Content .
+  op response2 : Address Version -> Content .
+  op prepare : Address Version Timestamp -> Content .  --- ROLA rw-txn's prepare
+
+  --- aux msgs
+  op start : -> Content .
+  op commit-reads : Address -> Content .
+endfm)
+
+(fmod CLIENT-REPLICA is
+  including TXN-SORTS .
+  including TXN-AUX2 .
+---  including READSET-ROLA .
+  including DATASTORE-ROLA .
+  pr SET{Version} * (sort Set{Version} to VersionSet) .
+*** NEW
+  pr SET{KeyVersion} .
+  pr SET{KeyValue} .
+  pr MAP{Address,Float} * (sort Map{Address,Float} to VectorTime) . --- Nat for MC
+  pr MAP{Address,Record} * (sort Map{Address,Record} to Log) .
+
+---  op Client : -> ActorType .
+---  op txns:_ : ConfigList -> Attribute .
+---  op pendingTxn:_ : AddressSet -> Attribute .
+
+  op Replica : -> ActorType .
+  op datastore:_ : Versions -> Attribute .  --- initialized on some distributions; version(K,[0],ts(0,0),empty)
+  op sqn:_ : Nat -> Attribute .  --- initialized as 0
+  op executing:_ : Actor -> Attribute .  --- initialized as noActor
+---  op submitted:_ : ConfigList -> Attribute .  ---??? no need for RAMP
+  op committed:_ : ConfigList -> Attribute .  --- init: emptyTxnList
+  op aborted:_ : ConfigList -> Attribute .  --- no need for RAMP
+
+  op gotTxns:_ : ConfigList -> Attribute .  --- ??? for abstracting client away
+  op votes:_ : Vote -> Attribute .  --- need for ROLA; no need for RAMP due to all yes
+  op voteSites:_ : VoteSites -> Attribute .  --- init: noVS
+  op latestCommit:_ : KeyTimestamps -> Attribute .  ---??? init: empty; different from original RAMP spec
+  op 1stGetSites:_ : 1stGets -> Attribute .  --- init: no1st
+  op 2ndGetSites:_ : 2ndGets -> Attribute .  --- init: no2nd
+  op commitSites:_ : VoteSites -> Attribute .  --- init: noVS
+
+  op tsSqn:_ : TimestampSqn -> Attribute .  --- init: empty
+*** NEW
+  op decided:_ : TxnStatusSet -> Attribute .
+
+  op Txn : -> ActorType .
+  op operations:_ : OperationList -> Attribute .  --- initialized on some distributions
+---  op destination:_ : Address -> Attribute .  --- since we have "gotTxns"
+---  op readSet:_ : Versions -> Attribute .  --- init: empty
+  op localVars:_ : LocalVars -> Attribute .  --- init depending on keys the initialized ops concern
+  op txnSQN:_ : Nat -> Attribute .  --- no need for RAMP
+  op latest:_ : KeyTimestamps -> Attribute .  --- initialized as empty
+*** New
+  op readSet:_ : Set{KeyVersion} -> Attribute .
+  op writeSet:_ : Set{KeyValue} -> Attribute .
+  op version:_ : Version -> Attribute .
+
+
+  op Table : -> ActorType .
+  op table:_ : ReplicaTable -> Attribute .
+
+  op Monitor : -> ActorType .
+  op log:_ : Log -> Attribute .
+
+*** New
+  op clock:_ : Nat -> Attribute .
+
+*** NEW 
+  op <_;_;_;_;_> : VectorTime VectorTime Bool Set{KeyVersion} Set{KeyVersion} -> Record [ctor] .
+
+endfm)
+

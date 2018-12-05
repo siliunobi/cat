@@ -1,0 +1,42 @@
+load consistency
+
+mod ANALYSIS is
+  inc INITIAL-STATES .
+  inc CONSISTENCY .
+
+  eq LIMIT = 10000000.0 .
+
+  op initConfig : -> Config .
+  eq initConfig = run(initState,LIMIT) .
+
+  eq initState = init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,
+      nbOfCls,nbOfServs,nbOfKeys,nbOfRepls,
+      nbOfOpsPerRoTxn,nbOfOpsPerWoTxn,nbOfOpsPerRwTxn,kad) . 
+
+
+  --- Init parameters 
+  eq nbOfRoTxns = 0 .  
+  eq nbOfWoTxns = 0 .  
+  eq nbOfRwTxns = 2 .
+  eq nbOfOpsPerRoTxn = 0 .
+  eq nbOfOpsPerWoTxn = 0 .
+  eq nbOfOpsPerRwTxn = 4 .  --- must be even number
+  eq nbOfCls = 2 .
+  eq nbOfServs  = 2 .  
+  eq nbOfKeys = 2 .  
+  eq nbOfRepls = 1 .
+  eq kad = zipf .
+  eq delay = sampleLogNormal(3.0,2.0) .
+
+endm
+
+
+set clear rules off .
+rewrite initConfig .
+
+
+---(
+search [1] init($1, $2, $3, $4, $5, $6, $7, $8, $9) =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 
+  such that not $0(LOG:Log) .
+)
+
