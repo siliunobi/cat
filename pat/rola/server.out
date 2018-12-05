@@ -1,0 +1,30 @@
+
+Server is now accepting a new connection...
+
+Parameters: 
+model: 		test-mc.maude
+model arguments: 	
+formula: 	throughput.quatex
+alpha: 		0.05
+beta: 		0.0
+seed: 	2047124590
+sims: 		60
+Params: 		0.05 0.01 0.01 10000000 0.0 0 
+Server: Running the simulation batches on demand... Please wait.
+Server performed 376 batch(es) of 60 simulation(s) each.
+
+Server is now accepting a new connection...
+
+Parameters: 
+model: 		test-mc.maude
+model arguments: 	
+formula: 	avglatency.quatex
+alpha: 		0.05
+beta: 		0.0
+seed: 	848696116
+sims: 		60
+Params: 		0.05 0.01 0.01 10000000 0.0 0 
+Server: Running the simulation batches on demand... Please wait.
+Server performed 427 batch(es) of 60 simulation(s) each.
+
+Server is now accepting a new connection...

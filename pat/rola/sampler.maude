@@ -1,4 +1,4 @@
-(mod SAMPLER is
+mod SAMPLER is
   pr RANDOM .
   pr COUNTER .
   pr CONVERSION .
@@ -80,7 +80,7 @@
         A' := 12.0 * (MXXX' - 1.0) / (1.0 - SKEW) + 6.0 * (1.0 - MXX') + (SKEW - (MX' * SKEW)) - D /\
         B' := 12.0 * MXX' + 6.0 * (SKEW * MX') + (M' * SKEW * (SKEW + 1.0)) /\
         NEWX' := max(1.0, NEWX - A' / B') .
-endm)
+endm
 
 ---set clear rules off .
 ---rewrite sampleLogNormal(2.0,2.0) .

@@ -14,8 +14,6 @@ mod ANALYSIS is
   op initConfig : -> Config .
   eq initConfig = run(initState,LIMIT) .
 
-
-
 ---
   eq initState = init(nbOfRoTxns,nbOfWoTxns,nbOfRwTxns,
       nbOfCls,nbOfServs,nbOfKeys,nbOfRepls,
@@ -28,7 +26,7 @@ mod ANALYSIS is
   eq nbOfRwTxns = 4 .
   eq nbOfOpsPerRoTxn = 0 .
   eq nbOfOpsPerWoTxn = 0 .
-  eq nbOfOpsPerRwTxn = 4 .  --- must be even number
+  eq nbOfOpsPerRwTxn = 2 .  --- must be even number
   eq nbOfCls = 2 .
   eq nbOfServs  = 2 .  
   eq nbOfKeys = 2 .  
@@ -36,12 +34,70 @@ mod ANALYSIS is
   eq kad = uniform .
   eq delay = sampleLogNormal(3.0,2.0) .
 
+---(
+  eq initState = 
+     {0.0,start to 1} {0.0,start to 2} 
+     {0.0 | nil}  
+< 1 : Replica | datastore: nil,sqn: 1,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,gotTxns: ( 
+< 1 . 1 : Txn | operations: ((k2l :=read k2) (k1l :=read k1)),localVars: (k1l
+    |-> [0], k2l |-> [0]),txnSQN: 0,latest: empty,readSet: empty,writeSet:
+    empty,version: eptVersion >),
+    votes: noVote,
+    voteSites: noVS,latestCommit: empty,1stGetSites: no1st,2ndGetSites: no2nd,
+    commitSites: noVS,tsSqn: empty > 
+< 2 : Replica | datastore: (version(k1, [0], eptTS, empty) version(k2, [0],
+    eptTS, empty)),sqn: 1,executing: noActor,committed: emptyTxnList,aborted:
+    emptyTxnList,gotTxns: (
+< 2 . 1 : Txn | operations: ((k2l :=read k2) (k1l :=read k1)),localVars: (k1l
+    |-> [0], k2l |-> [0]),txnSQN: 0,latest: empty,readSet: empty,writeSet:
+    empty,version: eptVersion >),votes: noVote,voteSites: noVS,latestCommit:
+    empty,1stGetSites: no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: empty
+    > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 2) ;; replicatingSites(k2, 2)] >
+    
+< 0 . 2 : Monitor | log: empty > .
+)
+
 endm
 
 
----set clear rules off .
----rewrite initConfig .
+set clear rules off .
+rewrite initConfig .
 
+---(
+rew metaRewrite(upModule('ROLA, false), upTerm(
+< 1 : Replica | datastore: nil,sqn: 1,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,gotTxns: ( 
+< 1 . 1 : Txn | operations: ((k2l :=read k2) (k1l :=read k1)),localVars: (k1l
+    |-> [0], k2l |-> [0]),txnSQN: 0,latest: empty,readSet: empty,writeSet:
+    empty,version: eptVersion >),
+    votes: noVote,
+    voteSites: noVS,latestCommit: empty,1stGetSites: no1st,2ndGetSites: no2nd,
+    commitSites: noVS,tsSqn: empty > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 2) ;; replicatingSites(k2, 2)] >
+), 1) .
+)
+
+---(
+rew eagerEnabled(< 1 : Replica | datastore: nil,sqn: 1,executing: noActor,committed:
+    emptyTxnList,aborted: emptyTxnList,gotTxns: ( 
+< 1 . 1 : Txn | operations: ((k2l :=read k2) (k1l :=read k1)),localVars: (k1l
+    |-> [0], k2l |-> [0]),txnSQN: 0,latest: empty,readSet: empty,writeSet:
+    empty,version: eptVersion >),
+    votes: noVote,
+    voteSites: noVS,latestCommit: empty,1stGetSites: no1st,2ndGetSites: no2nd,
+    commitSites: noVS,tsSqn: empty > 
+< 2 : Replica | datastore: (version(k1, [0], eptTS, empty) version(k2, [0],
+    eptTS, empty)),sqn: 1,executing: noActor,committed: emptyTxnList,aborted:
+    emptyTxnList,gotTxns: (
+< 2 . 1 : Txn | operations: ((k2l :=read k2) (k1l :=read k1)),localVars: (k1l
+    |-> [0], k2l |-> [0]),txnSQN: 0,latest: empty,readSet: empty,writeSet:
+    empty,version: eptVersion >),votes: noVote,voteSites: noVS,latestCommit:
+    empty,1stGetSites: no1st,2ndGetSites: no2nd,commitSites: noVS,tsSqn: empty
+    > 
+< 0 . 1 : Table | table: [replicatingSites(k1, 2) ;; replicatingSites(k2, 2)] >) .
+)
 
 ---(
 search [1] init($1, $2, $3, $4, $5, $6, $7, $8, $9) =>! < M:Address : Monitor | log: LOG:Log, AS:AttributeSet > C:Config 

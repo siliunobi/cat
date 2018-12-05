@@ -2,7 +2,9 @@ load rola-mc
 
 mod KEY-VARS is
   inc TXN-AUX1 .
+  inc ROLA .
 
+---(
   ops k1l  k2l  k3l  k4l  k5l  k6l  k7l  k8l  k9l  k10l
       k11l k12l k13l k14l k15l k16l k17l k18l k19l k20l
       k21l k22l k23l k24l k25l k26l k27l k28l k29l k30l
@@ -27,7 +29,7 @@ k101l k102l k103l k104l k105l k106l k107l k108l k109l k110l k111l k112l k113l k1
       k81 k82 k83 k84 k85 k86 k87 k88 k89 k90
       k91 k92 k93 k94 k95 k96 k97 k98 k99 k100 
       k101 k102 k103 k104 k105 k106 k107 k108 k109 k110 k111 k112 k113 k114 k115 k116 k117 k118 k119 k120 k121 k122 k123 k124 k125 k126 k127 k128 k129 k130 k131 k132 k133 k134 k135 k136 k137 k138 k139 k140 k141 k142 k143 k144 k145 k146 k147 k148 k149 k150 k151 k152 k153 k154 k155 k156 k157 k158 k159 k160 k161 k162 k163 k164 k165 k166 k167 k168 k169 k170 k171 k172 k173 k174 k175 k176 k177 k178 k179 k180 k181 k182 k183 k184 k185 k186 k187 k188 k189 k190 k191 k192 k193 k194 k195 k196 k197 k198 k199 k200 : -> Key .
-
+)
 
   sort KeyVar .
   sort KeyVars .
@@ -431,3 +433,4 @@ mod INITIAL-STATES is
   eq init(RTX,WTX,RWTX,CLS,REPLS,KEYS,RF,ROPS,WOPS,RWOPS,KAD) = 
        init(RTX,WTX,RWTX,REPLS,KEYS,RF,ROPS,WOPS,RWOPS,KAD) .
 endm
+
