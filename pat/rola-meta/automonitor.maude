@@ -22,8 +22,9 @@ fmod TAG-BUILTINS is
     including EXT-QID-LIST .
     
     op tag : OModule -> OModule .
-    op tagS : OModule -> OModule .
     op tag : SModule -> SModule .
+    op tagS : SModule SModule -> SModule .
+    
     op tagID : Qid -> Qid .
     
     
@@ -83,7 +84,7 @@ IL
     monitorRules(R)
 endm .
 
-    eq tagS(mod Q is
+    eq tagS(MD, mod Q is
     IL
     sorts S .
     SS
@@ -97,7 +98,7 @@ IL
     SS
     O 
   M
-    E
+    changeMsgFuncs(MD, E)
     smonitorRules(R)
 endm .
 
@@ -107,6 +108,7 @@ endm .
     var CD : Condition .
     var ATR : AttrSet .
     var Rl : Rule .
+    var MD : Module .
     op monitorRules : RuleSet  -> RuleSet .
     op smonitorRules : RuleSet  -> RuleSet .    
     op monitorRulesAux : Rule  -> RuleSet .
@@ -115,19 +117,51 @@ endm .
     
     ops newMonitorObj snewMonitorObj   : -> Term .
     ops newMonitorObjRecord snewMonitorObjRecord : Term -> Term .
-    ops newMonitorObjRecord2 : Term -> Term .    
+    ops newMonitorObjRecord2 snewMonitorObjRecord2 : Term -> Term .    
     ops resultMonitorObj : Term Term -> Term .
     ops resultMonitorObjInsert sresultMonitorObjInsert : Term Term -> Term .
-    ops resultMonitorObjInsert : Term Term Term Term Term -> Term .
-    ops resultMonitorObjInsert : Term Term Term Term Term Term -> Term .
+    ops resultMonitorObjInsert sresultMonitorObjInsert : Term Term Term Term Term -> Term .
+    ops resultMonitorObjInsert sresultMonitorObjInsert : Term Term Term Term Term Term -> Term .
     ops updateMsgL updateMsgR : Term -> Term .
+
+    op changeMsgFuncs : Module EquationSet -> EquationSet .
+    op changeMsgFuncsRHS : Term -> Term .
+
+
+    eq changeMsgFuncs(MD,(eq T = T' [ATR] .) E) = 
+       if getType(metaReduce(MD,T)) =/= 'Config then (eq T = T' [ATR] .) changeMsgFuncs(MD, E) else 
+       (eq T =  changeMsgFuncsRHS(T') [ATR] .) changeMsgFuncs(MD, E) fi .
+
+    eq changeMsgFuncs(MD,(ceq T = T' if CD [ATR] .) E) = 
+       if getType(metaReduce(MD,T)) =/= 'Config then (ceq T = T' if CD [ATR] .) changeMsgFuncs(MD, E) else 
+       (ceq T =  changeMsgFuncsRHS(T') if CD [ATR] .) changeMsgFuncs(MD, E) fi .
+
+    eq changeMsgFuncs(MD,none) = none .   
+
+    eq changeMsgFuncsRHS('_to_[TL]) =  '`[_`,_`]['delay.Delay, '_to_[TL]] .
+    eq changeMsgFuncsRHS('msg_from_to_[TL]) =  '`[_`,_`]['delay.Delay, 'msg_from_to_[TL]] .
+    ceq changeMsgFuncsRHS(Q[TL]) = Q[changeMsgFuncsRHS(TL)] if Q =/= 'msg_from_to_ /\  Q =/= 'to_ .
+    ceq changeMsgFuncsRHS((T,TL)) = changeMsgFuncsRHS(T), changeMsgFuncsRHS(TL) if TL =/= empty .
+    eq changeMsgFuncsRHS(T) = T [owise] .
+
+
     *** here are the functions to generate terms for tagged monitors
     *** I try to make them as generic as possible, but some paras are fixed for the simplicity 
     eq newMonitorObj = '<_:_|_>['M@M:Address,'Monitor.ActorType,'_`,_['clock:_['GT@M:Nat],'log:_[
 	      'LOG@M:Log]]] .
 
-    eq updateMsgL('__[TL1,'_to_[TL2],TL3]) = '__[TL1,'`{_`,_`}['GT@M:Float,'_to_[TL2]],TL3] .
-    eq updateMsgR(T) = T . --- 2fix later 
+    eq updateMsgL('_to_[TL2]) = '`{_`,_`}['GT@M:Float,'_to_[TL2]] .
+    eq updateMsgL('msg_from_to_[TL2]) = '`{_`,_`}['GT@M:Float,'msg_from_to_[TL2]] .
+    ceq updateMsgL(Q[TL]) = Q[updateMsgL(TL)] if Q =/= 'msg_from_to_ /\  Q =/= 'to_ .
+    ceq updateMsgL((T,TL)) = updateMsgL(T), updateMsgL(TL) if TL =/= empty .
+    eq updateMsgL(T) = T [owise] .
+
+    --- ceq updateMsgR(Q[TL]) = Q[updateMsgR(TL)] if getType(metaReduce(upModule('ROLA,false),Q[TL])) =/= 'Msg .
+    --- ceq updateMsgR(Q[TL]) = '`[_`,_`]['delay.Delay,Q[TL]] if getType(metaReduce(upModule('ROLA,false),Q[TL])) == 'Msg .
+    --- ceq updateMsgR(Q[TL]) = '`[_`,_`]['delay.Delay,Q[TL]] if getType(metaReduce(upModule('ROLA,false),Q[TL])) == 'Msg .
+    
+    --- ceq updateMsgR((T,TL)) = updateMsgR(T), updateMsgR(TL) if TL =/= empty .
+    eq updateMsgR(T) = T [owise] . --- 2fix later (done, no need to fix now)
 
     --- for SMC, no clock in monitor 
     eq snewMonitorObj = '<_:_|_>['M@M:Address,'Monitor.ActorType,'log:_['LOG@M:Log]] .    
@@ -147,6 +181,12 @@ endm .
     '<_:_|_>['M@M:Address,'Monitor.ActorType,'_`,_['clock:_['GT@M:Nat],'log:_[
           '_`,_['_|->_[T1,'<_`,_`,_`,_`,_>['VTS1@M:VectorTime,'VTS2@M:VectorTime,
             'FFLAG@M:Bool,'READS@M:Set`{KeyVersion`},'WRITES@M:Set`{KeyVersion`}]],'LOG@M:Log]]]] .
+
+    eq snewMonitorObjRecord2(T1) =
+    '<_:_|_>['M@M:Address,'Monitor.ActorType,'log:_[
+          '_`,_['_|->_[T1,'<_;_;_;_;_>['VTS1@M:VectorTime,'VTS2@M:VectorTime,
+            'FFLAG@M:Bool,'READS@M:Set`{KeyVersion`},'WRITES@M:Set`{KeyVersion`}]],'LOG@M:Log]]] .
+                    
 
     eq resultMonitorObjInsert(T1,T2) =
     '<_:_|_>['M@M:Address,'Monitor.ActorType,'_`,_['clock:_['_+_['GT@M:Nat,'s_[
@@ -168,12 +208,19 @@ endm .
 		  '0.Zero]]],'log:_['_`,_['_|->_[T1,'<_`,_`,_`,_`,_>['VTS1@M:VectorTime,
 		    'insert[T2,'GT@M:Nat,'VTS2@M:VectorTime],T3,T4,T5]],'LOG@M:Log]]]] .
 
+    eq sresultMonitorObjInsert(T1,T2,T3,T4,T5) =
+  '<_:_|_>['M@M:Address,'Monitor.ActorType,'log:_['_`,_['_|->_[T1,'<_;_;_;_;_>['VTS1@M:VectorTime,
+        'insert[T2,'GT@M:Float,'VTS2@M:VectorTime],T3,T4,T5]],'LOG@M:Log]]] .
+
 
     eq resultMonitorObjInsert(T1,T2,T3,T4,T5,T6) =
 	'<_:_|_>['M@M:Address,'Monitor.ActorType,'_`,_['clock:_['_+_['GT@M:Nat,'s_[
 		  '0.Zero]]],'log:_['_`,_['_|->_[T1,'<_`,_`,_`,_`,_>['VTS1@M:VectorTime,
 		    'insert[T2,'GT@M:Nat,'VTS2@M:VectorTime],T3,T4,'kver[T5,T6]]],'LOG@M:Log]]]] .
-    
+  
+      eq sresultMonitorObjInsert(T1,T2,T3,T4,T5,T6) =
+  '<_:_|_>['M@M:Address,'Monitor.ActorType,'log:_['_`,_['_|->_[T1,'<_;_;_;_;_>['VTS1@M:VectorTime,
+        'insert[T2,'GT@M:Float,'VTS2@M:VectorTime],T3,T4,'kver[T5,T6]]],'LOG@M:Log]]] .  
 
     eq resultMonitorObj(T1,T2) = '<_:_|_>['M@M:Address,'Monitor.ActorType,
             '_`,_['clock:_['_+_['GT@M:Nat,'s_['0.Zero]]],'log:_[
@@ -378,6 +425,14 @@ endm .
         T1 := isExecuted(T,T') /\
         T1 =/= 'nil.Address .
 
+    --- this rule is not tested yet 
+    ceq stagLeftRightHand(T,T',B) =
+    '__['__[snewMonitorObj,updateMsgL(T)],
+    tagBranch(T,T',sresultMonitorObjInsert(T1,getReplicaID(T)), snewMonitorObj)]
+  if hasBranch(T') /\ 
+    T1 := isExecuted(T,T') /\
+    T1 =/= 'nil.Address .    
+
     
       --- this equation formalizes the commit of a readonly transaction
     --- condition : the executing tran is committed (including fast)
@@ -393,6 +448,20 @@ endm .
         T2 =/= 'nil.Address /\ 
 	  T1 := getAttr('executing:_,T) .    
 
+
+     ceq stagLeftRightHand(T,T',B) =
+        '__['__[snewMonitorObjRecord2(T2),updateMsgL(T)],
+    '__[sresultMonitorObjInsert(T2,
+        getReplicaID(T),'true.Bool,
+        getAttr('readSet:_,T1),
+        getAttr('writeSet:_,T1),
+        getAttr('version:_,T1)),changeMsgFuncsRHS(T')]]
+      if not hasBranch(T') /\ 
+        T2 := isCommitted(T,T') /\
+        T2 =/= 'nil.Address /\ 
+    T1 := getAttr('executing:_,T) .  
+
+
 ceq tagLeftRightHand(T,T',B) =
         '__['__[newMonitorObjRecord2(T2),T],
     '__[resultMonitorObjInsert(T2,
@@ -406,6 +475,19 @@ ceq tagLeftRightHand(T,T',B) =
     T1 := getAttr('submitted:_,T) .    
 
 
+ceq stagLeftRightHand(T,T',B) =
+        '__['__[snewMonitorObjRecord2(T2),updateMsgL(T)],
+    '__[sresultMonitorObjInsert(T2,
+        getReplicaID(T),'true.Bool,
+        getAttr('readSet:_,T1),
+        getAttr('writeSet:_,T1),
+        getAttr('version:_,T1)),changeMsgFuncsRHS(T')]]
+      if not hasBranch(T') /\ 
+        T2 := isCommitted(T,T') /\
+        T2 =/= 'nil.Address /\ 
+    T1 := getAttr('submitted:_,T) .   
+
+
 ceq tagLeftRightHand(T,T',B) =
         '__['__[newMonitorObjRecord2(T2),T],
     '__[resultMonitorObjInsert(T2,getReplicaID(T)),T']]
@@ -414,6 +496,13 @@ ceq tagLeftRightHand(T,T',B) =
         T2 =/= 'nil.Address /\ 
         getAttr('submitted:_,T) == empty .  
 
+ceq stagLeftRightHand(T,T',B) =
+        '__['__[snewMonitorObjRecord2(T2),updateMsgL(T)],
+    '__[sresultMonitorObjInsert(T2,getReplicaID(T)),changeMsgFuncsRHS(T')]]
+      if not hasBranch(T') /\ 
+        T2 := isCommitted(T,T') /\
+        T2 =/= 'nil.Address /\ 
+        getAttr('submitted:_,T) == empty .  
 
 
    *** to fix if_then_else_fi case  (committed case)
@@ -428,6 +517,18 @@ ceq tagLeftRightHand(T,T',B) =
         T2 := isCommitted(T,T') /\
         T2 =/= 'nil.Address /\ 
         T1 := getAttr('executing:_,T) .       
+
+    ceq stagLeftRightHand(T,T',B) =
+        '__['__[snewMonitorObjRecord2(T2),updateMsgL(T)],
+      tagBranch(T, T',sresultMonitorObjInsert(T2,getReplicaID(T),'true.Bool,
+                    getAttr('readSet:_,T1),
+                    getAttr('writeSet:_,T1),
+                    getAttr('version:_,T1)),
+              snewMonitorObjRecord2(T2))]  
+      if hasBranch(T') /\ 
+        T2 := isCommitted(T,T') /\
+        T2 =/= 'nil.Address /\ 
+        T1 := getAttr('executing:_,T) .        
 
  
    op  tagBranch : Term Term Term Term -> Term .
@@ -449,7 +550,6 @@ ceq tagLeftRightHand(T,T',B) =
       if hasBranch(TT1) then '__[tagBranch(T1,TT1,T3,T4),TT2] else '__[TT1,tagBranch(T1,TT2,T3,T4)] fi .
 
 
-
       --- this equation formalizes the abort of a trans 
     --- condition : the executing tran is aborted
      ceq tagLeftRightHand(T,T',B) =
@@ -462,7 +562,16 @@ ceq tagLeftRightHand(T,T',B) =
       if not hasBranch(T') /\ 
           T2 := isAborted(T,T') /\
           T2 =/= 'nil.Address /\ 
-          T1 := getAttr('executing:_,T)  .      
+          T1 := getAttr('executing:_,T) .
+
+     ceq stagLeftRightHand(T,T',B) =
+        '__['__[snewMonitorObjRecord2(T2), updateMsgL(T)],
+        '__[sresultMonitorObjInsert(T2,getReplicaID(T),'false.Bool,getAttr('readSet:_,T1),getAttr('writeSet:_,T1),getAttr('version:_,T1)),
+            changeMsgFuncsRHS(T')]]
+      if not hasBranch(T') /\ 
+          T2 := isAborted(T,T') /\
+          T2 =/= 'nil.Address /\ 
+          T1 := getAttr('executing:_,T) .   
 
       ceq tagLeftRightHand(T,T',B) =
         '__['__[newMonitorObjRecord2(T2),T], 
@@ -472,6 +581,14 @@ ceq tagLeftRightHand(T,T',B) =
           T2 =/= 'nil.Address /\ 
           getAttr('executing:_,T) == empty .       
 
+      ceq stagLeftRightHand(T,T',B) =
+        '__['__[newMonitorObjRecord2(T2),updateMsgL(T)], 
+        '__[sresultMonitorObjInsert(T2,getReplicaID(T)),changeMsgFuncsRHS(T')]]
+      if not hasBranch(T') /\ 
+          T2 := isAborted(T,T') /\
+          T2 =/= 'nil.Address /\ 
+          getAttr('executing:_,T) == empty .         
+
 
      ceq tagLeftRightHand(T,T',B) =
         '__['__[newMonitorObjRecord2(T2),T], 
@@ -480,6 +597,18 @@ ceq tagLeftRightHand(T,T',B) =
         getAttr('readSet:_,T1),
         getAttr('writeSet:_,T1),
         getAttr('version:_,T1)),T']]
+      if not hasBranch(T') /\ 
+          T2 := isAborted(T,T') /\
+          T2 =/= 'nil.Address /\ 
+          T1 := getAttr('submitted:_,T)  .  
+
+       ceq stagLeftRightHand(T,T',B) =
+        '__['__[snewMonitorObjRecord2(T2),updateMsgL(T)], 
+        '__[sresultMonitorObjInsert(T2,
+        getReplicaID(T),'false.Bool,
+        getAttr('readSet:_,T1),
+        getAttr('writeSet:_,T1),
+        getAttr('version:_,T1)),changeMsgFuncsRHS(T')]]
       if not hasBranch(T') /\ 
           T2 := isAborted(T,T') /\
           T2 =/= 'nil.Address /\ 
@@ -501,6 +630,18 @@ ceq tagLeftRightHand(T,T',B) =
          T1 := getAttr('executing:_,T)  .      
 
 
+     ceq stagLeftRightHand(T,T',B) =
+        '__['__[snewMonitorObjRecord2(T2),updateMsgL(T)],
+        tagBranch(T,T', 
+            sresultMonitorObjInsert(T2,getReplicaID(T),'false.Bool,
+                getAttr('readSet:_,T1),
+                getAttr('writeSet:_,T1),
+                getAttr('version:_,T1)),
+            snewMonitorObjRecord2(T2))]
+      if hasBranch(T') /\ 
+         T2 := isAborted(T,T') /\
+         T2 =/= 'nil.Address /\ 
+         T1 := getAttr('executing:_,T)  .   
 
       --- this equation formalizes the abort of a trans 
     --- condition : the executing tran is aborted (including fast)
@@ -547,6 +688,12 @@ ceq tagLeftRightHand(T,T',B) =
         T2 := isRmtCommitted(T,T') /\
         T2 =/= 'nil.Address .     
 
+        ceq stagLeftRightHand(T,T',B) =
+        '__['__[snewMonitorObjRecord2(T2),updateMsgL(T)],
+    '__[sresultMonitorObjInsert(T2,getReplicaID(T)),changeMsgFuncsRHS(T')]]
+      if not hasBranch(T') /\ 
+        T2 := isRmtCommitted(T,T') /\
+        T2 =/= 'nil.Address .   
 
     op tagRightHand : Term TermList -> TermList .
     op hasBranch : TermList -> Bool .
@@ -581,7 +728,7 @@ ceq tagLeftRightHand(T,T',B) =
 
 
     eq stagLeftRightHand(T,T',B) =
-        '__[T,T'] [owise] .
+        '__[updateMsgL(T),changeMsgFuncsRHS(T')] [owise] .
     
 
     ---eq tagID(Q) = string2qidList(string(Q) + "-TAGGED") .
@@ -634,7 +781,7 @@ mod TAG-DATABASE-HANDLING is
            Atts  >
       if  < DB' ; ME' > := evalModExp(parseModExp(T), DB) /\
     M := getTopModule(ME', DB') /\ 
-    M' := tagS(M) /\
+    M' := tagS(getFlatModule(ME', DB'), M) /\
     Q := getName(M') /\ 
     DB'' := insTermModule(Q,M',DB') .
 

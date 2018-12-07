@@ -67,6 +67,8 @@
     'VS:Versions],'sqn:_['SQN:Int],'tsSqn:_['TSSQN:TimestampSqn]]]] => '__['`[_`,_`]['delay.Delay,'msg_from_to_['prepare-reply['TID:Address,'true.Bool],'RID:Address,'RID':Address]],'<_:_|_>['RID:Address,'Replica.ActorType,'_`,_[
     'datastore:_['__['VS:Versions,'version['K:Key,'V:Value,'TS:Timestamp,'MD:KeySet]]],'_`,_['sqn:_['SQN':Int],'_`,_['AS':AttributeSet,'tsSqn:_['insert['TS:Timestamp,'SQN':Int,'TSSQN:TimestampSqn]]]]]]] if 'SQN':Int := '_+_[
     'SQN:Int,'s_['0.Zero]] [label('receive-prepare-wo)] .
+
+    
   crl '__['`{_`,_`}['GT:Float,'msg_from_to_['prepare['TID:Address,'version['K:Key,'V:Value,'TS:Timestamp,'MD:KeySet],'TS':Timestamp],'RID':Address,'RID:Address]],'<_:_|_>['RID:Address,'Replica.ActorType,'_`,_['AS':AttributeSet,
     'datastore:_['VS:Versions],'sqn:_['SQN:Int],'tsSqn:_['TSSQN:TimestampSqn]]]] => 'if_then_else_fi['_or_['_==_['tstamp['VERSION:Version],'eptTS.Timestamp],'_==_['tstamp['VERSION:Version],'TS':Timestamp]],'__['`[_`,_`][
     'delay.Delay,'msg_from_to_['prepare-reply['TID:Address,'true.Bool],'RID:Address,'RID':Address]],'<_:_|_>['RID:Address,'Replica.ActorType,'_`,_['datastore:_['__['VS:Versions,'version['K:Key,'V:Value,'TS:Timestamp,'MD:KeySet]]],

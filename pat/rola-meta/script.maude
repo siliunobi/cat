@@ -1,0 +1,4 @@
+load automonitor.maude
+load rola-original.maude
+(smonitor ROLA .)
+(show module ROLA .)

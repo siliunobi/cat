@@ -102,7 +102,7 @@ load sampler
    =>
      < RID : Replica | gotTxns: emptyTxnList, AS > .
 
-
+  
   --- "gotTxns" abstracts "client" away
   --- we consider one-shot reads that can be issued in a single parallel batch
  crl [start-ro-or-rw-txn] :
@@ -124,8 +124,7 @@ load sampler
      if (not write-only(OPS)) /\
         RIDS := 1stSites(OPS,RID,REPLICA-TABLE) .
 
-endm)
-eof 
+
 
   ---!!! ROLA needs "txnSQN" because "sqn" could be updated by "prepare"
   ---!!! so "txnSQN" holds the sqn when the txn started executing
@@ -157,7 +156,6 @@ eof
         write-only(OPS) /\
         RIDS := prepareSites(OPS,RID,REPLICA-TABLE) /\
         WS' := ws(OPS,VARS) .
-  
 
  crl [receive-prepare-wo] :
      < RID : Replica | datastore: VS,
@@ -170,6 +168,8 @@ eof
                        tsSqn: insert(TS,SQN',TSSQN), AS' >
      msg prepare-reply(TID,true) from RID to RID'  --- always "true" in RAMP
      if SQN' := SQN + 1 .
+
+
 
 
  crl [receive-prepare-rw] :
@@ -216,6 +216,7 @@ eof
 
 
 
+
   rl [receive-prepare-reply-aborted] :
      < RID : Replica | aborted: (TXNS ;; < TID : Txn | AS > ;; TXNS'),
                        voteSites: VSTS, AS' >
@@ -253,7 +254,6 @@ eof
         RIDS := prepareSites(OPS,RID,REPLICA-TABLE) .  --- as of now, commitSites == prepareSites .
 
 
-
   rl [receive-commit] :
      < RID : Replica | tsSqn: TSSQN,
                        datastore: VS, 
@@ -264,6 +264,7 @@ eof
                        datastore: VS,
                        latestCommit: cmt(LC,VS,TSSQN,TS), AS' >  --- cmt different from RAMP
      (msg committed(TID) from RID to RID') .
+
 
 
  crl [receive-committed] :
@@ -295,6 +296,8 @@ eof
      fi)
      if CMTS' := remove(TID,RID',CMTS) .
   
+
+
 
   rl [receive-get] :
      < RID : Replica | datastore: VS,
@@ -341,6 +344,8 @@ eof
         1STGETS' := remove(TID,RID',1STGETS) /\
         RIDS := 2ndSites(VL',RS',RID,REPLICA-TABLE) . 
   
+
+
 
   rl [receive-response2] :
      < RID : Replica | executing: < TID : Txn | operations: (OPS (X :=read K) OPS'),
