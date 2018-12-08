@@ -50,12 +50,25 @@
     'Txn.ActorType,'_`,_['operations:_['__['OPS:OperationList,'__['_:=read_['X:LocalVar,'K:Key],'OPS':OperationList]]],'_`,_['readSet:_['_`,_['RS:Set`{KeyVersion`},'<_`,_>['K:Key,'ts2Ver['TS:Timestamp]]]],'_`,_['AS:AttributeSet,
     'localVars:_['insert['X:LocalVar,'V:Value,'VARS:LocalVars]]]]]]],'_`,_['AS':AttributeSet,'2ndGetSites:_['remove['TID:Address,'RID':Address,'2NDGETS:2ndGets]]]]]] [label('receive-response2)] .
   rl '__['`{_`,_`}['GT:Float,'msg_from_to_['prepare-reply['TID:Address,'false.Bool],'RID':Address,'RID:Address]],'<_:_|_>['RID:Address,'Replica.ActorType,'_`,_['AS':AttributeSet,'executing:_['<_:_|_>['TID:Address,'Txn.ActorType,
-    '_`,_['AS:AttributeSet,'readSet:_['RS:Set`{KeyVersion`}],'writeSet:_['WS:Set`{KeyValue`}],'version:_['VERSION:Version]]]],'aborted:_['TXNS:ConfigList],'voteSites:_['VSTS:VoteSites]]],'<_:_|_>['O@M:Address,'Monitor.ActorType,
+    '_`,_['AS:AttributeSet,'readSet:_['RS:Set`{KeyVersion`}],'writeSet:_['WS:Set`{KeyValue`}],'version:_['VERSION:Version]]]],'aborted:_['TXNS:ConfigList],'voteSites:_['VSTS:VoteSites]]],
+
+    '<_:_|_>['O@M:Address,'Monitor.ActorType,
     'log:_['_`,_['LOG@M:Log,'_|->_['TID:Address,'<_;_;_;_;_>['VTS1@M:VectorTime,'VTS2@M:VectorTime,'FLAG@M:Bool,'READS@M:Set`{KeyVersion`},'WRITES@M:Set`{KeyVersion`}]]]]]] => '__['__['`[_`,_`]['delay.Delay,'_to_['start.Content,
     'RID:Address]],'<_:_|_>['RID:Address,'Replica.ActorType,'_`,_['executing:_['noActor.Actor],'_`,_['aborted:_['_;;_['TXNS:ConfigList,'<_:_|_>['TID:Address,'Txn.ActorType,'_`,_['readSet:_['RS:Set`{KeyVersion`}],'_`,_['writeSet:_[
-    'WS:Set`{KeyValue`}],'_`,_['AS:AttributeSet,'version:_['VERSION:Version]]]]]]],'_`,_['AS':AttributeSet,'voteSites:_['remove['TID:Address,'RID':Address,'VSTS:VoteSites]]]]]]],'<_:_|_>['O@M:Address,'Monitor.ActorType,'log:_[
-    '_`,_['LOG@M:Log,'_|->_['TID:Address,'<_;_;_;_;_>['VTS1@M:VectorTime,'insert['RID:Address,'GT:Float,'VTS2@M:VectorTime],'false.Bool,'RS:Set`{KeyVersion`},'kver['WS:Set`{KeyValue`},'VERSION:Version]]]]]]] [label(
+    'WS:Set`{KeyValue`}],'_`,_['AS:AttributeSet,'version:_['VERSION:Version]]]]]]],'_`,_['AS':AttributeSet,'voteSites:_['remove['TID:Address,'RID':Address,'VSTS:VoteSites]]]]]]],
+
+    '<_:_|_>['O@M:Address,'Monitor.ActorType,'log:_[
+    '_`,_['LOG@M:Log,'_|->_['TID:Address,'<_;_;_;_;_>['VTS1@M:VectorTime,'insert['RID:Address,'GT:Float,'VTS2@M:VectorTime],'false.Bool,'RS:Set`{KeyVersion`},'kver['WS:Set`{KeyValue`},'VERSION:Version]]]]]]
+
+    '<_:_|_>['M@M:Address,'Monitor.ActorType,'log:_['_`,_['_|->_['TID:Address,'<_;_;_;_;_>['VTS1@M:VectorTime,'insert['RID:Address,'GT@M:Nat,'VTS2@M:VectorTime],'false.Bool,'RS:Set`{KeyVersion`},'kver['WS:Set`{KeyValue`},
+    'VERSION:Version]]],'LOG@M:Log]]]
+
+
+    ] [label(
     'receive-prepare-reply-false-executing)] .
+
+
+
   crl '__['`{_`,_`}['GT:Float,'_to_['commit-reads['TID:Address],'RID:Address]],'<_:_|_>['RID:Address,'Replica.ActorType,'_`,_['AS':AttributeSet,'1stGetSites:_['1STGETS:1stGets],'2ndGetSites:_['2NDGETS:2ndGets]]]] => '<_:_|_>[
     'RID:Address,'Replica.ActorType,'_`,_['1stGetSites:_['1STGETS:1stGets],'_`,_['AS':AttributeSet,'2ndGetSites:_['2NDGETS:2ndGets]]]] if 'not_['_in_['TID:Address,'1STGETS:1stGets]] = 'true.Bool /\ 'not_['_in_['TID:Address,
     '2NDGETS:2ndGets]] = 'true.Bool [label('already-committed-reads)] .
@@ -68,7 +81,7 @@
     'datastore:_['__['VS:Versions,'version['K:Key,'V:Value,'TS:Timestamp,'MD:KeySet]]],'_`,_['sqn:_['SQN':Int],'_`,_['AS':AttributeSet,'tsSqn:_['insert['TS:Timestamp,'SQN':Int,'TSSQN:TimestampSqn]]]]]]] if 'SQN':Int := '_+_[
     'SQN:Int,'s_['0.Zero]] [label('receive-prepare-wo)] .
 
-    
+
   crl '__['`{_`,_`}['GT:Float,'msg_from_to_['prepare['TID:Address,'version['K:Key,'V:Value,'TS:Timestamp,'MD:KeySet],'TS':Timestamp],'RID':Address,'RID:Address]],'<_:_|_>['RID:Address,'Replica.ActorType,'_`,_['AS':AttributeSet,
     'datastore:_['VS:Versions],'sqn:_['SQN:Int],'tsSqn:_['TSSQN:TimestampSqn]]]] => 'if_then_else_fi['_or_['_==_['tstamp['VERSION:Version],'eptTS.Timestamp],'_==_['tstamp['VERSION:Version],'TS':Timestamp]],'__['`[_`,_`][
     'delay.Delay,'msg_from_to_['prepare-reply['TID:Address,'true.Bool],'RID:Address,'RID':Address]],'<_:_|_>['RID:Address,'Replica.ActorType,'_`,_['datastore:_['__['VS:Versions,'version['K:Key,'V:Value,'TS:Timestamp,'MD:KeySet]]],

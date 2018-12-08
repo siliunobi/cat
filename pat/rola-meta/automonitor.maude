@@ -23,7 +23,7 @@ fmod TAG-BUILTINS is
     
     op tag : OModule -> OModule .
     op tag : SModule -> SModule .
-    op tagS : SModule SModule -> SModule .
+    op tagS : SModule -> SModule .
     
     op tagID : Qid -> Qid .
     
@@ -84,7 +84,7 @@ IL
     monitorRules(R)
 endm .
 
-    eq tagS(MD, mod Q is
+    eq tagS(mod Q is
     IL
     sorts S .
     SS
@@ -98,7 +98,7 @@ IL
     SS
     O 
   M
-    changeMsgFuncs(MD, E)
+    changeMsgFuncs(E)
     smonitorRules(R)
 endm .
 
@@ -109,6 +109,7 @@ endm .
     var ATR : AttrSet .
     var Rl : Rule .
     var MD : Module .
+    var TY : Type .
     op monitorRules : RuleSet  -> RuleSet .
     op smonitorRules : RuleSet  -> RuleSet .    
     op monitorRulesAux : Rule  -> RuleSet .
@@ -124,19 +125,23 @@ endm .
     ops resultMonitorObjInsert sresultMonitorObjInsert : Term Term Term Term Term Term -> Term .
     ops updateMsgL updateMsgR : Term -> Term .
 
-    op changeMsgFuncs : Module EquationSet -> EquationSet .
+    op changeMsgFuncs : EquationSet -> EquationSet .
     op changeMsgFuncsRHS : Term -> Term .
 
 
-    eq changeMsgFuncs(MD,(eq T = T' [ATR] .) E) = 
-       if getType(metaReduce(MD,T)) =/= 'Config then (eq T = T' [ATR] .) changeMsgFuncs(MD, E) else 
-       (eq T =  changeMsgFuncsRHS(T') [ATR] .) changeMsgFuncs(MD, E) fi .
+    eq changeMsgFuncs((eq T = T' [ATR] .) E) = 
+   ---    if TY =/= 'Config and TY =/= 'ActorConfig then (eq T = T' [ATR] .) changeMsgFuncs(E) else 
+       (eq T =  changeMsgFuncsRHS(T') [ATR] .) changeMsgFuncs(E) . --- fi 
+---    if TY := getType(metaReduce(MD,T)) .
 
-    eq changeMsgFuncs(MD,(ceq T = T' if CD [ATR] .) E) = 
-       if getType(metaReduce(MD,T)) =/= 'Config then (ceq T = T' if CD [ATR] .) changeMsgFuncs(MD, E) else 
-       (ceq T =  changeMsgFuncsRHS(T') if CD [ATR] .) changeMsgFuncs(MD, E) fi .
+    eq changeMsgFuncs((ceq T = T' if CD [ATR] .) E) = 
+    ---   if TY =/= 'Config and TY =/= 'ActorConfig then (ceq T = T' if CD [ATR] .) changeMsgFuncs(E) else 
+       (ceq T =  changeMsgFuncsRHS(T') if CD [ATR] .) changeMsgFuncs(E) .
 
-    eq changeMsgFuncs(MD,none) = none .   
+---       fi 
+---    if TY := getType(metaReduce(MD,T)) .
+
+    eq changeMsgFuncs(none) = none .   
 
     eq changeMsgFuncsRHS('_to_[TL]) =  '`[_`,_`]['delay.Delay, '_to_[TL]] .
     eq changeMsgFuncsRHS('msg_from_to_[TL]) =  '`[_`,_`]['delay.Delay, 'msg_from_to_[TL]] .
@@ -781,7 +786,7 @@ mod TAG-DATABASE-HANDLING is
            Atts  >
       if  < DB' ; ME' > := evalModExp(parseModExp(T), DB) /\
     M := getTopModule(ME', DB') /\ 
-    M' := tagS(getFlatModule(ME', DB'), M) /\
+    M' := tagS(M) /\
     Q := getName(M') /\ 
     DB'' := insTermModule(Q,M',DB') .
 
