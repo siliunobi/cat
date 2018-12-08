@@ -1,6 +1,6 @@
 load rola-aux-mc
 load sampler
-
+---(
 mod ROLA is
   including CLIENT-REPLICA .
   including MESSAGE .
@@ -465,8 +465,8 @@ k101l k102l k103l k104l k105l k106l k107l k108l k109l k110l k111l k112l k113l k1
        (not TID in 2NDGETS) .
 
 endm
+)
 
----(
 mod ROLA is
   including BOOL .
   including CLIENT-REPLICA .
@@ -1257,5 +1257,5 @@ mod ROLA is
     TID:Address]=/=(empty).AddressSet = true [label not-ready-to-commit-reads]
     .
 endm
-)
+
 

@@ -23,7 +23,7 @@ mod ANALYSIS is
   --- Init parameters 
   eq nbOfRoTxns = 0 .  
   eq nbOfWoTxns = 0 .  
-  eq nbOfRwTxns = 4 .
+  eq nbOfRwTxns = 1 .
   eq nbOfOpsPerRoTxn = 0 .
   eq nbOfOpsPerWoTxn = 0 .
   eq nbOfOpsPerRwTxn = 2 .  --- must be even number
