@@ -1,7 +1,7 @@
 set break off .
 break select changeMsgFuncs .
 
-load automonitor.maude
+load automonitor-v1.maude
 load rola-original.maude
 (smonitor ROLA .)
 (show module ROLA .)
