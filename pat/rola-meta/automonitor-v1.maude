@@ -28,19 +28,19 @@ fmod TAG-BUILTINS is
     op tagID : Qid -> Qid .
     
     
-    var SM : SModule .
-    var Q : Qid .
-    var IL : ImportList .
-    var S : SortSet .
-    var SS : SubsortDeclSet .
-    var CDS : ClassDeclSet .
-    var SCDS : SubclassDeclSet .
-    var O : OpDeclSet .
-    var MS : MsgDeclSet .
-    var M : MembAxSet .
-    var E : EquationSet .
-    var R : RuleSet .
-    var DB : Database .
+    vars SM SM' : SModule .
+    vars Q Q1 : Qid .
+    vars IL IL1 : ImportList .
+    vars S S1 : SortSet .
+    vars SS SS1 : SubsortDeclSet .
+    vars CDS CDS1 : ClassDeclSet .
+    vars SCDS SCDS1 : SubclassDeclSet .
+    vars O O1 : OpDeclSet .
+    vars MS MS1 : MsgDeclSet .
+    vars M M1 : MembAxSet .
+    vars E E1 : EquationSet .
+    vars R R1 : RuleSet .
+    vars DB : Database .
     
     eq tag(omod Q is
 	  IL
@@ -84,23 +84,13 @@ IL
     monitorRules(R)
 endm .
 
-    eq tagS(MD, mod Q is
-    IL
-    sorts S .
-    SS
-  O
-    M
-    E
-    R
-endm) = mod tagID(Q)  is
-IL
-    sorts S .
-    SS
-    O 
-  M
-    changeMsgFuncs(MD,E)
-    smonitorRules(MD,R)
-endm .
+ceq tagS(mod Q1 is IL1 sorts S1 . SS1 O1 M1 E1 R1 endm, 
+	    mod Q is IL sorts S . SS O M E R endm) = 
+   mod tagID(Q)  is IL sorts S . SS O M
+    	changeMsgFuncs(SM',E)
+		smonitorRules(SM',R) endm 
+if SM' := mod Q1 is IL1 sorts S1 . SS1 O1 M1 none  none endm .
+
 
     vars T T' : Term .
     var ATS : AttrSet .
