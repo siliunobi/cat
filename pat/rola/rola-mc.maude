@@ -466,7 +466,6 @@ k101l k102l k103l k104l k105l k106l k107l k108l k109l k110l k111l k112l k113l k1
 
 endm
 )
-
 mod ROLA is
   including BOOL .
   including CLIENT-REPLICA .
@@ -498,7 +497,7 @@ mod ROLA is
   op k102 : -> Key .
   op k102l : -> LocalVar .
   op k103 : -> Key .
-  op k103l : -> LocalVar .
+  op k103l : 3-> LocalVar .
   op k104 : -> Key .
   op k104l : -> LocalVar .
   op k105 : -> Key .
@@ -902,14 +901,14 @@ mod ROLA is
     OPS':OperationList write(K:Key,EXPR:Expression)OPS'':OperationList)
     = $genPuts(OPS:OperationList,RID:Address,TID:Address,SQN:Int,
     VARS:LocalVars,REPLICA-TABLE:ReplicaTable,OPS':OperationList write(K:Key,
-    EXPR:Expression)OPS'':OperationList)if localReplica(K:Key,RID:Address,
-    REPLICA-TABLE:ReplicaTable)then msg prepare(TID:Address,version(K:Key,eval(
-    EXPR:Expression,VARS:LocalVars),ts(RID:Address,SQN:Int),md(
-    OPS':OperationList OPS'':OperationList)))from RID:Address to RID:Address
+    EXPR:Expression)OPS'':OperationList)[delay,if localReplica(K:Key,
+    RID:Address,REPLICA-TABLE:ReplicaTable)then msg prepare(TID:Address,
+    version(K:Key,eval(EXPR:Expression,VARS:LocalVars),ts(RID:Address,SQN:Int),
+    md(OPS':OperationList OPS'':OperationList)))from RID:Address to RID:Address
     else msg prepare(TID:Address,version(K:Key,eval(EXPR:Expression,
     VARS:LocalVars),ts(RID:Address,SQN:Int),md(OPS':OperationList
     OPS'':OperationList)))from RID:Address to preferredSite(K:Key,
-    REPLICA-TABLE:ReplicaTable)fi .
+    REPLICA-TABLE:ReplicaTable)fi] .
   eq $genPuts(nil,RID:Address,TID:Address,SQN:Int,VARS:LocalVars,RS:Set{
     KeyVersion},REPLICA-TABLE:ReplicaTable,OPS':OperationList)
     = null .
@@ -926,14 +925,14 @@ mod ROLA is
     = $genPuts(OPS:OperationList,RID:Address,TID:Address,SQN:Int,
     VARS:LocalVars,(RS:Set{KeyVersion}, < K:Key,VERSION:Version >),
     REPLICA-TABLE:ReplicaTable,OPS':OperationList write(K:Key,
-    EXPR:Expression)OPS'':OperationList)if localReplica(K:Key,RID:Address,
-    REPLICA-TABLE:ReplicaTable)then msg prepare(TID:Address,version(K:Key,eval(
-    EXPR:Expression,VARS:LocalVars),ts(RID:Address,SQN:Int),md(
-    OPS':OperationList OPS'':OperationList)),ver2Ts(VERSION:Version))from
+    EXPR:Expression)OPS'':OperationList)[delay,if localReplica(K:Key,
+    RID:Address,REPLICA-TABLE:ReplicaTable)then msg prepare(TID:Address,
+    version(K:Key,eval(EXPR:Expression,VARS:LocalVars),ts(RID:Address,SQN:Int),
+    md(OPS':OperationList OPS'':OperationList)),ver2Ts(VERSION:Version))from
     RID:Address to RID:Address else msg prepare(TID:Address,version(K:Key,eval(
     EXPR:Expression,VARS:LocalVars),ts(RID:Address,SQN:Int),md(
     OPS':OperationList OPS'':OperationList)),ver2Ts(VERSION:Version))from
-    RID:Address to preferredSite(K:Key,REPLICA-TABLE:ReplicaTable)fi .
+    RID:Address to preferredSite(K:Key,REPLICA-TABLE:ReplicaTable)fi] .
   eq gen2ndGets(TID:Address,VL:KeyTimestamps,empty,RID:Address,
     REPLICA-TABLE:ReplicaTable)
     = null .
@@ -942,25 +941,26 @@ mod ROLA is
     REPLICA-TABLE:ReplicaTable)
     = gen2ndGets(TID:Address,(K:Key |-> TS':Timestamp, VL:KeyTimestamps),
     RS:Set{KeyVersion},RID:Address,REPLICA-TABLE:ReplicaTable)if ver2Ts(
-    VERSION:Version)less-than TS':Timestamp then if localReplica(K:Key,
-    RID:Address,REPLICA-TABLE:ReplicaTable)then[delay,msg get(TID:Address,
-    K:Key,TS':Timestamp)from RID:Address to RID:Address]else[delay,msg get(
-    TID:Address,K:Key,TS':Timestamp)from RID:Address to preferredSite(K:Key,
-    REPLICA-TABLE:ReplicaTable)]fi else null fi .
+    VERSION:Version)less-than TS':Timestamp then[delay,if localReplica(K:Key,
+    RID:Address,REPLICA-TABLE:ReplicaTable)then msg get(TID:Address,K:Key,
+    TS':Timestamp)from RID:Address to RID:Address else msg get(TID:Address,
+    K:Key,TS':Timestamp)from RID:Address to preferredSite(K:Key,
+    REPLICA-TABLE:ReplicaTable)fi]else null fi .
   eq genCommits(TID:Address,SQN:Int,empty,RID:Address)
     = null .
   eq genCommits(TID:Address,SQN:Int,RID':Address ; RIDS:AddressSet,RID:Address)
-    = genCommits(TID:Address,SQN:Int,RIDS:AddressSet,RID:Address)msg commit(
-    TID:Address,ts(RID:Address,SQN:Int))from RID:Address to RID':Address .
+    = genCommits(TID:Address,SQN:Int,RIDS:AddressSet,RID:Address)[delay,msg
+    commit(TID:Address,ts(RID:Address,SQN:Int))from RID:Address to
+    RID':Address] .
   eq genGets(nil,RID:Address,TID:Address,REPLICA-TABLE:ReplicaTable)
     = null .
   eq genGets((X:LocalVar :=read K:Key)OPS:OperationList,RID:Address,
     TID:Address,REPLICA-TABLE:ReplicaTable)
     = genGets(OPS:OperationList,RID:Address,TID:Address,
-    REPLICA-TABLE:ReplicaTable)if localReplica(K:Key,RID:Address,
-    REPLICA-TABLE:ReplicaTable)then[delay,msg get(TID:Address,K:Key,eptTS)from
-    RID:Address to RID:Address]else[delay,msg get(TID:Address,K:Key,eptTS)from
-    RID:Address to preferredSite(K:Key,REPLICA-TABLE:ReplicaTable)]fi .
+    REPLICA-TABLE:ReplicaTable)[delay,if localReplica(K:Key,RID:Address,
+    REPLICA-TABLE:ReplicaTable)then msg get(TID:Address,K:Key,eptTS)from
+    RID:Address to RID:Address else msg get(TID:Address,K:Key,eptTS)from
+    RID:Address to preferredSite(K:Key,REPLICA-TABLE:ReplicaTable)fi] .
   eq genGets(write(K:Key,EXPR:Expression)OPS:OperationList,RID:Address,
     TID:Address,REPLICA-TABLE:ReplicaTable)
     = genGets(OPS:OperationList,RID:Address,TID:Address,
@@ -974,9 +974,6 @@ mod ROLA is
     = $genPuts(OPS:OperationList,RID:Address,TID:Address,SQN:Int,
     VARS:LocalVars,RS:Set{KeyVersion},REPLICA-TABLE:ReplicaTable,
     OPS:OperationList) .
-  eq gen2ndGets(TID:Address,VL:KeyTimestamps,RS:Set{KeyVersion},RID:Address,
-    REPLICA-TABLE:ReplicaTable)
-    = null [owise] .
   rl 
 < M@M:Address : Monitor | log:(TID:Address |-> < VTS1@M:VectorTime ;
     VTS2@M:VectorTime ; FFLAG@M:Bool ; READS@M:Set{KeyVersion}; WRITES@M:Set{
@@ -1104,7 +1101,7 @@ mod ROLA is
 < RID:Address : Replica | executing: noActor,committed:(TXNS:ConfigList ;;
 < TID:Address : Txn | readSet: RS:Set{KeyVersion},writeSet: WS:Set{KeyValue},
     version: VERSION:Version,AS:AttributeSet >),commitSites: CMTS':VoteSites,
-    AS':AttributeSet > start to RID:Address else
+    AS':AttributeSet >[de3lay,start to RID:Address]else
 < M@M:Address : Monitor | log:(TID:Address |-> < VTS1@M:VectorTime ;
     VTS2@M:VectorTime ; FFLAG@M:Bool ; READS@M:Set{KeyVersion}; WRITES@M:Set{
     KeyVersion}>, LOG@M:Log)>
@@ -1137,8 +1134,8 @@ mod ROLA is
     readSet: RS:Set{KeyVersion},txnSQN: TXNSQN:Int,writeSet: WS:Set{KeyValue},
     version: VERSION:Version,AS:AttributeSet >),1stGetSites: delete(
     TID:Address,1STGETS:1stGets),2ndGetSites: delete(TID:Address,
-    2NDGETS:2ndGets),sqn: SQN:Int,voteSites: VSTS:VoteSites,AS':AttributeSet >
-    start to RID:Address else
+    2NDGETS:2ndGets),sqn: SQN:Int,voteSites: VSTS:VoteSites,AS':AttributeSet >[
+    delay,start to RID:Address]else
 < M@M:Address : Monitor | log:(TID:Address |-> < VTS1@M:VectorTime ;
     VTS2@M:VectorTime ; FFLAG@M:Bool ; READS@M:Set{KeyVersion}; WRITES@M:Set{
     KeyVersion}>, LOG@M:Log)>
@@ -1257,5 +1254,7 @@ mod ROLA is
     TID:Address]=/=(empty).AddressSet = true [label not-ready-to-commit-reads]
     .
 endm
+
+
 
 

@@ -102,7 +102,7 @@ k101l k102l k103l k104l k105l k106l k107l k108l k109l k110l k111l k112l k113l k1
               fi
          else null
        fi) .
-  eq gen2ndGets(TID,VL,RS,RID,REPLICA-TABLE) = null [owise] .  --- if K is not in VL
+---  eq gen2ndGets(TID,VL,RS,RID,REPLICA-TABLE) = null [owise] .  --- if K is not in VL
   eq gen2ndGets(TID,VL,empty,RID,REPLICA-TABLE) = null .
 
   --- deal with rw-txns in ROLA
